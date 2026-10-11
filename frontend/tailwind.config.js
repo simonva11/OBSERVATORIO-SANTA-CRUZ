@@ -22,7 +22,7 @@ export default {
         ambar: { DEFAULT: "rgb(var(--ambar) / <alpha-value>)", claro: "rgb(var(--ambar-claro) / <alpha-value>)", texto: "rgb(var(--ambar-texto) / <alpha-value>)" },
       },
       fontFamily: {
-        sans: ['"Inter"', "system-ui", "sans-serif"],
+        sans: ['"Inter Variable"', '"Inter"', "system-ui", "sans-serif"],
       },
       fontSize: {
         // escala modular 1.25 (tercera mayor) desde 16 px

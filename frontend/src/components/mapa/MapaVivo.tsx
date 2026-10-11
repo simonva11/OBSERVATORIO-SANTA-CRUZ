@@ -6,6 +6,7 @@ import maplibregl, {
   type LayerSpecification,
   type Map as MapaML,
   type MapGeoJSONFeature,
+  type StyleSpecification,
 } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Feature, Geometry, Position } from "geojson";
@@ -50,6 +51,22 @@ interface Opciones {
 }
 
 const ESTILO_BASE = "https://tiles.openfreemap.org/styles/positron";
+/** Sin conexión (y sin el estilo guardado): fondo liso. Barrios, capas y rutas se dibujan igual encima. */
+const ESTILO_SIN_CONEXION: StyleSpecification = {
+  version: 8,
+  glyphs: "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
+  sources: {},
+  layers: [{ id: "background", type: "background", paint: { "background-color": "#e9e6f4" } }],
+};
+/** Elige el estilo: el remoto si responde (o está guardado por el service worker) y, si no, el fondo liso. */
+async function elegirEstilo(): Promise<string | StyleSpecification> {
+  try {
+    const r = await fetch(ESTILO_BASE, { method: "GET" });
+    return r.ok ? ESTILO_BASE : ESTILO_SIN_CONEXION;
+  } catch {
+    return ESTILO_SIN_CONEXION;
+  }
+}
 const DEM = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";
 const FUENTE_NEGRITA = ["Noto Sans Bold"];
 const NIEBLA = "#eceaf7";
@@ -361,9 +378,10 @@ export default function MapaVivo(o: Opciones) {
   // Crear el mapa una sola vez -------------------------------------------------
   useEffect(() => {
     if (!caja.current) return;
+    const crear = (estilo: string | StyleSpecification) => {
     const m = new maplibregl.Map({
-      container: caja.current,
-      style: ESTILO_BASE,
+      container: caja.current!,
+      style: estilo,
       bounds: [-75.5633, 6.2889, -75.5442, 6.3102],
       fitBoundsOptions: { padding: 40 },
       maxPitch: 75,
@@ -375,7 +393,8 @@ export default function MapaVivo(o: Opciones) {
     m.addControl(new maplibregl.ScaleControl({ unit: "metric" }), "bottom-right");
     m.on("error", (e) => {
       const msg = String((e as { error?: Error }).error?.message ?? "");
-      if (msg.includes("style") || msg.includes("Failed to fetch")) setError("No se pudo cargar el mapa de fondo. Revise la conexión a internet.");
+      // Un mosaico que no llega (sin conexión) no es un error: el mapa sigue con lo que tiene guardado.
+      if (msg.includes("style") || (msg.includes("Failed to fetch") && !m.isStyleLoaded())) setError("No se pudo cargar el mapa de fondo. Revise la conexión a internet.");
     });
 
     // Si la tarjeta de video del equipo no aguanta el 3D, se avisa en lugar de dejar la pantalla en blanco.
@@ -383,7 +402,7 @@ export default function MapaVivo(o: Opciones) {
 
     // El contenedor puede cambiar de tamaño sin que cambie la ventana (modo Solo Mapa, paneles)
     const vigia = new ResizeObserver(() => m.resize());
-    vigia.observe(caja.current);
+    vigia.observe(caja.current!);
 
     m.on("load", async () => {
       capasBase.current = (m.getStyle().layers ?? []).map((l) => l.id);
@@ -586,6 +605,18 @@ export default function MapaVivo(o: Opciones) {
       ultimo.current.onMapa?.(null);
       m.remove();
       mapa.current = null;
+    };
+    };
+    // El estilo remoto se pide primero: sin conexión y sin copia guardada, el mapa arranca con fondo liso.
+    let cancelado = false;
+    let limpiar: (() => void) | undefined;
+    elegirEstilo().then((estilo) => {
+      if (cancelado || !caja.current) return;
+      limpiar = crear(estilo);
+    });
+    return () => {
+      cancelado = true;
+      limpiar?.();
     };
   }, []);
 

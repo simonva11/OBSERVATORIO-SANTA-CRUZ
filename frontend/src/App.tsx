@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { HashRouter, Link, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import { Cargando } from "./components/Estado";
+import AvisosPWA from "./components/AvisosPWA";
 import Inicio from "./pages/Inicio";
 
 // Las páginas pesadas (mapa y gráficas) se cargan solo cuando se visitan.
@@ -62,6 +63,7 @@ export default function App() {
           </Routes>
         </Suspense>
       </Layout>
+      <AvisosPWA />
     </HashRouter>
   );
 }
