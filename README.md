@@ -1,4 +1,6 @@
-# Observatorio Inmobiliario y Territorial Santa Cruz
+# OTEA
+
+Observatorio inmobiliario y territorial de Santa Cruz (Comuna 2, Medellín). *OTEA*, del verbo otear: observar desde lo alto, como se mira la ciudad desde la ladera.
 
 Plataforma web para entender qué tan bien conectados están los barrios de la Comuna 2 (Santa Cruz) de Medellín, dónde faltan andenes, escaleras, equipamientos y espacio público, y qué obras beneficiarían a más personas.
 
@@ -60,6 +62,7 @@ pip install -r requirements.txt        # en Windows: py -m pip install -r requir
 python descargar.py                    # descarga de los geoportales a data/raw/ (unos 2 minutos)
 python procesar.py                     # recorta, calcula y escribe frontend/public/data/
 python red.py                          # red peatonal, tiempos caminando y escenarios de obra
+python riesgo.py                        # personas y viviendas en amenaza por movimientos en masa, por barrio
 python documentar_fuentes.py           # trazabilidad: fuentes.json, metodologia.json y docs/02
 ```
 

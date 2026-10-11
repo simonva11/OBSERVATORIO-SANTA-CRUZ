@@ -14,9 +14,9 @@ export default defineConfig({
       includeAssets: ["icons/icon.svg", "icons/apple-touch-icon.png"],
       manifest: {
         id: "./",
-        name: "Observatorio Inmobiliario y Territorial Santa Cruz",
-        short_name: "Obs. Santa Cruz",
-        description: "Movilidad, equipamientos y espacio público de la Comuna 2 de Medellín.",
+        name: "OTEA · Observatorio de Santa Cruz",
+        short_name: "OTEA",
+        description: "OTEA: el observatorio inmobiliario y territorial de Santa Cruz, Comuna 2 de Medellín.",
         lang: "es-CO",
         start_url: "./#/",
         scope: "./",

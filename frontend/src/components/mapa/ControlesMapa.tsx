@@ -101,7 +101,7 @@ export async function capturarFoto(mapa: MapaML, noche: boolean): Promise<void> 
     g.fillStyle = noche ? "rgba(232,243,236,0.92)" : "rgba(26,77,46,0.92)";
     g.fillText("Santa Cruz · Comuna 2, Medellín", 24 * k, H - 44 * k);
     g.font = `400 ${pie}px Inter, Archivo, sans-serif`;
-    g.fillText(`Observatorio Santa Cruz · ${new Date().toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })}`, 24 * k, H - 22 * k);
+    g.fillText(`OTEA · Santa Cruz · ${new Date().toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })}`, 24 * k, H - 22 * k);
     g.textAlign = "right";
     g.fillText("Datos: Alcaldía de Medellín, DANE · © OpenStreetMap, OpenMapTiles, OpenFreeMap", W - 24 * k, H - 22 * k);
     const blob = await new Promise<Blob | null>((r) => salida.toBlob(r, "image/png"));

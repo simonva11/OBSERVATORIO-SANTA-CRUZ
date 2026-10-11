@@ -1,5 +1,5 @@
 """
-API del Observatorio Inmobiliario y Territorial Santa Cruz.
+API de OTEA, el observatorio inmobiliario y territorial de Santa Cruz.
 
 En el prototipo (Fase 2) la API sirve los mismos archivos que genera el
 pipeline (frontend/public/data). Así la interfaz puede pasar de leer archivos
@@ -26,7 +26,7 @@ RAIZ = Path(__file__).resolve().parents[2]
 DATOS = Path(os.environ.get("OBSERVATORIO_DATOS", RAIZ / "frontend" / "public" / "data"))
 
 app = FastAPI(
-    title="Observatorio Santa Cruz",
+    title="OTEA · Observatorio Santa Cruz",
     description="Datos territoriales de la Comuna 2 de Medellín (Reto #4, Territorio INN 2026).",
     version="0.2.0",
 )

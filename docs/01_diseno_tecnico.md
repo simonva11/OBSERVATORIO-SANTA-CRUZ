@@ -1,6 +1,6 @@
 # Fase 1. Diseño técnico
 
-**Observatorio Inmobiliario y Territorial Santa Cruz**
+**OTEA · Observatorio Inmobiliario y Territorial Santa Cruz**
 Reto #4 de Territorio INN 2026. Línea 4 Físico espacial: espacios públicos, equipamientos y movilidad.
 
 > Pregunta que guía todo el sistema: ¿cómo optimizar la infraestructura vial, peatonal y de acceso, facilitando la conexión interna de la comuna 2 Santa Cruz con el resto de Medellín?
