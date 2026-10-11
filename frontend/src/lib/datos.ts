@@ -10,7 +10,12 @@ const cache = new Map<string, Promise<unknown>>();
 
 export function cargar<T>(archivo: string): Promise<T> {
   if (!cache.has(archivo)) {
-    const p = fetch(BASE + archivo).then(async (r) => {
+    const p = fetch(BASE + archivo)
+      .catch(() => {
+        // Sin red y sin copia guardada: un mensaje claro en lugar del texto técnico del navegador
+        throw new Error(navigator.onLine === false ? "sin conexión y este dato aún no está guardado en el dispositivo." : "no se pudo descargar el dato, revise la conexión.");
+      })
+      .then(async (r) => {
       if (!r.ok) throw new Error(`No se pudo leer ${archivo} (HTTP ${r.status}).`);
       return r.json();
     });
