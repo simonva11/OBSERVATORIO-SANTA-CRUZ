@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.2.0",
   "type": "module",
-  "description": "Observatorio Inmobiliario y Territorial Santa Cruz (Comuna 2, Medellín). Prototipo Fase 2.",
+  "description": "OTEA: observatorio inmobiliario y territorial de Santa Cruz (Comuna 2, Medellín). Prototipo Fase 2.",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",

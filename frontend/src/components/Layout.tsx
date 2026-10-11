@@ -3,23 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import IconoNav from "./IconosNav";
 import Paleta from "./Paleta";
 import { ACENTOS } from "../lib/marca";
-
-const MODULOS: { ruta: string; nombre: string; icono: string; fase?: string }[] = [
-  { ruta: "/", nombre: "Inicio", icono: "inicio" },
-  { ruta: "/mapa", nombre: "Mapa territorial", icono: "mapa" },
-  { ruta: "/barrios", nombre: "Mi barrio", icono: "personas" },
-  { ruta: "/problematicas", nombre: "Problemáticas", icono: "alerta" },
-  { ruta: "/corredor-49", nombre: "Corredor Carrera 49", icono: "corredor" },
-  { ruta: "/indicadores", nombre: "Indicadores", icono: "indicadores" },
-  { ruta: "/radar", nombre: "Radar de noticias", icono: "radar" },
-  { ruta: "/accesibilidad", nombre: "Accesibilidad", icono: "accesibilidad" },
-  { ruta: "/prioridades", nombre: "Prioridad de obras", icono: "prioridades" },
-  { ruta: "/participacion", nombre: "Participación", icono: "participacion", fase: "Pronto" },
-  { ruta: "/datos", nombre: "Mis datos", icono: "subir" },
-  { ruta: "/propuesta", nombre: "Propuesta de valor", icono: "corazon" },
-  { ruta: "/fuentes", nombre: "Fuentes y calidad", icono: "fuentes" },
-  { ruta: "/identidad", nombre: "Manual de identidad", icono: "paleta" },
-];
+import { GRUPOS, grupoDeRuta, type ModuloMenu } from "../lib/menu";
 
 export function Logo({ className = "" }: { className?: string }) {
   // Curvas de nivel de una ladera con la línea de un cable aéreo encima.
@@ -42,36 +26,99 @@ export function Logo({ className = "" }: { className?: string }) {
   );
 }
 
-function Navegacion({ onNavegar, compacta = false }: { onNavegar?: () => void; compacta?: boolean }) {
+const CLAVE_GRUPOS = "observatorio-santa-cruz:menu-grupos";
+
+/** Categorías abiertas. El grupo del módulo en el que se está se abre solo; el resto se recuerda. */
+function useGruposAbiertos(pathname: string) {
+  const [abiertos, setAbiertos] = useState<string[]>(() => {
+    try {
+      const guardado = JSON.parse(localStorage.getItem(CLAVE_GRUPOS) ?? "[]");
+      return Array.isArray(guardado) ? guardado : [];
+    } catch {
+      return [];
+    }
+  });
+  const activo = grupoDeRuta(pathname);
+  useEffect(() => {
+    if (activo) setAbiertos((a) => (a.includes(activo) ? a : [...a, activo]));
+  }, [activo]);
+  useEffect(() => {
+    try {
+      localStorage.setItem(CLAVE_GRUPOS, JSON.stringify(abiertos));
+    } catch {
+      /* sin almacenamiento */
+    }
+  }, [abiertos]);
+  const alternar = (id: string) => setAbiertos((a) => (a.includes(id) ? a.filter((x) => x !== id) : [...a, id]));
+  return { abiertos, alternar };
+}
+
+function ItemMenu({ m, compacta, onNavegar }: { m: ModuloMenu; compacta: boolean; onNavegar?: () => void }) {
   return (
-    <nav aria-label="Módulos" className="flex flex-col gap-1">
-      {MODULOS.map((m) => (
-        <NavLink
-          key={m.ruta}
-          to={m.ruta}
-          end={m.ruta === "/"}
-          onClick={onNavegar}
-          title={compacta ? m.nombre : undefined}
-          aria-label={m.nombre}
-          style={({ isActive }) => (isActive ? { backgroundImage: `linear-gradient(135deg, ${ACENTOS.violeta.medio}, ${ACENTOS.violeta.vivo})` } : undefined)}
-          className={({ isActive }) =>
-            `group relative flex items-center rounded-xl text-base transition-colors ${compacta ? "justify-center px-0 py-3" : "gap-3 px-3 py-2.5"} ${
-              isActive ? "text-white shadow-md" : "text-tinta hover:bg-menta"
-            }`
-          }
-        >
-          {({ isActive }) => (
-            <>
-              <IconoNav nombre={m.icono} className="h-7 w-7 shrink-0" trazo={isActive ? 2 : 1.7} />
-              {!compacta && <span className={`flex-1 ${isActive ? "font-semibold" : ""}`}>{m.nombre}</span>}
-              {m.fase && !compacta && (
-                <span className={`rounded-full px-2 py-0.5 text-[0.7rem] font-semibold ${isActive ? "bg-superficie/20 text-white" : "bg-ambar-claro text-ambar-texto"}`}>{m.fase}</span>
-              )}
-              {m.fase && compacta && <span aria-hidden="true" className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-[#6ab7ff]" />}
-            </>
+    <NavLink
+      to={m.ruta}
+      end={m.ruta === "/"}
+      onClick={onNavegar}
+      title={compacta ? m.nombre : undefined}
+      aria-label={m.nombre}
+      style={({ isActive }) => (isActive ? { backgroundImage: `linear-gradient(135deg, ${ACENTOS.violeta.medio}, ${ACENTOS.violeta.vivo})` } : undefined)}
+      className={({ isActive }) =>
+        `group relative flex items-center rounded-xl text-[0.95rem] transition-colors ${compacta ? "justify-center px-0 py-2.5" : "gap-3 px-3 py-2"} ${
+          isActive ? "text-white" : "text-tinta hover:bg-acento/10"
+        }`
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <IconoNav nombre={m.icono} className="h-6 w-6 shrink-0" trazo={isActive ? 2 : 1.7} />
+          {!compacta && <span className={`flex-1 ${isActive ? "font-semibold" : ""}`}>{m.nombre}</span>}
+          {m.fase && !compacta && (
+            <span className={`flex items-center gap-1.5 text-[0.7rem] font-medium ${isActive ? "text-white/85" : "text-ambar-texto"}`}>
+              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-ambar" />
+              {m.fase}
+            </span>
           )}
-        </NavLink>
-      ))}
+          {m.fase && compacta && <span aria-hidden="true" className="absolute right-2.5 top-2 h-2 w-2 rounded-full bg-[#6ab7ff]" />}
+        </>
+      )}
+    </NavLink>
+  );
+}
+
+function Navegacion({ onNavegar, compacta = false }: { onNavegar?: () => void; compacta?: boolean }) {
+  const { pathname } = useLocation();
+  const { abiertos, alternar } = useGruposAbiertos(pathname);
+  return (
+    <nav aria-label="Módulos" className="flex flex-col">
+      {GRUPOS.map((g, i) => {
+        // En la barra angosta (solo íconos) todos los módulos quedan a la vista, separados por una línea fina.
+        const abierto = compacta || abiertos.includes(g.id);
+        return (
+          <div key={g.id} role="group" aria-label={g.titulo} className={i === 0 ? "" : compacta ? "mt-2 border-t border-nivel/70 pt-2" : "mt-2"}>
+            {!compacta && (
+              <button
+                type="button"
+                aria-expanded={abierto}
+                aria-controls={`grupo-${g.id}`}
+                onClick={() => alternar(g.id)}
+                className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-left text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-tinta-tenue transition-colors hover:text-tinta"
+              >
+                {g.titulo}
+                <svg viewBox="0 0 24 24" aria-hidden="true" className={`h-4 w-4 transition-transform duration-200 ${abierto ? "" : "-rotate-90"}`} fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
+            )}
+            {abierto && (
+              <div id={`grupo-${g.id}`} className="flex flex-col gap-0.5">
+                {g.modulos.map((m) => (
+                  <ItemMenu key={m.ruta} m={m} compacta={compacta} onNavegar={onNavegar} />
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </nav>
   );
 }
@@ -241,8 +288,8 @@ export default function Layout({ children }: { children: ReactNode }) {
           <Logo className="h-10 w-10 shrink-0" />
           {!colapsada && (
             <div className="leading-tight">
-              <p className="font-bold">Observatorio Santa Cruz</p>
-              <p className="text-sm text-tinta-suave">Comuna 2, Medellín</p>
+              <p className="text-lg font-bold tracking-[0.14em]">OTEA</p>
+              <p className="text-sm text-tinta-suave">Observatorio Santa Cruz · Comuna 2</p>
             </div>
           )}
         </div>
@@ -276,7 +323,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <header data-cromo="cabecera" className="relative z-[1100] flex items-center justify-between border-b border-nivel bg-papel px-4 py-2.5 lg:hidden">
         <div className="flex items-center gap-2.5">
           <Logo className="h-8 w-8" />
-          <p className="font-bold">Observatorio Santa Cruz</p>
+          <p className="font-bold">OTEA · Santa Cruz</p>
         </div>
         <button
           type="button"
