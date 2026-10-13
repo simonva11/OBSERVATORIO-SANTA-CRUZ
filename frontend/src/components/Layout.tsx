@@ -175,7 +175,7 @@ export function useNocheActiva() {
 function BotonPie({ icono, texto, corto, compacta, ...resto }: { icono: string; texto: string; corto: string; compacta: boolean } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button type="button" title={texto} {...resto}
-      className={`flex items-center rounded-xl text-tinta-suave transition hover:bg-menta hover:text-tinta ${compacta ? "w-full flex-col justify-center gap-1 px-1 py-2" : "flex-1 justify-center gap-2 px-2 py-2 text-[0.8rem] font-medium"}`}>
+      className={`flex items-center rounded-xl text-tinta-suave transition hover:bg-menta hover:text-tinta ${compacta ? "w-full flex-col justify-center gap-1 px-1 py-2" : "flex-1 justify-center gap-2 whitespace-nowrap px-2 py-2 text-[0.8rem] font-medium"}`}>
       <IconoNav nombre={icono} className="h-5 w-5 shrink-0" trazo={2} />
       <span className={compacta ? "text-[0.62rem] leading-none" : ""}>{compacta ? corto : texto}</span>
     </button>
@@ -313,7 +313,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             <BotonTema noche={noche} onCambiar={() => setNoche((v) => !v)} compacta={colapsada} />
             <BotonPie
               icono={colapsada ? "derecha" : "izquierda"}
-              texto={colapsada ? "Mostrar el menú completo" : "Contraer menú"}
+              texto={colapsada ? "Mostrar el menú completo" : "Contraer"}
               corto="Abrir"
               compacta={colapsada}
               onClick={() => setColapsada((v) => !v)}

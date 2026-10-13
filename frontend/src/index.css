@@ -411,3 +411,7 @@ html.noche .icono-tema {
   .h-\[100dvh\] { height: auto !important; }
   section, .rounded-2xl { break-inside: avoid; }
 }
+
+/* Rótulos de barrio sobre el mapa de reportes */
+.leaflet-tooltip.rotulo-barrio { background: transparent; border: 0; box-shadow: none; color: #1b1d3a; font-size: 0.65rem; font-weight: 700; text-shadow: 0 0 3px #fff, 0 0 3px #fff; pointer-events: none; }
+.leaflet-tooltip.rotulo-barrio::before { display: none; }
