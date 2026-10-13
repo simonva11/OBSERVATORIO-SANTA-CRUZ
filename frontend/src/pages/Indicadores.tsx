@@ -17,6 +17,7 @@ import {
 import { ConDatos } from "../components/Estado";
 import FichaBarrio from "../components/FichaBarrio";
 import { useDatos } from "../lib/datos";
+import { csvBarrios, descargar } from "../lib/csv";
 import { dec, fecha, num, pct, dec2 } from "../lib/formato";
 import type { FichaBarrio as Ficha, Indicadores as Ind } from "../lib/tipos";
 import { BotonCabecera, Cabecera, Kpi, Relacionados, Seccion } from "../components/Pagina";
@@ -127,6 +128,7 @@ function Contenido({ d }: { d: Ind }) {
         texto={<>Calculados con datos oficiales de la Alcaldía de Medellín y del DANE. Última actualización del cálculo: {fecha(d.generado)}.</>}>
         <BotonCabecera to="/mapa">Verlos en el mapa</BotonCabecera>
         <BotonCabecera to="/accesibilidad" claro>Accesibilidad</BotonCabecera>
+        <button type="button" onClick={() => descargar("otea-barrios.csv", csvBarrios(d))} className="inline-flex items-center gap-2 rounded-lg border border-nivel px-3.5 py-2 text-sm font-medium text-tinta transition hover:bg-acento/10">Descargar CSV</button>
       </Cabecera>
       <nav aria-label="Resaltar un barrio" className="flex flex-wrap gap-2">
         {[{ codigo: "", nombre: "Toda la comuna" }, ...barrios].map((x) => (

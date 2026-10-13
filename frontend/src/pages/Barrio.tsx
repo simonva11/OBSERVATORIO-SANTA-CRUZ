@@ -1,7 +1,7 @@
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { calcularIndice } from "../lib/indice";
 import { useDatos } from "../lib/datos";
-import { dec, dec2, num, pct } from "../lib/formato";
+import { dec, dec2, fecha, num, pct } from "../lib/formato";
 import type { Indicadores } from "../lib/tipos";
 import { ConDatos } from "../components/Estado";
 import { BotonCabecera, Cabecera, Kpi, Relacionados, Seccion } from "../components/Pagina";
@@ -195,6 +195,12 @@ function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad | null;
           </div>
         </Seccion>
       )}
+
+      {/* Pie solo para la hoja impresa: de dónde sale cada cosa. */}
+      <p className="hidden text-xs print:block">
+        OTEA, Observatorio Santa Cruz. Cifras de la Alcaldía de Medellín y el DANE (Censo 2018), calculadas el {fecha(ind.generado)}; impreso el {fecha(new Date().toISOString())}.
+        El índice de entorno es un puntaje relativo entre los barrios de la comuna, no una cifra oficial. Fuentes y límites en la sección Fuentes y calidad del sitio.
+      </p>
 
       <Relacionados ids={["mapa", "indicadores", "prioridades"]} />
     </div>
