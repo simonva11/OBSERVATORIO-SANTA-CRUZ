@@ -51,52 +51,6 @@
    "limitaciones": "No es el indicador oficial de espacio público efectivo"
   },
   {
-   "id": "costo_m2",
-   "nombre": "B. Costo de intervención por metro cuadrado",
-   "nombre_en": "Cost per square meter",
-   "formula": "Costo total estimado (COP) ÷ área de intervención (m²)",
-   "unidad": "COP/m²",
-   "fuentes": [
-    "espacio_publico_proyectado",
-    "andenes"
-   ],
-   "anio": "Según el precio registrado",
-   "metodo": "Solo se calcula si hay un precio unitario con fuente registrado por el usuario",
-   "clase": "Estimación",
-   "limitaciones": "Pendiente de datos: no hay precios públicos confiables"
-  },
-  {
-   "id": "costo_beneficiario",
-   "nombre": "C. Inversión por persona beneficiada",
-   "nombre_en": "Cost per beneficiary",
-   "formula": "Costo total estimado (COP) ÷ personas beneficiadas estimadas",
-   "unidad": "COP/persona",
-   "fuentes": [
-    "manzanas_censo",
-    "vias",
-    "osm_caminos"
-   ],
-   "anio": "Según el precio registrado",
-   "metodo": "Beneficiarios por obra: espacio público = personas a 10 min caminando por la red; andenes = personas a 100 m de los tramos angostos",
-   "clase": "Estimación",
-   "limitaciones": "Pendiente de datos; los beneficiarios son estimaciones"
-  },
-  {
-   "id": "presupuesto_total",
-   "nombre": "D. Presupuesto total de intervención",
-   "nombre_en": "Total project cost",
-   "formula": "Cantidad de obra × precio unitario × (1 + % costos indirectos)",
-   "unidad": "COP",
-   "fuentes": [
-    "espacio_publico_proyectado",
-    "andenes"
-   ],
-   "anio": "Según el precio registrado",
-   "metodo": "Cantidad: m² del POT o largo de andén angosto × 1,2 m",
-   "clase": "Estimación",
-   "limitaciones": "Pendiente de datos; no incluye diseños, predios ni interventoría salvo que el % los cubra"
-  },
-  {
    "id": "tiempo_caminata",
    "nombre": "Tiempo de caminata al destino más cercano",
    "nombre_en": "Network-based walking time",
@@ -205,52 +159,20 @@
    "limitaciones": "—"
   },
   {
-   "id": "necesidad",
-   "nombre": "Necesidad territorial (modelo)",
-   "nombre_en": "Territorial need score",
-   "formula": "Σ peso × criterio normalizado (0–1) ÷ Σ pesos, solo criterios de necesidad",
-   "unidad": "puntaje 0–100",
-   "fuentes": [
-    "manzanas_censo",
-    "espacio_publico",
-    "siniestros_viales",
-    "andenes"
-   ],
-   "anio": "Varios",
-   "metodo": "Normalización mín–máx; la mejora se normaliza dentro de cada tipo de obra",
-   "clase": "Cálculo derivado",
-   "limitaciones": "Pesos propuestos por el equipo, no oficiales"
-  },
-  {
-   "id": "viabilidad",
-   "nombre": "Viabilidad económica preliminar (modelo)",
-   "nombre_en": "Preliminary economic feasibility score",
-   "formula": "1 − costo por beneficiario normalizado",
-   "unidad": "puntaje 0–100",
-   "fuentes": [
-    "andenes",
-    "espacio_publico_proyectado"
-   ],
-   "anio": "Según el precio registrado",
-   "metodo": "Solo con precio unitario registrado",
-   "clase": "Estimación",
-   "limitaciones": "Pendiente de datos"
-  },
-  {
    "id": "prioridad",
-   "nombre": "Prioridad calculada por el modelo",
-   "nombre_en": "Model-based priority score",
-   "formula": "Σ peso × criterio normalizado ÷ Σ pesos (necesidad y viabilidad)",
-   "unidad": "puntaje 0–100",
+   "nombre": "Prioridad de la obra (modelo)",
+   "nombre_en": "Model-based works priority",
+   "formula": "Puesto de la obra en cada indicador frente a las de su mismo tipo. Alta: tercio de arriba en 2 o más de 3 indicadores; media: en 1; baja: en ninguno",
+   "unidad": "Alta, media o baja",
    "fuentes": [
     "andenes",
     "espacio_publico_proyectado",
     "manzanas_censo"
    ],
    "anio": "Varios",
-   "metodo": "Incluye análisis de sensibilidad: 300 repeticiones con pesos ±50 %",
+   "metodo": "Sin pesos ni puntaje 0–100. Espacio público y andenes no se mezclan porque sus personas cercanas se cuentan distinto (10 minutos caminando contra 100 m en línea recta)",
    "clase": "Cálculo derivado",
-   "limitaciones": "No prueba causalidad ni es una decisión oficial"
+   "limitaciones": "Los datos de barrio se repiten en todas las obras del mismo barrio. No incluye costos. No prueba causalidad ni es una decisión oficial"
   },
   {
    "id": "imcv",

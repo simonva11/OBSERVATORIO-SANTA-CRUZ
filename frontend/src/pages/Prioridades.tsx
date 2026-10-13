@@ -78,94 +78,81 @@ function queHaria(e: Escenario): string {
     : `Crear o recuperar ${num(e.cantidad)} m² de espacio público en ${e.barrio ?? "la comuna"}.`;
 }
 
-const TIPOS = ["espacio_publico", "andenes"] as const;
+const META_EP = 15; // m² por habitante, Decreto 1077 de 2015 art. 2.2.3.2.7
 
-// Pesos propuestos por el equipo (no oficiales). Sin precios públicos confiables no hay criterio de costo.
-const CRITERIOS = [
-  { id: "beneficiarios", nombre: "Cuánta gente la usaría", peso: 30, explicacion: "Personas estimadas que usarían la obra. En cada escenario se explica cómo se contó." },
-  { id: "deficit_ep", nombre: "Qué tan escaso es el espacio público del barrio", peso: 20, explicacion: "Menos metros cuadrados de espacio público por habitante significa más necesidad." },
-  { id: "mejora", nombre: "Cuánto mejoraría la situación", peso: 25, explicacion: "Personas que ganarían un parque a 5 minutos caminando, o metros de andén que llegarían a 1,2 m de ancho. Solo se compara entre obras del mismo tipo." },
-  { id: "siniestralidad", nombre: "Atropellos en el barrio", peso: 10, explicacion: "Atropellos de 2019 a 2025 por cada mil habitantes del barrio." },
-] as const;
-type IdCriterio = (typeof CRITERIOS)[number]["id"];
-const SUMA_PESOS = CRITERIOS.reduce((a, c) => a + c.peso, 0);
+type Tipo = Escenario["tipo"];
+type Nivel = "alta" | "media" | "baja";
 
-/** Normaliza de 0 a 1 (mín–máx). Si todos son iguales, devuelve 0,5. */
-function normalizar(valores: (number | null)[], invertir = false) {
-  const v = valores.filter((x): x is number => x != null);
-  const min = Math.min(...v), max = Math.max(...v);
-  return valores.map((x) => {
-    if (x == null) return null;
-    const n = max === min ? 0.5 : (x - min) / (max - min);
-    return invertir ? 1 - n : n;
-  });
-}
+/**
+ * Indicadores de cada tipo de obra, con su valor real. Solo se comparan obras del mismo tipo: los beneficiarios de espacios
+ * públicos se cuentan a 10 minutos caminando por la red y los de andenes a 100 m en línea recta, y no se pueden mezclar.
+ */
+const INDICADORES: Record<Tipo, { nombre: string; mayor: boolean; valor: (e: Escenario) => number | null; texto: (v: number) => string; que: string }[]> = {
+  espacio_publico: [
+    { nombre: "Personas que ganarían un parque cerca", mayor: true, valor: (e) => e.mejora, texto: (v) => `${num(v)} personas`, que: "Hoy no tienen un parque a 5 minutos caminando y lo tendrían con esta obra." },
+    { nombre: "Personas que viven cerca", mayor: true, valor: (e) => e.beneficiarios, texto: (v) => `${num(v)} personas`, que: "Residentes (Censo 2018) a 10 minutos o menos caminando del borde del espacio." },
+    { nombre: "Espacio público del barrio hoy", mayor: false, valor: (e) => e.ep_barrio_m2_hab, texto: (v) => `${dec2(v)} m² por persona`, que: `Entre menos tenga el barrio, más falta hace. La meta nacional es ${META_EP}.` },
+  ],
+  andenes: [
+    { nombre: "Metros de andén angosto", mayor: true, valor: (e) => e.mejora, texto: (v) => `${num(v)} m`, que: "Largo de andén que hoy mide menos de 1,2 m según el inventario oficial." },
+    { nombre: "Personas que viven cerca", mayor: true, valor: (e) => e.beneficiarios, texto: (v) => `${num(v)} personas`, que: "Residentes (Censo 2018) a 100 m o menos de esos tramos, en línea recta." },
+    { nombre: "Atropellos del barrio", mayor: true, valor: (e) => e.atropellos_por_mil, texto: (v) => `${dec2(v)} por cada mil habitantes`, que: "Atropellos de 2019 a 2025. Es un dato del barrio, no del tramo." },
+  ],
+};
 
 interface Calculo {
   e: Escenario;
-  partes: { nombre: string; valor: number | null }[];
-  prioridad: number;
-  rango: [number, number];
-  posicion: number;
+  filas: { nombre: string; que: string; texto: string; puesto: number | null; de: number }[];
+  arriba: number; // en cuántos indicadores está en el tercio de arriba
+  total: number; // cuántos indicadores tienen dato
+  nivel: Nivel;
+  puesto: number; // puesto dentro de su tipo
+  de: number; // cuántas obras tiene su tipo
+}
+
+/** Puesto 1 = el mejor en ese indicador; los empates comparten puesto. */
+function puestos(valores: (number | null)[], mayor: boolean) {
+  return valores.map((v) => (v == null ? null : 1 + valores.filter((x) => x != null && (mayor ? x > v : x < v)).length));
 }
 
 function calcular(escenarios: Escenario[]): Calculo[] {
-  const pesos = Object.fromEntries(CRITERIOS.map((c) => [c.id, c.peso])) as Record<IdCriterio, number>;
-  // Mejora: se normaliza dentro de cada tipo de obra porque sus unidades son distintas
-  const mejoraN = new Array<number | null>(escenarios.length).fill(null);
-  for (const t of TIPOS) {
-    const idx = escenarios.map((e, i) => (e.tipo === t ? i : -1)).filter((i) => i >= 0);
-    normalizar(idx.map((i) => escenarios[i].mejora)).forEach((v, j) => (mejoraN[idx[j]] = v));
-  }
-  const norm: Record<IdCriterio, (number | null)[]> = {
-    beneficiarios: normalizar(escenarios.map((e) => e.beneficiarios)),
-    deficit_ep: normalizar(escenarios.map((e) => e.ep_barrio_m2_hab), true),
-    mejora: mejoraN,
-    siniestralidad: normalizar(escenarios.map((e) => e.atropellos_por_mil)),
-  };
-
-  const puntaje = (i: number, w: Record<IdCriterio, number>) => {
-    let suma = 0, total = 0;
-    for (const c of CRITERIOS) {
-      const v = norm[c.id][i];
-      if (v == null) continue;
-      suma += w[c.id] * v;
-      total += w[c.id];
-    }
-    return total ? suma / total : 0;
-  };
-
-  const base = escenarios.map((_, i) => puntaje(i, pesos));
-  const posicion = new Array<number>(escenarios.length);
-  base.map((b, i) => [b, i] as const).sort((a, b) => b[0] - a[0]).forEach(([, i], k) => (posicion[i] = k + 1));
-
-  // Sensibilidad: 300 repeticiones moviendo cada peso al azar entre 50 % y 150 %, para ver cuánto se mueve el puesto
-  const rangos = escenarios.map(() => [Infinity, -Infinity] as [number, number]);
-  let semilla = 7;
-  const azar = () => ((semilla = (semilla * 16807) % 2147483647) / 2147483647);
-  for (let r = 0; r < 300; r++) {
-    const w = Object.fromEntries(CRITERIOS.map((c) => [c.id, pesos[c.id] * (0.5 + azar())])) as Record<IdCriterio, number>;
-    escenarios.map((_, i) => [puntaje(i, w), i] as const).sort((a, b) => b[0] - a[0]).forEach(([, i], k) => {
-      rangos[i][0] = Math.min(rangos[i][0], k + 1);
-      rangos[i][1] = Math.max(rangos[i][1], k + 1);
+  const salida: Calculo[] = [];
+  for (const tipo of ["espacio_publico", "andenes"] as const) {
+    const grupo = escenarios.filter((e) => e.tipo === tipo);
+    const n = grupo.length;
+    const tercio = Math.ceil(n / 3);
+    const por = INDICADORES[tipo].map((ind) => puestos(grupo.map(ind.valor), ind.mayor));
+    const calc = grupo.map((e, i) => {
+      const filas = INDICADORES[tipo].map((ind, k) => {
+        const v = ind.valor(e);
+        return { nombre: ind.nombre, que: ind.que, texto: v == null ? "Sin dato" : ind.texto(v), puesto: por[k][i], de: n };
+      });
+      const conDato = filas.filter((f) => f.puesto != null);
+      const arriba = conDato.filter((f) => (f.puesto as number) <= tercio).length;
+      const nivel: Nivel = arriba >= 2 ? "alta" : arriba === 1 ? "media" : "baja";
+      const promedio = conDato.length ? conDato.reduce((a, f) => a + (f.puesto as number), 0) / conDato.length : n;
+      return { e, filas, arriba, total: conDato.length, nivel, promedio, puesto: 0, de: n };
     });
+    // Dentro de cada nivel se ordena por el promedio de puestos (todos los indicadores pesan igual).
+    const orden = { alta: 0, media: 1, baja: 2 };
+    calc.sort((a, b) => orden[a.nivel] - orden[b.nivel] || a.promedio - b.promedio);
+    calc.forEach((c, i) => { c.puesto = i + 1; salida.push(c); });
   }
-  return escenarios.map((e, i) => ({ e, partes: CRITERIOS.map((c) => ({ nombre: c.nombre, valor: norm[c.id][i] })), prioridad: base[i], rango: rangos[i], posicion: posicion[i] }));
+  return salida;
 }
 
 const DUDAS: { p: string; r: React.ReactNode }[] = [
   { p: "¿Esto significa que ya se va a construir algo?", r: "No. Son propuestas del modelo para conversar. No son obras aprobadas, contratadas ni prometidas por ninguna entidad." },
-  { p: "¿De dónde salen los escenarios?", r: "De dos fuentes: los espacios públicos que ya propone el POT y los andenes angostos que aparecen en el inventario. Al abrir un escenario se ve su origen y el problema que atendería." },
+  { p: "¿De dónde salen los escenarios?", r: "De dos fuentes: los espacios públicos que ya propone el POT y los andenes angostos que aparecen en el inventario. Al abrir una obra se ve su origen y el problema que atendería." },
+  { p: "¿Por qué no hay un puntaje de 0 a 100?", r: "Porque un número así parece más exacto de lo que es: dependía de pesos que escogió el equipo y mezclaba datos que no se pueden comparar. Ahora se muestra el dato real de cada obra y su puesto frente a las de su tipo." },
+  { p: "¿Qué quiere decir «tercio de arriba»?", r: "Que entre las obras del mismo tipo, esa obra está entre el tercio con los valores más altos en ese indicador (o más bajos, en el caso del espacio público del barrio, donde tener poco significa más necesidad)." },
   { p: "¿Qué es un «retranqueo del paramento»?", r: "El paramento es la línea donde empiezan las fachadas sobre la calle. Retranquear es correrla hacia atrás para dejar espacio libre. En el POT, esos espacios se cuentan como parque recreativo." },
   { p: "¿Cuánto espacio público debería tener un barrio?", r: "La norma nacional (Decreto 1077 de 2015, artículo 2.2.3.2.7) fija 15 m² de espacio público efectivo por habitante como mínimo. Nuestro dato sale de la capa oficial de espacio público, así que sirve como referencia y no como comparación exacta." },
-  { p: "¿Por qué no aparece cuánto cuesta cada obra?", r: "Porque no se encontró una fuente pública confiable de precios para estas obras en Medellín, y no se van a inventar. Por eso el puesto habla de necesidad, no de presupuesto." },
-  { p: "¿Cómo se cuentan las personas beneficiadas?", r: "Se estiman obra por obra con los residentes de la Comuna 2 del Censo 2018. Nunca se usa toda la población de la comuna. El método exacto está en cada escenario." },
-  { p: "¿Qué quiere decir «entre 3 y 8» debajo del puesto?", r: "Que los pesos de arriba son una propuesta y podrían ser otros. Se movieron al azar 300 veces y ese es el rango de puestos en el que cayó el escenario. Si el rango es corto, el puesto es firme." },
+  { p: "¿Por qué no aparece cuánto cuesta cada obra?", r: "Porque no se encontró una fuente pública confiable de precios para estas obras en Medellín, y no se van a inventar. Por eso la prioridad habla de necesidad, no de presupuesto." },
+  { p: "¿Cómo se cuentan las personas cercanas?", r: "Con los residentes de la Comuna 2 del Censo 2018, obra por obra. Nunca se usa toda la población de la comuna. En espacios públicos es a 10 minutos caminando por la red de calles; en andenes, a 100 m en línea recta." },
   { p: "Mi barrio casi no sale, ¿es que no hace falta nada?", r: "No necesariamente. Solo se evalúan las obras que los datos permiten identificar. Si sabe de una necesidad que no está, cuéntela por Participación." },
   { p: "¿Qué hago si quiero pedir una obra?", r: (<>Lo más directo es un derecho de petición. En el <Link to="/lideres" className="text-cable underline">Kit para líderes</Link> hay una carta lista, los plazos que tiene la entidad para responder y a quién acudir.</>) },
 ];
-
-const META_EP = 15; // m² por habitante, Decreto 1077 de 2015 art. 2.2.3.2.7
 
 const SABER = [
   { t: "Qué es el POT", d: "El Plan de Ordenamiento Territorial (Acuerdo 48 de 2014) es la norma de Medellín que define cómo se usa el suelo y qué espacios públicos se prevén en cada zona. Las obras de espacio público de esta lista salen de ahí." },
@@ -174,18 +161,41 @@ const SABER = [
   { t: "Cuánto espacio público es poco", d: `La norma nacional fija ${META_EP} m² de espacio público efectivo por habitante como mínimo. Elija su barrio abajo para ver cómo está frente a esa meta.` },
 ];
 
-function Barritas({ partes }: { partes: Calculo["partes"] }) {
+const NIVEL: Record<Nivel, { texto: string; clase: string }> = {
+  alta: { texto: "Alta", clase: "bg-marca text-white" },
+  media: { texto: "Media", clase: "bg-marca/15 text-tinta" },
+  baja: { texto: "Baja", clase: "border border-nivel text-tinta-suave" },
+};
+
+function Insignia({ nivel }: { nivel: Nivel }) {
+  return <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${NIVEL[nivel].clase}`}>{NIVEL[nivel].texto}</span>;
+}
+
+function Filas({ filas }: { filas: Calculo["filas"] }) {
   return (
-    <ul className="mt-2 space-y-2">
-      {partes.map((p) => (
-        <li key={p.nombre} className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 sm:grid-cols-[16rem_1fr_2.5rem]">
-          <span className="text-sm">{p.nombre}</span>
-          <span className="order-last col-span-2 h-2 overflow-hidden rounded-full bg-nivel sm:order-none sm:col-span-1" aria-hidden>
-            <span className="block h-full rounded-full bg-marca" style={{ width: `${Math.round((p.valor ?? 0) * 100)}%` }} />
-          </span>
-          <span className="text-right text-sm font-semibold tabular-nums">{p.valor == null ? "Sin dato" : Math.round(p.valor * 100)}</span>
-        </li>
-      ))}
+    <ul className="mt-2 space-y-3">
+      {filas.map((f) => {
+        const arriba = f.puesto != null && f.puesto <= Math.ceil(f.de / 3);
+        return (
+          <li key={f.nombre} className="grid gap-x-4 gap-y-1 sm:grid-cols-[16rem_1fr]">
+            <div>
+              <p className="text-sm font-semibold">{f.nombre}</p>
+              <p className="text-sm tabular-nums">{f.texto}</p>
+            </div>
+            <div>
+              <p className="text-sm">
+                {f.puesto == null ? "Sin dato para comparar" : <>Puesto <strong>{f.puesto}</strong> de {f.de}{arriba && <span className="ml-2 rounded bg-marca/15 px-1.5 py-0.5 text-xs font-semibold">tercio de arriba</span>}</>}
+              </p>
+              {f.puesto != null && (
+                <span className="mt-1 block h-2 overflow-hidden rounded-full bg-nivel" aria-hidden>
+                  <span className="block h-full rounded-full bg-marca" style={{ width: `${f.de > 1 ? Math.round(((f.de - f.puesto) / (f.de - 1)) * 100) : 100}%` }} />
+                </span>
+              )}
+              <p className="mt-1 text-xs text-tinta-suave">{f.que}</p>
+            </div>
+          </li>
+        );
+      })}
     </ul>
   );
 }
@@ -194,6 +204,7 @@ function Detalle({ c, oficial }: { c: Calculo; oficial?: Oficial }) {
   const e = c.e;
   const codigo = e.id.startsWith("anden-") ? e.id.slice(6) : oficial?.codigo_barrio;
   const capa = e.tipo === "andenes" ? "andenes" : "espacio_publico_proyectado";
+  const tipo = e.tipo === "andenes" ? "andenes" : "espacio público";
   return (
     <div className="space-y-4">
       <dl className="grid gap-x-6 gap-y-3 md:grid-cols-2">
@@ -203,15 +214,13 @@ function Detalle({ c, oficial }: { c: Calculo; oficial?: Oficial }) {
         </div>
         <div><dt className="font-semibold">Qué haría</dt><dd>{queHaria(e)}</dd></div>
         <div><dt className="font-semibold">Por qué aparece</dt><dd>{e.problema}. Origen: {e.origen.charAt(0).toLowerCase() + e.origen.slice(1)}.</dd></div>
-        <div><dt className="font-semibold">A cuánta gente llega</dt><dd>{num(e.beneficiarios)} personas. {e.metodo_beneficiarios}.</dd></div>
-        <div><dt className="font-semibold">Qué mejoraría</dt><dd>{num(e.mejora)}: {e.metodo_mejora.charAt(0).toLowerCase() + e.metodo_mejora.slice(1)}.</dd></div>
-        <div><dt className="font-semibold">Espacio público del barrio hoy</dt><dd>{e.ep_barrio_m2_hab == null ? "Sin dato" : `${dec2(e.ep_barrio_m2_hab)} m² por persona (la meta nacional es ${META_EP})`}</dd></div>
-        <div><dt className="font-semibold">Atropellos del barrio</dt><dd>{e.atropellos_por_mil == null ? "Sin dato" : `${dec2(e.atropellos_por_mil)} por cada mil habitantes (2019 a 2025)`}</dd></div>
       </dl>
       <div>
-        <p className="font-semibold">Por qué quedó en el puesto {c.posicion}</p>
-        <p className="text-sm text-tinta-suave">Cada barra va de 0 (la peor de la lista en ese punto) a 100 (la mejor). El puntaje final es su promedio con los pesos de arriba.</p>
-        <Barritas partes={c.partes} />
+        <p className="font-semibold">Por qué su prioridad es <Insignia nivel={c.nivel} /></p>
+        <p className="mt-1 text-sm text-tinta-suave">
+          Se compara con las otras {c.de - 1} obras de {tipo}, indicador por indicador. Esta obra está en el tercio de arriba en {c.arriba} de {c.total}.
+        </p>
+        <Filas filas={c.filas} />
       </div>
       <p className="rounded-xl bg-ambar-claro p-3 text-sm">
         <strong>Lo que no sabemos:</strong> {e.confianza}. Los datos no dicen quién la construiría, cuándo ni con qué presupuesto. Eso se le pregunta a la entidad; en el Kit para líderes está a quién acudir.
@@ -231,7 +240,7 @@ function ResumenBarrio({ barrio, lista }: { barrio: string; lista: Calculo[] }) 
   const nAn = lista.filter((c) => c.e.tipo === "andenes");
   const m2 = nEp.reduce((a, c) => a + c.e.area_m2, 0);
   const pct = ep == null ? null : (ep / META_EP) * 100;
-  const mejor = [...lista].sort((a, b) => a.posicion - b.posicion)[0];
+  const altas = lista.filter((c) => c.nivel === "alta").length;
   return (
     <div className="mt-3 rounded-2xl border border-nivel bg-superficie p-4">
       <h3 className="font-semibold">{barrio} en pocas palabras</h3>
@@ -245,21 +254,65 @@ function ResumenBarrio({ barrio, lista }: { barrio: string; lista: Calculo[] }) 
           {nEp.length > 0 && <>: {nEp.length} de espacio público que el POT prevé ({num(m2)} m² en total)</>}
           {nAn.length > 0 && <>{nEp.length > 0 ? " y " : ": "}{nAn.length} de ampliación de andenes</>}.
         </li>
-        {mejor && <li>La mejor ubicada en la lista de la comuna es «{mejor.e.nombre}», en el puesto {mejor.posicion}.</li>}
+        <li>{altas === 0 ? "Ninguna sale con prioridad alta frente a las demás de su tipo." : `${altas} ${altas === 1 ? "sale" : "salen"} con prioridad alta frente a las demás de su tipo.`}</li>
       </ul>
+    </div>
+  );
+}
+
+function Tabla({ titulo, lista, abierto, setAbierto, fichas }: { titulo: string; lista: Calculo[]; abierto: string | null; setAbierto: (id: string | null) => void; fichas: Map<string, Oficial> }) {
+  return (
+    <div className="mt-4">
+      <h3 className="font-semibold">{titulo} <span className="text-sm font-normal text-tinta-suave">({lista[0]?.de ?? 0} en la comuna)</span></h3>
+      <div className="mt-2 overflow-x-auto rounded-2xl border border-nivel bg-superficie">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-nivel text-left text-tinta-suave">
+              <th className="px-3 py-2 font-semibold">Puesto</th>
+              <th className="px-3 py-2 font-semibold">Obra</th>
+              <th className="px-3 py-2 font-semibold">Prioridad</th>
+              <th className="hidden px-3 py-2 text-right font-semibold sm:table-cell">Personas cerca</th>
+            </tr>
+          </thead>
+          <tbody>
+            {lista.map((c) => (
+              <Fragment key={c.e.id}>
+                <tr className="border-b border-nivel/70 align-top">
+                  <td className="px-3 py-2 text-lg font-semibold tabular-nums">{c.puesto}</td>
+                  <td className="px-3 py-2">
+                    <button type="button" onClick={() => setAbierto(abierto === c.e.id ? null : c.e.id)} aria-expanded={abierto === c.e.id} className="text-left font-semibold text-cable hover:underline">
+                      {c.e.nombre}
+                    </button>
+                    <span className="block text-xs text-tinta-suave">{c.e.barrio ?? "Sin barrio"}. {num(c.e.cantidad)} {c.e.unidad_cantidad}</span>
+                  </td>
+                  <td className="px-3 py-2"><Insignia nivel={c.nivel} /></td>
+                  <td className="hidden px-3 py-2 text-right tabular-nums sm:table-cell">{num(c.e.beneficiarios)}</td>
+                </tr>
+                {abierto === c.e.id && (
+                  <tr className="border-b border-nivel/70 bg-papel">
+                    <td colSpan={4} className="px-4 py-4"><Detalle c={c} oficial={fichas.get(c.e.id)} /></td>
+                  </tr>
+                )}
+              </Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
 
 function Contenido({ escenarios, oficiales }: { escenarios: Escenario[]; oficiales: Oficial[] }) {
   const [abierto, setAbierto] = useState<string | null>(null);
-  const [filtro, setFiltro] = useState<"todos" | Escenario["tipo"]>("todos");
+  const [filtro, setFiltro] = useState<"todos" | Tipo>("todos");
   const [barrio, setBarrio] = useState("");
   const calculos = useMemo(() => calcular(escenarios), [escenarios]);
   const fichas = useMemo(() => emparejar(escenarios, oficiales), [escenarios, oficiales]);
   const barrios = useMemo(() => [...new Set(escenarios.map((e) => e.barrio).filter((b): b is string => !!b))].sort((a, b) => a.localeCompare(b, "es")), [escenarios]);
   const delBarrio = calculos.filter((c) => !barrio || c.e.barrio === barrio);
-  const visibles = delBarrio.filter((c) => filtro === "todos" || c.e.tipo === filtro).sort((a, b) => a.posicion - b.posicion);
+  const de = (t: Tipo) => delBarrio.filter((c) => c.e.tipo === t);
+  const ep = de("espacio_publico"), an = de("andenes");
+  const mostrarEp = filtro !== "andenes" && ep.length > 0, mostrarAn = filtro !== "espacio_publico" && an.length > 0;
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-4 py-5 lg:px-8">
@@ -283,27 +336,34 @@ function Contenido({ escenarios, oficiales }: { escenarios: Escenario[]; oficial
       </section>
 
       <section aria-labelledby="t-como">
-        <h2 id="t-como" className="text-lg font-semibold">Cómo se ordena la lista</h2>
+        <h2 id="t-como" className="text-lg font-semibold">Cómo se decide la prioridad</h2>
         <p className="mt-1 max-w-3xl text-sm text-tinta-suave">
-          Cada obra recibe un puntaje de 0 a 100 según cuatro cosas. El porcentaje de cada tarjeta es cuántos de esos 100 puntos aporta ese
-          criterio. Los pesos los propuso el equipo y no son oficiales.
+          No hay un puntaje mágico. Cada obra se compara solo con las de su mismo tipo en tres indicadores con su dato real. Si está en el
+          tercio de arriba en 2 o más, la prioridad es <strong>alta</strong>; en 1, <strong>media</strong>; en ninguno, <strong>baja</strong>.
+          Todos los indicadores valen lo mismo. Dentro de cada nivel se ordena por el promedio de puestos.
         </p>
         <div className="mt-3 grid gap-3 md:grid-cols-2">
-          {CRITERIOS.map((c) => (
-            <div key={c.id} className="rounded-xl border border-nivel bg-superficie p-4">
-              <p className="flex justify-between gap-3 font-semibold">
-                <span>{c.nombre}</span>
-                <span className="tabular-nums text-marca">{Math.round((c.peso / SUMA_PESOS) * 100)} %</span>
-              </p>
-              <p className="mt-1 text-sm text-tinta-suave">{c.explicacion}</p>
+          {(["espacio_publico", "andenes"] as const).map((t) => (
+            <div key={t} className="rounded-xl border border-nivel bg-superficie p-4">
+              <h3 className="font-semibold">{t === "espacio_publico" ? "Espacio público" : "Andenes"} ({calculos.filter((c) => c.e.tipo === t).length} obras)</h3>
+              <ul className="mt-2 space-y-2 text-sm">
+                {INDICADORES[t].map((i) => (
+                  <li key={i.nombre}><strong>{i.nombre}.</strong> <span className="text-tinta-suave">{i.que}</span></li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
+        <p className="mt-3 max-w-3xl text-sm text-tinta-suave">
+          Por qué no se mezclan los dos tipos: la gente cercana a un parque se cuenta a 10 minutos caminando y la cercana a un andén a 100 m en línea
+          recta, así que esos números no son comparables entre sí. Y ojo: los datos de barrio (espacio público y atropellos) son iguales para
+          todas las obras del mismo barrio.
+        </p>
       </section>
 
       <section aria-labelledby="t-lista">
-        <h2 id="t-lista" className="text-lg font-semibold">Las obras, de más a menos necesaria</h2>
-        <p className="mt-1 max-w-3xl text-sm text-tinta-suave">Elija su barrio para ver solo lo que le toca. Toque el nombre de una obra para saber qué es, qué haría y por qué quedó en ese puesto.</p>
+        <h2 id="t-lista" className="text-lg font-semibold">Las obras, de más a menos prioritaria</h2>
+        <p className="mt-1 max-w-3xl text-sm text-tinta-suave">Elija su barrio para ver solo lo que le toca. Toque el nombre de una obra para saber qué es, qué haría y en qué se basa su prioridad.</p>
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <label className="flex items-center gap-2 text-sm font-semibold">
             Barrio
@@ -321,50 +381,11 @@ function Contenido({ escenarios, oficiales }: { escenarios: Escenario[]; oficial
           </div>
         </div>
         {barrio && <ResumenBarrio barrio={barrio} lista={delBarrio} />}
-        <div className="mt-3 overflow-x-auto rounded-2xl border border-nivel bg-superficie">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-nivel text-left text-tinta-suave">
-                <th className="px-3 py-2 font-semibold">Puesto en la comuna</th>
-                <th className="px-3 py-2 font-semibold">Obra</th>
-                <th className="hidden px-3 py-2 text-right font-semibold sm:table-cell">Personas beneficiadas</th>
-                <th className="px-3 py-2 text-right font-semibold">Puntaje</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visibles.length === 0 && (
-                <tr><td colSpan={4} className="px-3 py-6 text-center text-tinta-suave">No hay obras de este tipo en este barrio.</td></tr>
-              )}
-              {visibles.map((c) => (
-                <Fragment key={c.e.id}>
-                  <tr className="border-b border-nivel/70 align-top">
-                    <td className="px-3 py-2">
-                      <span className="text-lg font-semibold tabular-nums">{c.posicion}</span>
-                      <span className="block text-xs text-tinta-tenue">entre {c.rango[0]} y {c.rango[1]}</span>
-                    </td>
-                    <td className="px-3 py-2">
-                      <button type="button" onClick={() => setAbierto(abierto === c.e.id ? null : c.e.id)} aria-expanded={abierto === c.e.id} className="text-left font-semibold text-cable hover:underline">
-                        {c.e.nombre}
-                      </button>
-                      <span className="block text-xs text-tinta-suave">
-                        {c.e.tipo_nombre}, {c.e.barrio ?? "sin barrio"}. {num(c.e.cantidad)} {c.e.unidad_cantidad}
-                      </span>
-                    </td>
-                    <td className="hidden px-3 py-2 text-right tabular-nums sm:table-cell">{num(c.e.beneficiarios)}</td>
-                    <td className="px-3 py-2 text-right text-base font-semibold tabular-nums">{Math.round(c.prioridad * 100)}</td>
-                  </tr>
-                  {abierto === c.e.id && (
-                    <tr className="border-b border-nivel/70 bg-papel">
-                      <td colSpan={4} className="px-4 py-4"><Detalle c={c} oficial={fichas.get(c.e.id)} /></td>
-                    </tr>
-                  )}
-                </Fragment>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {mostrarEp && <Tabla titulo="Espacio público" lista={ep} abierto={abierto} setAbierto={setAbierto} fichas={fichas} />}
+        {mostrarAn && <Tabla titulo="Andenes" lista={an} abierto={abierto} setAbierto={setAbierto} fichas={fichas} />}
+        {!mostrarEp && !mostrarAn && <p className="mt-4 rounded-2xl border border-nivel bg-superficie px-3 py-6 text-center text-sm text-tinta-suave">No hay obras de este tipo en este barrio.</p>}
         <p className="mt-3 text-sm text-tinta-suave">
-          El puntaje ordena opciones, no prueba que una obra mejore las cosas ni que sea técnicamente posible. Para ver la ruta real de
+          La prioridad ordena opciones, no prueba que una obra mejore las cosas ni que sea técnicamente posible. Para ver la ruta real de
           caminata hacia cualquier lugar use <Link to="/mapa?ruta=1" className="text-cable underline">¿Cómo llego?</Link> en el mapa.
         </p>
       </section>

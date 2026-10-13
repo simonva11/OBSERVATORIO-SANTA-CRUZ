@@ -124,7 +124,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
       <Seccion id="t-p-vende" titulo="Por qué se puede vender, y a quién" texto="Son hipótesis. Cada una se valida con entrevistas antes de decir que es un cliente.">
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
           {[
-            ["Alcaldía y secretarías", "Priorizar obras de andenes, vías y espacio público con un puntaje claro y trazable."],
+            ["Alcaldía y secretarías", "Priorizar obras de andenes, vías y espacio público con criterios claros y trazables."],
             ["JAL, JAC y presupuesto participativo", "Llevar datos a las reuniones y justificar por qué una obra va primero."],
             ["Constructoras e inmobiliarias", "Entender la zona: densidad, tratamientos del POT, accesibilidad y oferta (hoy 41 ofertas registradas, pocas para sacar conclusiones)."],
             ["Otras comunas y municipios", "El mismo método se repite con otro código de comuna. Es lo que permitiría llegar al Valle de Aburrá."],
