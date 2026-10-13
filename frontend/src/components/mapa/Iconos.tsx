@@ -13,6 +13,7 @@ const TRAZOS: Record<TemaId | "3d" | "giro" | "inicio" | "mas" | "menos" | "capa
   plan: "M4 4 H20 V20 H4 Z M4 10 H20 M10 10 V20 M14 4 V10",
   seguridad: "M12 3 L20 6 V12 C20 16.5 16.5 19.5 12 21 C7.5 19.5 4 16.5 4 12 V6 Z M9 12 L11.2 14.2 L15.2 9.8",
   corredor: "M4 20 L10 4 M20 20 L14 4 M12 6 V9 M12 12 V15 M12 18 V21",
+  reclamos: "M4 5 H20 V16 H11 L7 20 V16 H4 Z M12 8.5 V11.5 M12 13.4 V13.5",
   misdatos: "M12 16 V4 M7.5 8.5 L12 4 L16.5 8.5 M4 15 V20 H20 V15",
   vivienda: "M3 11 L12 4 L21 11 M5.5 9.5 V20 H18.5 V9.5 M10 20 V14.5 H14 V20",
   "3d": "M12 3 L21 8 V16 L12 21 L3 16 V8 Z M3 8 L12 13 L21 8 M12 13 V21",

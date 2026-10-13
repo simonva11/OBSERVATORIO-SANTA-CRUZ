@@ -54,6 +54,7 @@ export const GRUPOS: GrupoMenu[] = [
     titulo: "Comunidad",
     modulos: [
       { ruta: "/problematicas", nombre: "Problemáticas", corto: "Problemas", icono: "alerta", detalle: "Ocho problemas con datos" },
+      { ruta: "/reclamos", nombre: "Huecos y reclamos", corto: "Reclamos", icono: "alerta", detalle: "Lo que la gente ya reportó" },
       { ruta: "/radar", nombre: "Radar de noticias", corto: "Radar", icono: "radar", detalle: "Lo que dicen los medios" },
       { ruta: "/lideres", nombre: "Kit para líderes", corto: "Líderes", icono: "estrella", detalle: "Cifras, cartas, plazos y a quién acudir" },
       { ruta: "/participacion", nombre: "Participación", corto: "Participa", icono: "participacion", detalle: "Reportar un problema", fase: "Prueba" },

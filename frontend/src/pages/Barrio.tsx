@@ -47,6 +47,10 @@ function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad | null;
   const ir = useNavigate();
   const b = ind.barrios.find((x) => x.codigo === codigo) ?? ind.barrios[0];
   const [params, setParams] = useSearchParams();
+  const rec = useDatos<{ huecos: { por_barrio: { barrio: string; total: number; arreglados: number; pendientes: number; dias_mediana: number | null }[] }; obras: { por_barrio: Record<string, number> }; quebradas: { por_barrio: Record<string, number> } }>("reclamos.json");
+  const hue = rec.estado === "listo" ? rec.datos.huecos.por_barrio.find((x) => x.barrio === b.nombre) : undefined;
+  const obrasPedidas = rec.estado === "listo" ? rec.datos.obras.por_barrio[b.nombre] : undefined;
+  const quebReportes = rec.estado === "listo" ? rec.datos.quebradas.por_barrio[b.nombre] : undefined;
   const otro = ind.barrios.find((x) => x.codigo === params.get("vs") && x.codigo !== b.codigo);
   const ranking = calcularIndice(ind);
   const mio = ranking.find((x) => x.codigo === b.codigo)!;
@@ -200,6 +204,22 @@ function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad | null;
           <Link className="font-semibold text-marca underline underline-offset-2" to="/corredor-49">Ver el análisis completo de la Carrera 49</Link>
         </p>
       </Seccion>
+
+      {(hue || obrasPedidas != null || quebReportes != null) && (
+        <Seccion id="t-b-rec" titulo="Huecos y reclamos" texto="Lo que ya se reportó a la Alcaldía en este barrio. Son reportes, no un conteo de todo lo dañado.">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            {hue && <Kpi valor={num(hue.total)} texto="reportes de huecos desde 2020" nota={`${num(hue.arreglados)} ya figuran arreglados`} />}
+            {hue && <Kpi valor={num(hue.pendientes)} texto="huecos siguen pendientes" nota={hue.dias_mediana != null ? `La mitad se arregló en ${hue.dias_mediana} días o menos` : undefined} tono={hue.pendientes > 20 ? "rojo" : "ambar"} />}
+            {obrasPedidas != null && <Kpi valor={num(obrasPedidas)} texto="obras pedidas a Infraestructura" />}
+            {quebReportes != null && <Kpi valor={num(quebReportes)} texto="solicitudes sobre quebradas" />}
+          </div>
+          <p className="mt-3 text-sm">
+            <Link className="font-semibold text-marca underline underline-offset-2" to={`/mapa?capas=huecos&barrio=${b.codigo}`}>Ver los huecos de este barrio en el mapa</Link>
+            {" · "}
+            <Link className="font-semibold text-marca underline underline-offset-2" to="/reclamos">Todos los reclamos de la comuna</Link>
+          </p>
+        </Seccion>
+      )}
 
       {seg && (
         <Seccion id="t-b-seg" titulo="Seguridad" texto="Hurto y homicidio son de 2017, el último año publicado. Solo conteos por barrio, nunca puntos de víctimas.">

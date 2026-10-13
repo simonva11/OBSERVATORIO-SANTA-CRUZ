@@ -1,8 +1,23 @@
+import { useState } from "react";
 import type { DefCapa } from "../lib/capas";
 import { useDatos } from "../lib/datos";
 import { fecha, texto } from "../lib/formato";
 import type { Fuente, Props } from "../lib/tipos";
 import { EtiquetaTipo } from "./Estado";
+
+/** Foto del sitio de la Alcaldía. Si no carga (sin internet o ya no existe), queda un enlace en su lugar. */
+export function Foto({ url, alto = "h-40" }: { url: string; alto?: string }) {
+  const [fallo, setFallo] = useState(false);
+  return (
+    <a href={url} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-lg bg-papel-hondo">
+      {fallo ? (
+        <span className="grid h-24 place-items-center px-2 text-center text-sm text-cable underline">Abrir la foto en el sitio de la Alcaldía</span>
+      ) : (
+        <img src={url} alt="Foto enviada con el reporte" loading="lazy" referrerPolicy="no-referrer" onError={() => setFallo(true)} className={`${alto} w-full object-cover`} />
+      )}
+    </a>
+  );
+}
 
 export default function FichaElemento({ def, props }: { def: DefCapa; props: Props }) {
   const fuentes = useDatos<Fuente[]>("fuentes.json");
@@ -16,6 +31,9 @@ export default function FichaElemento({ def, props }: { def: DefCapa; props: Pro
       return { etiqueta, valor: fuera ? "Fuera de la comuna" : formato ? formato(v, props) : texto(v), vacio: vacio && !fuera };
     })
     .filter((f) => !f.vacio);
+
+  // Solo se muestran fotos publicadas por la Alcaldía, y se cargan directo de su sitio (no se copian aquí).
+  const fotos = ["foto", "foto2", "foto3"].map((k) => props[k]).filter((u): u is string => typeof u === "string" && u.startsWith("https://www.medellin.gov.co/api-imagenes/"));
 
   const enlace = typeof props.enlace === "string" && props.enlace.startsWith("http") ? props.enlace : null;
 
@@ -40,6 +58,18 @@ export default function FichaElemento({ def, props }: { def: DefCapa; props: Pro
       )}
 
       {def.nota && <p className="rounded-md bg-ambar-claro p-2.5 text-sm">{def.nota}</p>}
+
+      {fotos.length > 0 && (
+        <section className="border-t border-nivel pt-3">
+          <h3 className="mb-2 text-sm font-semibold">Fotos del reporte</h3>
+          <div className={`grid gap-2 ${fotos.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+            {fotos.map((u) => (
+              <Foto key={u} url={u} />
+            ))}
+          </div>
+          <p className="mt-1.5 text-xs text-tinta-tenue">Las envió quien hizo el reporte y las publica la Alcaldía de Medellín. Si ve algo que no debería estar público, avise a MEData (medata@medellin.gov.co).</p>
+        </section>
+      )}
 
       {enlace && (
         <p className="text-sm">

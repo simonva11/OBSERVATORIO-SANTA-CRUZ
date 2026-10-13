@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
+import { useDatos } from "../lib/datos";
 import { AMENAZA, GRUPOS_EQUIPAMIENTO, TRATAMIENTOS } from "../lib/capas";
 import { cop, dec, metros, num, pct, dec2 } from "../lib/formato";
 import type { FichaBarrio as Ficha, Indicadores } from "../lib/tipos";
@@ -63,6 +65,10 @@ export default function FichaBarrio({ ficha, indicadores }: { ficha: Ficha; indi
   const acceso = indicadores.accesibilidad?.barrios?.find((b: { barrio: string }) => b.barrio === ficha.nombre);
   const anden = indicadores.infraestructura?.andenes?.barrios?.find((b: { barrio: string }) => b.barrio === ficha.nombre);
   const lista = senales(ficha, comuna, barrios, acceso);
+  const rec = useDatos<{ huecos: { por_barrio: { barrio: string; total: number; arreglados: number; pendientes: number; dias_mediana: number | null }[] }; obras: { por_barrio: Record<string, number> }; quebradas: { por_barrio: Record<string, number> } }>("reclamos.json");
+  const hue = rec.estado === "listo" ? rec.datos.huecos.por_barrio.find((b) => b.barrio === ficha.nombre) : undefined;
+  const obrasPedidas = rec.estado === "listo" ? rec.datos.obras.por_barrio[ficha.nombre] : undefined;
+  const quebReportes = rec.estado === "listo" ? rec.datos.quebradas.por_barrio[ficha.nombre] : undefined;
 
   return (
     <article className="space-y-3">
@@ -150,6 +156,19 @@ export default function FichaBarrio({ ficha, indicadores }: { ficha: Ficha; indi
           <Dato etiqueta="Atropellos 2019 a 2025" valor={num(ficha.atropellos)} />
         </dl>
       </Seccion>
+
+      {(hue || obrasPedidas || quebReportes) && (
+        <Seccion titulo="Huecos y reclamos a la Alcaldía">
+          <dl>
+            {hue && <Dato etiqueta="Reportes de huecos desde 2020" valor={num(hue.total)} ayuda={`${num(hue.arreglados)} ya figuran arreglados y ${num(hue.pendientes)} siguen pendientes${hue.dias_mediana != null ? `. La mitad se arregló en ${hue.dias_mediana} días o menos` : ""}`} />}
+            {obrasPedidas != null && <Dato etiqueta="Obras pedidas a Infraestructura" valor={num(obrasPedidas)} />}
+            {quebReportes != null && <Dato etiqueta="Solicitudes sobre quebradas" valor={num(quebReportes)} />}
+          </dl>
+          <p className="mt-2 text-sm">
+            <Link to={`/mapa?capas=huecos&barrio=${ficha.codigo}`} className="text-cable underline underline-offset-2">Ver los huecos de este barrio en el mapa</Link>
+          </p>
+        </Seccion>
+      )}
 
       <Seccion titulo="Plan de Ordenamiento Territorial">
         <p className="mb-1 text-xs text-tinta-suave">Tratamientos: lo que el POT espera que la zona llegue a ser.</p>

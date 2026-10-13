@@ -22,6 +22,7 @@ const Barrio = lazy(() => import("./pages/Barrio"));
 const Inmobiliario = lazy(() => import("./pages/Inmobiliario"));
 const Lideres = lazy(() => import("./pages/Lideres"));
 const Riesgo = lazy(() => import("./pages/Riesgo"));
+const Reclamos = lazy(() => import("./pages/Reclamos"));
 
 function NoEncontrada() {
   return (
@@ -53,6 +54,7 @@ export default function App() {
             <Route path="/accesibilidad" element={<Accesibilidad />} />
             <Route path="/prioridades" element={<Prioridades />} />
             <Route path="/participacion" element={<Participacion />} />
+            <Route path="/reclamos" element={<Reclamos />} />
             <Route path="/fuentes" element={<Fuentes />} />
             <Route path="/corredor-49" element={<Corredor49 />} />
             <Route path="/problematicas" element={<Problematicas />} />

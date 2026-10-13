@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type TouchEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { Map as MapaML } from "maplibre-gl";
-import MapaVivo, { type FiltroSiniestros, type Modo } from "../components/mapa/MapaVivo";
+import MapaVivo, { type FiltroHuecos, type FiltroSiniestros, type Modo } from "../components/mapa/MapaVivo";
 import { BotonesCamara, HoraSol } from "../components/mapa/ControlesMapa";
 import { useNocheActiva } from "../components/Layout";
 import { horaColombia } from "../lib/sol";
@@ -200,6 +200,7 @@ export default function Mapa() {
   const [reencuadre, setReencuadre] = useState(0);
   const [colorBarrios, setColorBarrios] = useState("");
   const [filtroSin, setFiltroSin] = useState<FiltroSiniestros>({ clase: "Atropello", anio: "Todos" });
+  const [filtroHue, setFiltroHue] = useState<FiltroHuecos>({ estado: "Todos", anio: "Todos" });
   const [masOpciones, setMasOpciones] = useState(false);
   const [verLeyenda, setVerLeyenda] = useState(false);
   const [ruteo, setRuteo] = useState(params.get("ruta") === "1");
@@ -428,6 +429,7 @@ export default function Mapa() {
           onFinRecorrido={() => setRecorrido(false)}
           colorBarrio={coloreo?.colores ?? null}
           filtroSiniestros={filtroSin}
+          filtroHuecos={filtroHue}
           seleccion={seleccion}
           destino={destino}
           reencuadre={reencuadre}
@@ -640,6 +642,8 @@ export default function Mapa() {
               onColorBarrios={setColorBarrios}
               filtroSiniestros={filtroSin}
               onFiltroSiniestros={setFiltroSin}
+              filtroHuecos={filtroHue}
+              onFiltroHuecos={setFiltroHue}
             />
             <section className="mt-8 border-t border-nivel pt-4">
               <h3 className="mb-2 text-lg font-bold">Leyenda</h3>

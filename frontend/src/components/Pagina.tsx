@@ -79,6 +79,7 @@ export function Kpi({ valor, texto, nota, tono = "verde", grande = false }: { va
 
 const RELACIONES: Record<string, { ruta: string; icono: string; nombre: string; texto: string }> = {
   mapa: { ruta: "/mapa", icono: "mapa", nombre: "Mapa territorial", texto: "Ver todo sobre la comuna en el mapa" },
+  reclamos: { ruta: "/reclamos", icono: "alerta", nombre: "Huecos y reclamos", texto: "Lo que la gente ya reportó" },
   problematicas: { ruta: "/problematicas", icono: "alerta", nombre: "Problemáticas", texto: "Los ocho problemas, con su número" },
   corredor: { ruta: "/corredor-49", icono: "corredor", nombre: "Corredor Carrera 49", texto: "¿Conviene ir por la 49?" },
   indicadores: { ruta: "/indicadores", icono: "indicadores", nombre: "Indicadores", texto: "Cifras por barrio" },

@@ -1,5 +1,5 @@
 import type { Props } from "./tipos";
-import { cop, dec, num, texto } from "./formato";
+import { cop, dec, fecha, num, texto } from "./formato";
 
 export type Geometria = "punto" | "linea" | "poligono";
 export type Formato = (v: unknown, p: Props) => string;
@@ -10,7 +10,7 @@ export interface ItemLeyenda {
   forma?: "punto" | "linea" | "area" | "borde";
 }
 
-export type TemaId = "transporte" | "caminar" | "colegios" | "comunidad" | "parques" | "riesgo" | "accidentes" | "plan" | "personas" | "vivienda" | "seguridad" | "corredor" | "misdatos";
+export type TemaId = "transporte" | "caminar" | "colegios" | "comunidad" | "parques" | "riesgo" | "accidentes" | "plan" | "personas" | "vivienda" | "seguridad" | "corredor" | "misdatos" | "reclamos";
 
 export interface DefCapa {
   id: string; // nombre del archivo en /data para Santa Cruz
@@ -37,6 +37,17 @@ export const COLOR = {
   nivel: "#d4d9cf",
   papel: "#f5f6f2",
 };
+
+export const DOMINIOS_OBRA: Record<string, string> = {
+  "Malla vial": "#24598a",
+  "Mitigación y Estabilización": "#b8641f",
+  "Corredores Peatonales": "#7a4e9b",
+  "Puentes": "#4a5958",
+  "Espacio Público Efectivo": "#2d6a4f",
+};
+export const COLOR_OBRA_OTRO = "#8b9795";
+export const COLOR_HUECO_PENDIENTE = "#c2412d";
+export const COLOR_HUECO_ARREGLADO = "#2d6a4f";
 
 export const GRUPOS_EQUIPAMIENTO: Record<string, string> = {
   Educación: "#24598a",
@@ -78,6 +89,8 @@ export const LINEAS_METRO: Record<string, string> = {
 };
 
 const siNo = (v: unknown) => (v ? "Sí" : "No");
+const dias = (v: unknown) => (typeof v === "number" ? `${num(v)} ${v === 1 ? "día" : "días"}` : "Sin dato");
+const fechaTxt = (v: unknown) => (typeof v === "string" ? fecha(v) : "Sin dato");
 const m2 = (v: unknown) => (typeof v === "number" ? `${num(Math.round(v))} m²` : "Sin dato");
 
 export const CAPAS: DefCapa[] = [
@@ -319,6 +332,69 @@ export const CAPAS: DefCapa[] = [
     campos: [["riesgo", "Condición"], ["tipo_amenaza", "Amenaza"], ["descripcion", "Descripción"]],
     leyenda: [{ color: "#7d2a18", etiqueta: "Alto riesgo no mitigable", forma: "borde" }],
   },
+  // Reclamos de la ciudadanía
+  {
+    id: "huecos",
+    nombre: "Huecos reportados",
+    tema: "reclamos",
+    fuente: "huecos",
+    descripcion: "Reportes de huecos en la vía hechos por la ciudadanía (ReportesMED y otros canales) y si ya se arreglaron.",
+    geometria: "punto",
+    titulo: (p) => (p.estado === "Pendiente" ? "Hueco pendiente de arreglar" : "Hueco arreglado"),
+    campos: [
+      ["barrio", "Barrio"],
+      ["reportado", "Reportado el", fechaTxt],
+      ["espera", "Lleva esperando", dias],
+      ["arreglado", "Arreglado el", fechaTxt],
+      ["dias", "Tardó en arreglarse", dias],
+      ["prioridad", "Prioridad asignada"],
+      ["origen", "Canal del reporte"],
+      ["costo_cop", "Valor registrado de la obra", (v) => (typeof v === "number" ? cop(v) : "Sin dato")],
+    ],
+    leyenda: [
+      { color: COLOR_HUECO_PENDIENTE, etiqueta: "Pendiente de arreglar", forma: "punto" },
+      { color: COLOR_HUECO_ARREGLADO, etiqueta: "Ya arreglado", forma: "punto" },
+    ],
+    nota: "Cada punto es un reporte, no necesariamente un hueco distinto. No se dibujan los reportes descartados ni los duplicados. Un hueco marcado como arreglado no dice cuánto duró el arreglo.",
+  },
+  {
+    id: "solicitudes_obras",
+    nombre: "Obras pedidas a la Alcaldía",
+    tema: "reclamos",
+    fuente: "solicitudes_obras",
+    descripcion: "Solicitudes de obra en vías, andenes, pasamanos, puentes y laderas registradas por Infraestructura Física.",
+    geometria: "punto",
+    titulo: (p) => texto(p.tipo),
+    campos: [
+      ["dominio", "Tipo de obra"],
+      ["estado", "Estado"],
+      ["barrio", "Barrio"],
+      ["fecha", "Fecha de la solicitud", fechaTxt],
+      ["origen", "Quién la pidió"],
+    ],
+    leyenda: [...Object.entries(DOMINIOS_OBRA).map(([etiqueta, color]) => ({ color, etiqueta, forma: "punto" as const })), { color: COLOR_OBRA_OTRO, etiqueta: "Otras solicitudes", forma: "punto" as const }],
+    nota: "Una solicitud en proceso no significa que la obra tenga presupuesto o fecha.",
+  },
+  {
+    id: "solicitudes_quebradas",
+    nombre: "Quebradas: basuras y daños",
+    tema: "reclamos",
+    fuente: "solicitudes_quebradas",
+    descripcion: "Solicitudes sobre quebradas: basuras y escombros, socavación, obstrucción de cauces.",
+    geometria: "punto",
+    titulo: (p) => (p.basura === true ? "Basuras o escombros en la quebrada" : texto(p.problema)),
+    campos: [
+      ["quebrada", "Quebrada"],
+      ["problema", "Problema reportado"],
+      ["estado", "Estado"],
+      ["barrio", "Barrio"],
+      ["fecha", "Fecha de la solicitud", fechaTxt],
+    ],
+    leyenda: [
+      { color: "#b7791f", etiqueta: "Basuras o escombros", forma: "punto" },
+      { color: "#4f7fb0", etiqueta: "Otro daño o riesgo", forma: "punto" },
+    ],
+  },
   // Accidentes
   {
     id: "siniestros_viales",
@@ -536,6 +612,7 @@ export interface Tema {
 /** Temas: botones grandes que prenden varias capas a la vez. */
 export const TEMAS: Tema[] = [
   { id: "transporte", nombre: "Metro y buses", ayuda: "Estaciones, líneas y rutas", color: COLOR.cable, capas: ["lineas_transporte", "rutas_bus", "estaciones", "paradas"] },
+  { id: "reclamos", nombre: "Huecos y reclamos", ayuda: "Huecos, obras pedidas y basuras en quebradas", color: COLOR_HUECO_PENDIENTE, capas: ["huecos", "solicitudes_obras", "solicitudes_quebradas"] },
   { id: "caminar", nombre: "Andenes y escaleras", ayuda: "Ancho de andenes, escaleras, ciclorrutas", color: "#7a4e9b", capas: ["andenes", "escaleras_osm", "red_ciclista"] },
   { id: "colegios", nombre: "Colegios", ayuda: "Sedes educativas", color: "#3b6fa8", capas: ["sedes_educativas"] },
   { id: "comunidad", nombre: "Salud y comunidad", ayuda: "Centros de salud, sedes, policía", color: "#c2412d", capas: ["equipamientos"] },

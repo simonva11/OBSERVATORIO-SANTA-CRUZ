@@ -1,5 +1,5 @@
 import { CAPAS, COLORES_BARRIO, TEMAS } from "../../lib/capas";
-import type { FiltroSiniestros, Modo } from "./MapaVivo";
+import type { FiltroHuecos, FiltroSiniestros, Modo } from "./MapaVivo";
 
 interface Props {
   modo: Modo;
@@ -10,8 +10,11 @@ interface Props {
   onColorBarrios: (id: string) => void;
   filtroSiniestros: FiltroSiniestros;
   onFiltroSiniestros: (f: FiltroSiniestros) => void;
+  filtroHuecos: FiltroHuecos;
+  onFiltroHuecos: (f: FiltroHuecos) => void;
 }
 
+const ANIOS_HUECOS = ["Todos", "2020", "2021", "2022", "2023", "2024", "2025", "2026"];
 const ANIOS = ["Todos", "2019", "2020", "2021", "2022", "2023", "2024", "2025"];
 
 /** Opciones detalladas: cada capa por separado, color de barrios y filtros. */
@@ -58,6 +61,34 @@ export default function PanelCapas(p: Props) {
                       {activa && est === "error" && <span className="block text-sm text-ladrillo">No se pudo cargar</span>}
                     </span>
                   </label>
+                  {c.id === "huecos" && activa && (
+                    <div className="ml-10 mt-1 grid grid-cols-2 gap-2">
+                      <label className="text-sm">
+                        Mostrar
+                        <select
+                          value={p.filtroHuecos.estado}
+                          onChange={(e) => p.onFiltroHuecos({ ...p.filtroHuecos, estado: e.target.value as FiltroHuecos["estado"] })}
+                          className="mt-0.5 w-full rounded-lg border border-nivel bg-superficie px-2 py-2"
+                        >
+                          <option value="Todos">Todos</option>
+                          <option value="Pendiente">Solo pendientes</option>
+                          <option value="Arreglado">Solo arreglados</option>
+                        </select>
+                      </label>
+                      <label className="text-sm">
+                        Año del reporte
+                        <select
+                          value={p.filtroHuecos.anio}
+                          onChange={(e) => p.onFiltroHuecos({ ...p.filtroHuecos, anio: e.target.value })}
+                          className="mt-0.5 w-full rounded-lg border border-nivel bg-superficie px-2 py-2"
+                        >
+                          {ANIOS_HUECOS.map((a) => (
+                            <option key={a}>{a}</option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+                  )}
                   {c.id === "siniestros_viales" && activa && (
                     <div className="ml-10 mt-1 grid grid-cols-2 gap-2">
                       <label className="text-sm">

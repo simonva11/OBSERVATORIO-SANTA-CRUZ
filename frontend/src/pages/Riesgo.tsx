@@ -161,6 +161,8 @@ function Contenido({ r, ind }: { r: Riesgo; ind: Indicadores }) {
         <p className="mt-3 text-sm text-tinta-suave">Para pedir una visita técnica o una obra de mitigación por escrito, use la carta de riesgo del <Link className="font-semibold text-marca underline underline-offset-2" to="/lideres">Kit para líderes</Link>.</p>
       </Seccion>
 
+      <BasurasQuebradas />
+
       <Seccion id="t-r-metodo" titulo="Cómo se calculó y qué no dice">
         <div className="vidrio vidrio--quieto space-y-2 rounded-xl p-4 text-sm leading-relaxed text-tinta-suave">
           <p>{r.metodo}</p>
@@ -176,6 +178,20 @@ function Contenido({ r, ind }: { r: Riesgo; ind: Indicadores }) {
 
       <Relacionados ids={["mapa", "problematicas", "prioridades"]} />
     </div>
+  );
+}
+
+function BasurasQuebradas() {
+  const d = useDatos<{ quebradas: { total: number; basuras: number } }>("reclamos.json");
+  if (d.estado !== "listo") return null;
+  const q = d.datos.quebradas;
+  return (
+    <Seccion id="t-r-quebradas" titulo="Basuras en las quebradas" texto="La gente también reporta a la Alcaldía lo que ve en las quebradas.">
+      <p className="text-sm leading-relaxed text-tinta-suave">
+        Hay {q.total} solicitudes públicas sobre quebradas de la comuna y {q.basuras} son por basuras o escombros. Los residuos pueden tapar el cauce y agravar una creciente, por eso conviene cruzarlas con las zonas de amenaza.{" "}
+        <Link className="font-semibold text-marca underline underline-offset-2" to="/mapa?capas=solicitudes_quebradas,amenaza_movimiento_masa">Verlas en el mapa</Link> o en <Link className="font-semibold text-marca underline underline-offset-2" to="/reclamos">Huecos y reclamos</Link>.
+      </p>
+    </Seccion>
   );
 }
 

@@ -10,7 +10,7 @@ import maplibregl, {
 } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Feature, Geometry, Position } from "geojson";
-import { AMENAZA, CAPAS, COLOR, GRUPOS_EQUIPAMIENTO, LINEAS_METRO, TRATAMIENTOS } from "../../lib/capas";
+import { AMENAZA, CAPAS, COLOR, GRUPOS_EQUIPAMIENTO, LINEAS_METRO, TRATAMIENTOS, COLOR_HUECO_ARREGLADO, COLOR_HUECO_PENDIENTE, COLOR_OBRA_OTRO, DOMINIOS_OBRA } from "../../lib/capas";
 import { cargar } from "../../lib/datos";
 import type { Coleccion, Elemento, Props } from "../../lib/tipos";
 import { posicionSol } from "../../lib/sol";
@@ -22,6 +22,11 @@ export interface FiltroSiniestros {
   anio: string;
 }
 
+export interface FiltroHuecos {
+  estado: "Todos" | "Pendiente" | "Arreglado";
+  anio: string;
+}
+
 interface Opciones {
   modo: Modo;
   activas: Set<string>;
@@ -30,6 +35,7 @@ interface Opciones {
   onFinRecorrido: () => void;
   colorBarrio: Record<string, string> | null;
   filtroSiniestros: FiltroSiniestros;
+  filtroHuecos: FiltroHuecos;
   seleccion: { capa: string; elemento: Elemento } | null;
   destino: { elemento: Elemento; n: number } | null;
   reencuadre: number;
@@ -351,6 +357,23 @@ function estilos(id: string): Capa[] {
         { id: `${id}-linea`, type: "line", filter: ["any", ["==", ["geometry-type"], "LineString"], ["==", ["geometry-type"], "MultiLineString"]], paint: { "line-color": "#7a4e9b", "line-width": 4 }, layout: { "line-cap": "round" } },
         { id, type: "circle", filter: ["any", ["==", ["geometry-type"], "Point"], ["==", ["geometry-type"], "MultiPoint"]], paint: { "circle-radius": radio(5, 11), "circle-color": "#7a4e9b", "circle-stroke-color": "#ffffff", "circle-stroke-width": 2.5 } },
       ] as unknown) as Capa[];
+    case "huecos": {
+      // Los pendientes se dibujan encima y más grandes: son los que importan. Los arreglados quedan chiquitos y suaves.
+      const pend: ExpressionSpecification = ["==", ["get", "estado"], "Pendiente"];
+      const r = (a: number, b: number, c: number, d: number): ExpressionSpecification => ["interpolate", ["linear"], ["zoom"], 11, ["case", pend, a, c], 16, ["case", pend, b, d]];
+      return [{
+        id, type: "circle", layout: { "circle-sort-key": ["case", pend, 2, 1] },
+        paint: { "circle-radius": r(3, 8.5, 1.6, 4.5), "circle-color": ["case", pend, COLOR_HUECO_PENDIENTE, COLOR_HUECO_ARREGLADO], "circle-stroke-color": "#ffffff", "circle-stroke-width": ["case", pend, 1.6, 0.6], "circle-opacity": ["case", pend, 1, 0.55] },
+      }];
+    }
+    case "solicitudes_obras":
+      // Anillos huecos: se distinguen de los huecos (puntos llenos) aunque estén encima.
+      return [{ id, type: "circle", paint: { "circle-radius": radio(2.5, 6.5), "circle-color": "rgba(0,0,0,0)", "circle-stroke-color": casar("dominio", DOMINIOS_OBRA, COLOR_OBRA_OTRO), "circle-stroke-width": 1.8, "circle-stroke-opacity": 0.95 } }];
+    case "solicitudes_quebradas": {
+      const basura: ExpressionSpecification = ["==", ["get", "basura"], true];
+      const r = (a: number, b: number, c: number, d: number): ExpressionSpecification => ["interpolate", ["linear"], ["zoom"], 11, ["case", basura, a, c], 16, ["case", basura, b, d]];
+      return [{ id, type: "circle", layout: { "circle-sort-key": ["case", basura, 2, 1] }, paint: { "circle-radius": r(3.2, 8, 2.2, 5.5), "circle-color": ["case", basura, "#d08a1c", "#4f7fb0"], "circle-stroke-color": "#ffffff", "circle-stroke-width": 1.4 } }];
+    }
     case "oferta_inmobiliaria":
       return [{ id, type: "circle", paint: { "circle-radius": radio(6, 11), "circle-color": ["case", ["==", ["get", "operacion"], "Venta"], COLOR.ambar, "#8a7656"], "circle-stroke-color": "#ffffff", "circle-stroke-width": 2.5 } }];
     default:
@@ -674,6 +697,7 @@ export default function MapaVivo(o: Opciones) {
             aplicarOpacidad(m, l, ultimo.current.opacidad ?? 1);
           }
           aplicarFiltroSiniestros(m, ultimo.current.filtroSiniestros);
+          aplicarFiltroHuecos(m, ultimo.current.filtroHuecos);
           o.onEstado(def.id, "listo");
         })
         .catch(() => vivo && o.onEstado(def.id, "error"));
@@ -873,6 +897,9 @@ export default function MapaVivo(o: Opciones) {
   useEffect(() => {
     if (mapa.current && listo) aplicarFiltroSiniestros(mapa.current, o.filtroSiniestros);
   }, [o.filtroSiniestros, listo]);
+  useEffect(() => {
+    if (mapa.current && listo) aplicarFiltroHuecos(mapa.current, o.filtroHuecos);
+  }, [o.filtroHuecos, listo]);
 
   // Selección resaltada ------------------------------------------------------------
   useEffect(() => {
@@ -965,6 +992,13 @@ function aplicarOpacidad(m: MapaML, l: Capa, k: number) {
     const base = paint[prop] ?? (prop === "fill-extrusion-opacity" ? 1 : undefined);
     m.setPaintProperty(l.id, prop, k === 1 ? base : escalar(base, k));
   }
+}
+
+function aplicarFiltroHuecos(m: MapaML, f: FiltroHuecos) {
+  const partes: ExpressionSpecification[] = [];
+  if (f.estado !== "Todos") partes.push(["==", ["get", "estado"], f.estado]);
+  if (f.anio !== "Todos") partes.push(["==", ["get", "anio"], Number(f.anio)]);
+  if (m.getLayer("huecos")) m.setFilter("huecos", (partes.length ? ["all", ...partes] : null) as ExpressionSpecification | null);
 }
 
 function aplicarFiltroSiniestros(m: MapaML, f: FiltroSiniestros) {

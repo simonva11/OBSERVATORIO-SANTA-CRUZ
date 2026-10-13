@@ -169,25 +169,14 @@ html.noche,
 /* Modo Solo Mapa: el menú lateral y la barra del celular se desvanecen en 300 ms */
 /* Primero se desvanece (300 ms) y luego el mapa se agranda de un solo paso: así el mapa no se redibuja en
    cada cuadro de la animación. Al salir es al revés: el espacio vuelve de una vez y el menú aparece con fundido. */
-[data-cromo="lateral"],
 [data-cromo="cabecera"] {
   transition: opacity 300ms ease, width 0s, padding 0s, max-height 0s, border-width 0s;
 }
-html[data-solo-mapa] [data-cromo="lateral"],
 html[data-solo-mapa] [data-cromo="cabecera"] {
   transition: opacity 300ms ease, width 0s 300ms, padding 0s 300ms, max-height 0s 300ms, border-width 0s 300ms;
 }
 [data-cromo="cabecera"] {
   max-height: 6rem;
-}
-html[data-solo-mapa] [data-cromo="lateral"] {
-  width: 0;
-  padding-left: 0;
-  padding-right: 0;
-  border-right-width: 0;
-  opacity: 0;
-  overflow: hidden;
-  pointer-events: none;
 }
 html[data-solo-mapa] [data-cromo="cabecera"] {
   max-height: 0;
@@ -351,10 +340,6 @@ html.letra-grande {
     transform: scale(2.1);
     opacity: 0;
   }
-}
-/* Barra lateral: el ancho se anima solo fuera del mapa (en el mapa redibujaría todo en cada cuadro) */
-aside[data-cromo="lateral"][data-animar] {
-  transition: width 250ms ease, padding 250ms ease, opacity 300ms ease;
 }
 
 /* Espera suave: sin giros ni parpadeos bruscos */

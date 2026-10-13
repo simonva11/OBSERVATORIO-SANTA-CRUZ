@@ -734,5 +734,53 @@
   "fecha_descarga": "2026-10-09T23:32:04+00:00",
   "ultima_actualizacion_en_datos": null,
   "error": null
+ },
+ {
+  "id": "huecos",
+  "nombre": "Reportes de huecos (Sistema de Gestión Vial)",
+  "entidad": "Alcaldía de Medellín (GeoMedellín): Sistema de Gestión Vial",
+  "tipo": "oficial",
+  "url_servicio": "https://www.medellin.gov.co/servidormapas/rest/services/vivienda_ciudad_terri/VA_SGV_Baches/MapServer",
+  "consulta": "https://www.medellin.gov.co/servidormapas/rest/services/vivienda_ciudad_terri/VA_SGV_Baches/MapServer/0 a 5/query?where=comuna%20like%20%27%25Santa%20Cruz%25%27&f=json",
+  "formato_origen": "ArcGIS REST (JSON)",
+  "cobertura": "Filtro: comuna like '%Santa Cruz%'",
+  "licencia": "Publicada en GeoMedellín. Condiciones de uso por confirmar con MEData (medata@medellin.gov.co) antes de redistribuir. No se descargan nombres, teléfonos ni correos.",
+  "estado": "ok",
+  "registros": 2522,
+  "fecha_descarga": "2026-10-13T03:24:29+00:00",
+  "ultima_actualizacion_en_datos": "2026-10-09",
+  "error": null
+ },
+ {
+  "id": "solicitudes_obras",
+  "nombre": "Solicitudes de obra a Infraestructura Física (SIRO)",
+  "entidad": "Alcaldía de Medellín (GeoMedellín): Secretaría de Infraestructura Física, sistema SIRO",
+  "tipo": "oficial",
+  "url_servicio": "https://www.medellin.gov.co/servidormapas/rest/services/vivienda_ciudad_terri/VA_Solicitudes_pqrs/MapServer",
+  "consulta": "https://www.medellin.gov.co/servidormapas/rest/services/vivienda_ciudad_terri/VA_Solicitudes_pqrs/MapServer/2/query?where=nombre_comuna%20like%20%27%25Santa%20Cruz%25%27&f=json",
+  "formato_origen": "ArcGIS REST (JSON)",
+  "cobertura": "Filtro: nombre_comuna like '%Santa Cruz%'",
+  "licencia": "Publicada en GeoMedellín. Condiciones de uso por confirmar con MEData (medata@medellin.gov.co) antes de redistribuir. No se descargan nombres, teléfonos ni correos.",
+  "estado": "ok",
+  "registros": 908,
+  "fecha_descarga": "2026-10-13T03:24:29+00:00",
+  "ultima_actualizacion_en_datos": null,
+  "error": null
+ },
+ {
+  "id": "solicitudes_quebradas",
+  "nombre": "Solicitudes sobre quebradas (SIRO)",
+  "entidad": "Alcaldía de Medellín (GeoMedellín): Secretaría de Infraestructura Física, sistema SIRO",
+  "tipo": "oficial",
+  "url_servicio": "https://www.medellin.gov.co/servidormapas/rest/services/vivienda_ciudad_terri/VA_Solicitudes_pqrs/MapServer",
+  "consulta": "https://www.medellin.gov.co/servidormapas/rest/services/vivienda_ciudad_terri/VA_Solicitudes_pqrs/MapServer/3/query?where=nombre_comuna%20like%20%27%25Santa%20Cruz%25%27&f=json",
+  "formato_origen": "ArcGIS REST (JSON)",
+  "cobertura": "Filtro: nombre_comuna like '%Santa Cruz%'",
+  "licencia": "Publicada en GeoMedellín. Condiciones de uso por confirmar con MEData (medata@medellin.gov.co) antes de redistribuir. No se descargan nombres, teléfonos ni correos.",
+  "estado": "ok",
+  "registros": 493,
+  "fecha_descarga": "2026-10-13T03:24:29+00:00",
+  "ultima_actualizacion_en_datos": null,
+  "error": null
  }
 ]

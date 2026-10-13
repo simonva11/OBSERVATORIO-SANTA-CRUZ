@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import IconoNav from "./IconosNav";
 import Paleta from "./Paleta";
@@ -189,7 +189,6 @@ function BotonTema({ noche, onCambiar, compacta = false }: { noche: boolean; onC
 // ------------------------------------------------------------------ tamaño de la letra (A- / A+)
 const CLAVE_NIVEL = "observatorio-santa-cruz:letra-nivel";
 const CLAVE_LETRA_VIEJA = "observatorio-santa-cruz:letra-grande";
-const CLAVE_BARRA = "observatorio-santa-cruz:barra-colapsada";
 /** Porcentaje del tamaño de letra en cada nivel. */
 const NIVELES = [100, 112, 124, 138];
 
@@ -244,6 +243,70 @@ function LetraTamano({ nivel, onNivel, variante }: { nivel: number; onNivel: (n:
   );
 }
 
+/** Módulos en la barra superior (computador). Una categoría con varios módulos abre un desplegable; con uno solo es un enlace directo. */
+function BarraModulos() {
+  const { pathname } = useLocation();
+  const [abierto, setAbierto] = useState<string | null>(null);
+  const ref = useRef<HTMLElement>(null);
+  const activo = grupoDeRuta(pathname);
+  useEffect(() => setAbierto(null), [pathname]);
+  useEffect(() => {
+    if (!abierto) return;
+    const fuera = (e: MouseEvent) => !ref.current?.contains(e.target as Node) && setAbierto(null);
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setAbierto(null);
+    document.addEventListener("mousedown", fuera);
+    document.addEventListener("keydown", esc);
+    return () => {
+      document.removeEventListener("mousedown", fuera);
+      document.removeEventListener("keydown", esc);
+    };
+  }, [abierto]);
+  const chip = (activa: boolean) =>
+    `flex items-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-1.5 text-[0.88rem] font-medium transition-colors ${activa ? "bg-acento/15 text-tinta" : "text-tinta-suave hover:bg-acento/10 hover:text-tinta"}`;
+  return (
+    <nav ref={ref} aria-label="Módulos" className="hidden items-center gap-0.5 lg:flex">
+      {GRUPOS.map((g, i) => {
+        const esActivo = activo === g.id;
+        if (g.modulos.length === 1) {
+          const m = g.modulos[0];
+          return (
+            <NavLink key={g.id} to={m.ruta} className={chip(esActivo)} aria-current={esActivo ? "page" : undefined}>
+              <IconoNav nombre={m.icono} className="h-4 w-4" trazo={esActivo ? 2.2 : 1.8} />
+              {m.corto}
+            </NavLink>
+          );
+        }
+        const abre = abierto === g.id;
+        return (
+          <div key={g.id} className="relative">
+            <button type="button" aria-expanded={abre} aria-haspopup="true" onClick={() => setAbierto(abre ? null : g.id)} className={chip(esActivo || abre)}>
+              {g.titulo}
+              <svg viewBox="0 0 24 24" aria-hidden="true" className={`h-3.5 w-3.5 transition-transform ${abre ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+            </button>
+            {abre && (
+              <div className={`absolute top-full z-[1200] mt-2 w-80 rounded-2xl border border-nivel bg-superficie p-2 shadow-xl ${i >= 4 ? "right-0" : "left-0"}`}>
+                {g.modulos.map((m) => (
+                  <NavLink key={m.ruta} to={m.ruta} end={m.ruta === "/"} onClick={() => setAbierto(null)}
+                    className={({ isActive }) => `flex items-start gap-3 rounded-xl px-3 py-2 transition-colors ${isActive ? "bg-acento/15" : "hover:bg-acento/10"}`}>
+                    <IconoNav nombre={m.icono} className="mt-0.5 h-5 w-5 shrink-0 text-acento" trazo={1.8} />
+                    <span className="min-w-0">
+                      <span className="flex items-center gap-2 text-[0.92rem] font-semibold">
+                        {m.nombre}
+                        {m.fase && <span className="text-[0.68rem] font-medium text-ambar-texto">{m.fase}</span>}
+                      </span>
+                      <span className="block text-[0.8rem] leading-snug text-tinta-suave">{m.detalle}</span>
+                    </span>
+                  </NavLink>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </nav>
+  );
+}
+
 export default function Layout({ children }: { children: ReactNode }) {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const { pathname } = useLocation();
@@ -261,87 +324,45 @@ export default function Layout({ children }: { children: ReactNode }) {
   const esMapa = pathname === "/mapa";
   const [nivel, setNivel] = useLetra();
   const [noche, setNoche] = useTema();
-  const [colapsada, setColapsada] = useState(() => {
-    try {
-      return localStorage.getItem(CLAVE_BARRA) === "1";
-    } catch {
-      return false;
-    }
-  });
-  useEffect(() => {
-    try {
-      localStorage.setItem(CLAVE_BARRA, colapsada ? "1" : "0");
-    } catch {
-      /* sin almacenamiento */
-    }
-  }, [colapsada]);
-
   useEffect(() => setMenuAbierto(false), [pathname]);
 
   return (
-    <div className="flex h-[100dvh] flex-col bg-papel text-tinta lg:flex-row">
+    <div className="flex h-[100dvh] flex-col bg-papel text-tinta">
       <a href="#contenido" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-[2000] focus:rounded focus:bg-papel focus:px-3 focus:py-2">
         Saltar al contenido
       </a>
 
-      {/* Barra lateral en computador: se puede encoger a solo íconos */}
-      <aside
-        data-cromo="lateral"
-        data-animar={esMapa ? undefined : ""}
-        className={`hidden shrink-0 flex-col overflow-y-auto overflow-x-hidden border-r border-nivel bg-papel py-5 lg:flex ${colapsada ? "w-[5.5rem] px-2.5" : "w-64 px-3"}`}
-      >
-        <div className={`mb-5 flex items-center gap-3 ${colapsada ? "flex-col gap-1.5" : "px-2"}`}>
-          <Logo className="h-10 w-10 shrink-0" />
-          {colapsada ? (
-            <p className="text-[0.7rem] font-bold tracking-[0.18em]">OTEA</p>
-          ) : (
-            <div className="leading-tight">
-              <p className="text-[1.05rem] font-bold tracking-[0.14em]">OTEA</p>
-              <p className="text-[0.75rem] text-tinta-suave">Observatorio Santa Cruz · Comuna 2</p>
-            </div>
-          )}
-        </div>
-        <button type="button" onClick={() => setBuscar(true)} title="Buscar (Ctrl + K)" aria-label="Buscar un módulo o barrio"
-          className={`mb-3 flex items-center rounded-xl border border-nivel bg-superficie text-tinta-suave transition hover:border-marca hover:text-tinta ${colapsada ? "flex-col justify-center gap-1 px-1 py-2" : "gap-3 px-3 py-2 text-[0.9rem]"}`}>
-          <IconoNav nombre="lupa" className="h-5 w-5 shrink-0" trazo={2} />
-          {colapsada ? <span className="text-[0.62rem] leading-none">Buscar</span> : <><span className="flex-1 text-left">Buscar…</span><kbd className="rounded bg-papel px-1.5 py-0.5 text-[0.68rem] font-semibold">Ctrl K</kbd></>}
-        </button>
-        <Navegacion compacta={colapsada} />
-        <div className="mt-auto space-y-1.5 border-t border-nivel/70 pt-3">
-          {esMapa && !colapsada && <LetraTamano nivel={nivel} onNivel={setNivel} variante="barra" />}
-          <div className={colapsada ? "space-y-0.5" : "flex gap-1"}>
-            <BotonTema noche={noche} onCambiar={() => setNoche((v) => !v)} compacta={colapsada} />
-            <BotonPie
-              icono={colapsada ? "derecha" : "izquierda"}
-              texto={colapsada ? "Mostrar el menú completo" : "Contraer"}
-              corto="Abrir"
-              compacta={colapsada}
-              onClick={() => setColapsada((v) => !v)}
-              aria-expanded={!colapsada}
-              aria-label={colapsada ? "Mostrar el menú completo" : "Contraer el menú"}
-            />
-          </div>
-        </div>
-        {!colapsada && <p className="mt-2 px-2 text-[0.68rem] leading-snug text-tinta-tenue">Territorio INN 2026 · Reto #4: espacios públicos, equipamientos y movilidad.</p>}
-      </aside>
-
-      {/* Barra superior en celular y tableta */}
-      <header data-cromo="cabecera" className="relative z-[1100] flex items-center justify-between border-b border-nivel bg-papel px-4 py-2.5 lg:hidden">
-        <div className="flex items-center gap-2.5">
+      {/* Barra superior: en computador lleva los módulos agrupados en desplegables; en celular, un botón de menú */}
+      <header data-cromo="cabecera" className="relative z-[1100] flex items-center gap-3 border-b border-nivel bg-papel px-4 py-2.5 lg:px-6">
+        <NavLink to="/" className="flex shrink-0 items-center gap-2.5" aria-label="OTEA, ir al inicio">
           <Logo className="h-8 w-8" />
-          <p className="font-bold">OTEA · Santa Cruz</p>
+          <p className="font-bold tracking-[0.1em]">OTEA<span className="hidden font-normal tracking-normal text-tinta-suave xl:inline"> · Santa Cruz</span></p>
+        </NavLink>
+        <BarraModulos />
+        <div className="ml-auto flex items-center gap-1.5">
+          <button type="button" onClick={() => setBuscar(true)} title="Buscar (Ctrl + K)" aria-label="Buscar un módulo o barrio"
+            className="hidden items-center gap-2 whitespace-nowrap rounded-xl border border-nivel bg-superficie px-3 py-1.5 text-sm text-tinta-suave transition hover:border-marca hover:text-tinta lg:flex">
+            <IconoNav nombre="lupa" className="h-4 w-4" trazo={2} />
+            <span className="hidden xl:inline">Buscar…</span>
+            <kbd className="hidden rounded bg-papel px-1.5 py-0.5 text-[0.68rem] font-semibold xl:inline">Ctrl K</kbd>
+          </button>
+          <button type="button" onClick={() => setNoche((v) => !v)} aria-pressed={noche} title={noche ? "Modo día" : "Modo noche"} aria-label={noche ? "Cambiar a modo día" : "Cambiar a modo noche"}
+            className="hidden h-9 w-9 place-items-center rounded-xl text-tinta-suave transition hover:bg-menta hover:text-tinta lg:grid">
+            <IconoNav nombre={noche ? "sol" : "luna"} className="h-5 w-5" trazo={2} />
+          </button>
+          {esMapa && <div className="hidden whitespace-nowrap xl:block [&_button]:!h-8 [&_button]:!w-8 [&_div]:!py-0 [&_div]:!px-1 [&_span.font-semibold]:hidden"><LetraTamano nivel={nivel} onNivel={setNivel} variante="barra" /></div>}
+          <button
+            type="button"
+            onClick={() => setMenuAbierto((v) => !v)}
+            aria-expanded={menuAbierto}
+            aria-controls="menu-movil"
+            className="rounded-md border border-nivel px-3 py-1.5 text-sm font-medium lg:hidden"
+          >
+            {menuAbierto ? "Cerrar" : "Menú"}
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => setMenuAbierto((v) => !v)}
-          aria-expanded={menuAbierto}
-          aria-controls="menu-movil"
-          className="rounded-md border border-nivel px-3 py-1.5 text-sm font-medium"
-        >
-          {menuAbierto ? "Cerrar" : "Menú"}
-        </button>
         {menuAbierto && (
-          <div id="menu-movil" className="absolute inset-x-0 top-full border-b border-nivel bg-papel p-3 shadow-lg">
+          <div id="menu-movil" className="absolute inset-x-0 top-full max-h-[80dvh] overflow-y-auto border-b border-nivel bg-papel p-3 shadow-lg lg:hidden">
             <Navegacion onNavegar={() => setMenuAbierto(false)} />
             <div className="mt-3 space-y-2">
               <BotonTema noche={noche} onCambiar={() => setNoche((v) => !v)} />
