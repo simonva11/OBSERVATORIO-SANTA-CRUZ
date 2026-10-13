@@ -86,7 +86,7 @@ function Contenido({ d }: { d: Indicadores }) {
   const cv = c[clave] as number | null;
 
   return (
-    <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
+    <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
       <Cabecera
         etiqueta="Accesibilidad caminando"
         icono="accesibilidad"

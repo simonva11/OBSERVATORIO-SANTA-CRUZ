@@ -191,7 +191,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
 
   const campo = "mt-1 h-10 w-full rounded-md border border-nivel bg-superficie px-2 text-sm";
   return (
-    <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
+    <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
       <Cabecera
         etiqueta="Comunidad"
         icono="estrella"
@@ -222,7 +222,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
         <button type="button" onClick={() => window.print()} className="no-imprimir mt-3 rounded-full bg-superficie px-3 py-1.5 text-sm font-medium ring-1 ring-nivel transition hover:bg-menta">Imprimir para la asamblea</button>
       </Seccion>
 
-      <Seccion id="t-l-carta" titulo="Carta de derecho de petición" texto="Elija el tema: la carta se llena con las cifras del barrio. Complete los datos entre corchetes antes de radicarla.">
+      <Seccion mitad id="t-l-carta" titulo="Carta de derecho de petición" texto="Elija el tema: la carta se llena con las cifras del barrio. Complete los datos entre corchetes antes de radicarla.">
         <details className="group">
           <summary className="no-imprimir w-fit cursor-pointer list-none rounded-full bg-superficie px-4 py-2 text-sm font-semibold text-marca ring-1 ring-nivel hover:bg-menta">
             <span className="group-open:hidden">Ver la carta</span><span className="hidden group-open:inline">Ocultar la carta</span>
@@ -241,7 +241,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
         </details>
       </Seccion>
 
-      <Seccion id="t-l-plazos" titulo="Contador de plazos" texto="Cuente los días hábiles que tiene la entidad para responder (Ley 1755 de 2015, art. 14): sin sábados, domingos ni festivos, y sin contar el día en que radicó. Si la entidad le avisa por escrito que necesita más tiempo, el plazo cambia.">
+      <Seccion mitad id="t-l-plazos" titulo="Contador de plazos" texto="Cuente los días hábiles que tiene la entidad para responder (Ley 1755 de 2015, art. 14): sin sábados, domingos ni festivos, y sin contar el día en que radicó. Si la entidad le avisa por escrito que necesita más tiempo, el plazo cambia.">
         <div className="no-imprimir grid gap-3 rounded-2xl border border-nivel bg-superficie p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
           <label className="text-sm font-semibold sm:col-span-2">Asunto<input value={asunto} onChange={(e) => setAsunto(e.target.value)} maxLength={120} className={campo} placeholder="Andén de la calle 107" /></label>
           <label className="text-sm font-semibold sm:col-span-2">Entidad
@@ -288,7 +288,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
         {sinRespuesta > 0 && <p className="no-imprimir mt-2 text-sm text-tinta-suave">Una petición vencida sin respuesta se puede llevar a la Personería. Mire a quién acudir más abajo.</p>}
       </Seccion>
 
-      <Seccion id="t-l-acudir" titulo="A quién acudir" texto="Quién es cada entidad, para qué sirve y cómo llegarle. Solo están los datos que se confirmaron en páginas oficiales.">
+      <Seccion mitad id="t-l-acudir" titulo="A quién acudir" texto="Quién es cada entidad, para qué sirve y cómo llegarle. Solo están los datos que se confirmaron en páginas oficiales.">
         <div className="space-y-6">
           {DIRECTORIO.map((g) => (
             <div key={g.titulo}>
@@ -314,7 +314,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
         </div>
       </Seccion>
 
-      <Seccion id="t-l-ruta" titulo="Planeación Local y Presupuesto Participativo" texto="Las cuatro fases según la Subsecretaría de Planeación Local y Presupuesto Participativo de la Alcaldía. Las fechas de cada fase se consultan allá: cambian cada año.">
+      <Seccion mitad id="t-l-ruta" titulo="Planeación Local y Presupuesto Participativo" texto="Las cuatro fases según la Subsecretaría de Planeación Local y Presupuesto Participativo de la Alcaldía. Las fechas de cada fase se consultan allá: cambian cada año.">
         <ol className="grid gap-3 sm:grid-cols-2">
           {[
             ["1. Planeación participativa", "Elegir o ser elegido representante al Consejo Comunal de Planeación y priorizar ideas para el Plan de Desarrollo Local."],

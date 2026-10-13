@@ -27,7 +27,7 @@ function Contenido({ r, ind }: { r: Riesgo; ind: Indicadores }) {
   const areaComuna = ind.comuna.amenaza_pct?.Alta ?? null;
 
   return (
-    <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
+    <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
       <Cabecera
         etiqueta="Riesgo y ladera"
         icono="alerta"
@@ -143,7 +143,7 @@ function Contenido({ r, ind }: { r: Riesgo; ind: Indicadores }) {
         </div>
       </Seccion>
 
-      <Seccion id="t-r-alerta" titulo="Alerta temprana y a quién acudir" texto="OTEA no emite alertas ni predice lluvias o deslizamientos. Para eso están estos canales oficiales.">
+      <Seccion mitad id="t-r-alerta" titulo="Alerta temprana y a quién acudir" texto="OTEA no emite alertas ni predice lluvias o deslizamientos. Para eso están estos canales oficiales.">
         <ul className="grid gap-3 sm:grid-cols-2">
           <li className="rounded-2xl border border-nivel bg-superficie p-4 text-sm shadow-sm">
             <p className="font-semibold">SIATA, alerta temprana del Valle de Aburrá</p>
@@ -186,7 +186,7 @@ function BasurasQuebradas() {
   if (d.estado !== "listo") return null;
   const q = d.datos.quebradas;
   return (
-    <Seccion id="t-r-quebradas" titulo="Basuras en las quebradas" texto="La gente también reporta a la Alcaldía lo que ve en las quebradas.">
+    <Seccion mitad id="t-r-quebradas" titulo="Basuras en las quebradas" texto="La gente también reporta a la Alcaldía lo que ve en las quebradas.">
       <p className="text-sm leading-relaxed text-tinta-suave">
         Hay {q.total} solicitudes públicas sobre quebradas de la comuna y {q.basuras} son por basuras o escombros. Los residuos pueden tapar el cauce y agravar una creciente, por eso conviene cruzarlas con las zonas de amenaza.{" "}
         <Link className="font-semibold text-marca underline underline-offset-2" to="/mapa?capas=solicitudes_quebradas,amenaza_movimiento_masa">Verlas en el mapa</Link> o en <Link className="font-semibold text-marca underline underline-offset-2" to="/reclamos">Huecos y reclamos</Link>.

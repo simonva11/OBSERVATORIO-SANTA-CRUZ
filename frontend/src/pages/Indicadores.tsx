@@ -123,7 +123,7 @@ function Contenido({ d }: { d: Ind }) {
   const imcv = ecv.imcv;
 
   return (
-    <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
+    <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
       <Cabecera etiqueta="Indicadores" icono="indicadores" titulo="Indicadores de Santa Cruz"
         texto={<>Calculados con datos oficiales de la Alcaldía de Medellín y del DANE. Última actualización del cálculo: {fecha(d.generado)}.</>}>
         <BotonCabecera to="/mapa">Verlos en el mapa</BotonCabecera>
@@ -178,7 +178,7 @@ function Contenido({ d }: { d: Ind }) {
         </section>
       )}
 
-      <Seccion id="t-i-barrios" titulo="Barrio frente a barrio" texto="La línea marca el promedio de la comuna. El barrio resaltado se ve más oscuro.">
+      <Seccion mitad id="t-i-barrios" titulo="Barrio frente a barrio" texto="La línea marca el promedio de la comuna. El barrio resaltado se ve más oscuro.">
       <div className="grid gap-4 lg:grid-cols-2">
         <Panel
           titulo="Espacio público por habitante"
@@ -214,7 +214,7 @@ function Contenido({ d }: { d: Ind }) {
       </div>
       </Seccion>
 
-      <Seccion id="t-i-tiempo" titulo="Con el paso del tiempo" texto="Siniestros viales y calidad de vida.">
+      <Seccion mitad id="t-i-tiempo" titulo="Con el paso del tiempo" texto="Siniestros viales y calidad de vida.">
       <div className="space-y-4">
       <Panel
         titulo="Siniestros viales por año en la comuna"

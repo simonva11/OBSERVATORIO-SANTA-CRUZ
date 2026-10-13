@@ -180,7 +180,7 @@ export default function Problematicas() {
   return (
     <div className="relative isolate overflow-hidden">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-papel" />
-      <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
+      <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
         <ConDatos estado={ind}>
           {(i) => <ConDatos estado={seg}>{(s) => <ConDatos estado={eje}>{(e) => <Contenido ind={i} seg={s} eje={e} andenes={and.estado === "listo" ? and.datos : null} />}</ConDatos>}</ConDatos>}
         </ConDatos>

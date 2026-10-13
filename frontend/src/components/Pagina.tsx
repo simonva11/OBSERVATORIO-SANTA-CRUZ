@@ -59,10 +59,10 @@ export function BotonCabecera({ to, children, claro = false }: { to: string; chi
 }
 
 /** Sección con título, una línea de ayuda y entrada animada al llegar a la pantalla. */
-export function Seccion({ id, titulo, texto, derecha, children }: { id: string; titulo: string; texto?: ReactNode; derecha?: ReactNode; children: ReactNode }) {
+export function Seccion({ id, titulo, texto, derecha, mitad = false, children }: { id: string; mitad?: boolean; titulo: string; texto?: ReactNode; derecha?: ReactNode; children: ReactNode }) {
   const a = acentoDeRuta(useLocation().pathname);
   return (
-    <Revelar>
+    <Revelar className={mitad ? "col-mitad" : ""}>
       <section aria-labelledby={id}>
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div className="min-w-0">

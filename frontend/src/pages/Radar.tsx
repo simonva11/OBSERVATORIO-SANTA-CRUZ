@@ -44,7 +44,7 @@ function Contenido({ r }: { r: Radar }) {
   const temaTop = Object.entries(r.por_tema).filter(([t]) => t !== "Otros")[0];
 
   return (
-    <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
+    <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
       <Cabecera etiqueta="Radar de la comuna" icono="alerta" titulo="Lo que dicen las noticias de Santa Cruz"
         texto={<>Titulares sobre la comuna y sus barrios, recogidos solos desde Google Noticias. Sirven para ver qué problemas aparecen una y otra vez y cuándo. No son datos oficiales: complementan, no reemplazan, los datos de la Alcaldía.</>}>
         <BotonCabecera to="/participacion">Reportar un problema</BotonCabecera>
@@ -58,7 +58,7 @@ function Contenido({ r }: { r: Radar }) {
         <Revelar retraso={150} className="h-full"><Kpi valor={r.no_listadas_por_respeto.total} texto="noticias de crímenes o víctimas que no se listan" nota="Por respeto a las familias" /></Revelar>
       </div>
 
-      <Seccion id="t-r-tiempo" titulo="Cuándo aparece la comuna en las noticias" texto="Noticias relevantes por mes. Un pico casi siempre es una emergencia.">
+      <Seccion mitad id="t-r-tiempo" titulo="Cuándo aparece la comuna en las noticias" texto="Noticias relevantes por mes. Un pico casi siempre es una emergencia.">
         <div className="rounded-2xl border border-nivel bg-superficie p-4 shadow-sm sm:p-5">
           <div className="grid grid-cols-[1.5rem_1fr] gap-2">
             <div className="flex h-40 flex-col justify-between pb-0.5 text-right text-xs tabular-nums text-tinta-tenue" aria-hidden="true"><span>{maxMes}</span><span>{Math.round(maxMes / 2)}</span><span>0</span></div>
@@ -84,7 +84,7 @@ function Contenido({ r }: { r: Radar }) {
         </div>
       </Seccion>
 
-      <Seccion id="t-r-temas" titulo="Temas y barrios" texto="Toca un tema o un barrio para filtrar la lista de abajo.">
+      <Seccion mitad id="t-r-temas" titulo="Temas y barrios" texto="Toca un tema o un barrio para filtrar la lista de abajo.">
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-2xl border border-nivel bg-superficie p-4 shadow-sm">
             <ul className="space-y-2">

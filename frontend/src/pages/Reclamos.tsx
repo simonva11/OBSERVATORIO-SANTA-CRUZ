@@ -61,7 +61,7 @@ function Contenido({ r, puntos }: { r: Reclamos; puntos: PuntoHueco[] }) {
   const mapa = `/mapa?capas=huecos,solicitudes_obras,solicitudes_quebradas`;
 
   return (
-    <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
+    <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
       <Cabecera etiqueta="Huecos y reclamos" icono="alerta" titulo="Lo que la gente ya le reportó a la Alcaldía"
         texto="Huecos, obras pedidas y basuras en las quebradas de la Comuna 2, según los registros públicos de la Alcaldía. Son reportes, no un conteo de todo lo que está dañado: solo aparece lo que alguien se tomó el trabajo de reportar.">
         <BotonCabecera to={mapa}>Verlo en el mapa</BotonCabecera>
@@ -118,7 +118,7 @@ function Contenido({ r, puntos }: { r: Reclamos; puntos: PuntoHueco[] }) {
         <p className="mt-2 text-xs text-tinta-tenue">La columna de reportes incluye los duplicados y descartados, por eso no suma exactamente arreglados más pendientes.</p>
       </Seccion>
 
-      <Seccion id="t-viejos" titulo="Los pendientes que más llevan esperando" texto={barrio ? `En ${barrio}.` : "En toda la comuna."}>
+      <Seccion mitad id="t-viejos" titulo="Los pendientes que más llevan esperando" texto={barrio ? `En ${barrio}.` : "En toda la comuna."}>
         {viejos.length === 0 ? (
           <p className="rounded-xl border border-nivel bg-superficie p-4 text-sm">No hay huecos pendientes en este barrio.</p>
         ) : (
@@ -141,7 +141,7 @@ function Contenido({ r, puntos }: { r: Reclamos; puntos: PuntoHueco[] }) {
         </p>
       </Seccion>
 
-      <Seccion id="t-anio" titulo="Reportes de huecos por año" texto={`El ${anioActual} va hasta el ${fecha(h.hasta)}.`}>
+      <Seccion mitad id="t-anio" titulo="Reportes de huecos por año" texto={`El ${anioActual} va hasta el ${fecha(h.hasta)}.`}>
         <div className="flex h-40 items-end gap-2 rounded-2xl border border-nivel bg-superficie p-4" role="img" aria-label="Reportes de huecos por año">
           {Object.entries(h.por_anio).map(([a, v]) => (
             <div key={a} className="flex flex-1 flex-col items-center justify-end gap-1">
@@ -154,7 +154,7 @@ function Contenido({ r, puntos }: { r: Reclamos; puntos: PuntoHueco[] }) {
         <p className="mt-2 text-sm text-tinta-suave">Que suban o bajen los reportes no quiere decir que haya más o menos huecos: también depende de cuánta gente conoce y usa la aplicación.</p>
       </Seccion>
 
-      <Seccion id="t-obras" titulo="Obras que se han pedido" texto={`${num(r.obras.total)} solicitudes a Infraestructura Física en la comuna, de todos los años.`}>
+      <Seccion mitad id="t-obras" titulo="Obras que se han pedido" texto={`${num(r.obras.total)} solicitudes a Infraestructura Física en la comuna, de todos los años.`}>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-2xl border border-nivel bg-superficie p-4">
             <h3 className="mb-3 font-semibold">Qué tipo de obra</h3>
@@ -168,7 +168,7 @@ function Contenido({ r, puntos }: { r: Reclamos; puntos: PuntoHueco[] }) {
         </div>
       </Seccion>
 
-      <Seccion id="t-quebradas" titulo="Basuras y daños en las quebradas" texto={`${num(r.quebradas.total)} solicitudes sobre quebradas, ${num(r.quebradas.basuras)} de ellas por basuras o escombros.`}>
+      <Seccion mitad id="t-quebradas" titulo="Basuras y daños en las quebradas" texto={`${num(r.quebradas.total)} solicitudes sobre quebradas, ${num(r.quebradas.basuras)} de ellas por basuras o escombros.`}>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-2xl border border-nivel bg-superficie p-4">
             <h3 className="mb-3 font-semibold">Qué problema se reporta</h3>

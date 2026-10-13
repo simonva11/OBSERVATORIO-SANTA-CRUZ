@@ -61,7 +61,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
   const corredoresUnicos = Array.from(new Map(corredores.map((c) => [c.tramo, c])).values());
 
   return (
-    <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
+    <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
       <Cabecera
         etiqueta="Inmobiliario y norma"
         icono="cubo"
@@ -160,7 +160,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
         <p className="mt-2 text-xs text-tinta-tenue">«—» significa que no hay al menos tres ofertas de venta de vivienda: no se calcula precio por m².</p>
       </Seccion>
 
-      <Seccion id="t-i-norma" titulo="La norma del POT en toda la comuna" texto="Cómo se reparte cada tratamiento urbanístico en el territorio de cada barrio.">
+      <Seccion mitad id="t-i-norma" titulo="La norma del POT en toda la comuna" texto="Cómo se reparte cada tratamiento urbanístico en el territorio de cada barrio.">
         <div className="vidrio vidrio--quieto rounded-xl p-4">
           <ul className="space-y-2">
             {barrios.map((x) => (
@@ -180,7 +180,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
         </div>
       </Seccion>
 
-      <Seccion id="t-i-pot" titulo="Instrumentos, centralidades y corredores" texto="Lo que el POT planifica dentro de la comuna.">
+      <Seccion mitad id="t-i-pot" titulo="Instrumentos, centralidades y corredores" texto="Lo que el POT planifica dentro de la comuna.">
         <div className="grid gap-4 md:grid-cols-2">
           <div className="vidrio vidrio--quieto rounded-xl p-4">
             <h3 className="text-base font-semibold">Instrumentos de planificación ({instrumentos.length})</h3>

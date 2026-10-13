@@ -64,7 +64,7 @@ function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad | null;
   const anchoB = ind.infraestructura?.andenes.barrios.find((x: Fila) => x.barrio === b.nombre) as Fila | undefined;
 
   return (
-    <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
+    <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
       <Cabecera
         etiqueta="Mi barrio"
         icono="personas"
@@ -131,7 +131,7 @@ function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad | null;
         </div>
       </Seccion>
 
-      <Seccion id="t-b-vs" titulo="Compararlo con otro barrio" texto="Elige un segundo barrio y mira los cuatro componentes lado a lado.">
+      <Seccion mitad id="t-b-vs" titulo="Compararlo con otro barrio" texto="Elige un segundo barrio y mira los cuatro componentes lado a lado.">
         <div className="no-imprimir mb-3 flex flex-wrap gap-2">
           {ind.barrios.filter((x) => x.codigo !== b.codigo).map((x) => (
             <button key={x.codigo} type="button" aria-pressed={x.codigo === otro?.codigo} onClick={() => setParams(x.codigo === otro?.codigo ? {} : { vs: x.codigo })}
@@ -184,7 +184,7 @@ function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad | null;
         )}
       </Seccion>
 
-      <Seccion id="t-b-comp" titulo="Este barrio frente a la comuna" texto="Rojo = peor que el total de la comuna.">
+      <Seccion mitad id="t-b-comp" titulo="Este barrio frente a la comuna" texto="Rojo = peor que el total de la comuna.">
         <div className="grid gap-3 md:grid-cols-2">
           <Comparar titulo="Espacio público por habitante" barrio={b.espacio_publico_m2_hab} comuna={c.espacio_publico_m2_hab} unidad="m²" mayorEsMalo={false} dec={2} />
           <Comparar titulo="Atropellos por cada 1.000 habitantes" barrio={atrMil(b)} comuna={atrMil({ atropellos: ind.barrios.reduce((s, x) => s + x.atropellos, 0), poblacion_2018: c.poblacion_2018 ?? null })} unidad="" />
@@ -193,7 +193,7 @@ function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad | null;
         </div>
       </Seccion>
 
-      <Seccion id="t-b-mov" titulo="Movilidad y la Carrera 49" texto="Tiempos caminando por la red de calles y escaleras, con la pendiente.">
+      <Seccion mitad id="t-b-mov" titulo="Movilidad y la Carrera 49" texto="Tiempos caminando por la red de calles y escaleras, con la pendiente.">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {acc && <Kpi valor={pct(acc.transporte_masivo_10min_pct as number)} texto="de las personas llegan al Metro en 10 min o menos" tono="ambar" />}
           {acc && <Kpi valor={`${dec(acc.transporte_masivo_promedio_min as number)} min`} texto="promedio hasta la estación más cercana" />}
@@ -206,7 +206,7 @@ function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad | null;
       </Seccion>
 
       {(hue || obrasPedidas != null || quebReportes != null) && (
-        <Seccion id="t-b-rec" titulo="Huecos y reclamos" texto="Lo que ya se reportó a la Alcaldía en este barrio. Son reportes, no un conteo de todo lo dañado.">
+        <Seccion mitad id="t-b-rec" titulo="Huecos y reclamos" texto="Lo que ya se reportó a la Alcaldía en este barrio. Son reportes, no un conteo de todo lo dañado.">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             {hue && <Kpi valor={num(hue.total)} texto="reportes de huecos desde 2020" nota={`${num(hue.arreglados)} ya figuran arreglados`} />}
             {hue && <Kpi valor={num(hue.pendientes)} texto="huecos siguen pendientes" nota={hue.dias_mediana != null ? `La mitad se arregló en ${hue.dias_mediana} días o menos` : undefined} tono={hue.pendientes > 20 ? "rojo" : "ambar"} />}

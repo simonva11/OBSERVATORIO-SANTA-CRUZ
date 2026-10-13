@@ -59,13 +59,13 @@ const ICONOS = ["inicio", "mapa", "personas", "alerta", "corredor", "indicadores
 
 export default function Identidad() {
   return (
-    <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
+    <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
       <Cabecera etiqueta="Manual de identidad" icono="paleta" titulo="Cómo se ve y cómo habla el observatorio"
         texto="Una sola forma de usar el color, las letras, los íconos y las palabras, para que todo el sitio se sienta de la misma casa y siga siendo fácil de usar. Para que lo sigan quienes hereden el proyecto, y para ti si vas a presentarlo.">
         <BotonCabecera to="/propuesta" claro>Ver la propuesta de valor</BotonCabecera>
       </Cabecera>
 
-      <Seccion id="t-i-con" titulo="Concepto: Ladera" texto="Tres cosas que se ven desde cualquier calle de Santa Cruz.">
+      <Seccion mitad id="t-i-con" titulo="Concepto: Ladera" texto="Tres cosas que se ven desde cualquier calle de Santa Cruz.">
         <div className="grid gap-3 md:grid-cols-3">
           {[
             ["Las curvas de nivel", "El territorio. La comuna es una ladera y todo lo que medimos pasa sobre ella. Por eso las curvas de nivel son el patrón de fondo.", "#3b82f6"],
@@ -82,7 +82,7 @@ export default function Identidad() {
         <p className="mt-3 text-sm text-tinta-suave"><strong className="text-tinta">Valores:</strong> claro (lo entiende cualquiera), verificable (cada cifra tiene fuente) y cercano (habla como un vecino que sabe de datos).</p>
       </Seccion>
 
-      <Seccion id="t-i-logo" titulo="Logo" texto="Una ladera con la línea de un cable encima, sobre un degradado de cobalto a azul cielo. Se usa siempre completo.">
+      <Seccion mitad id="t-i-logo" titulo="Logo" texto="Una ladera con la línea de un cable encima, sobre un degradado de cobalto a azul cielo. Se usa siempre completo.">
         <div className="grid gap-3 md:grid-cols-4">
           {[["Sobre claro", "#f4f8fe"], ["Sobre oscuro", "#0a0d1f"], ["Sobre cobalto", "#1e40af"], ["Sobre color de módulo", "#1d4f7a"]].map(([t, bg]) => (
             <div key={t} className="grid h-28 place-items-center rounded-2xl ring-1 ring-black/10" style={{ background: bg }}>
@@ -166,7 +166,7 @@ export default function Identidad() {
         </div>
       </Seccion>
 
-      <Seccion id="t-i-tipo" titulo="Letra" texto="Una sola familia, Inter, con pesos y tamaños fijos.">
+      <Seccion mitad id="t-i-tipo" titulo="Letra" texto="Una sola familia, Inter, con pesos y tamaños fijos.">
         <div className="vidrio vidrio--quieto divide-y divide-nivel rounded-2xl px-4 sm:px-5">
           {[
             ["Título de página", "text-[1.9rem] font-semibold leading-tight tracking-tight", "Lo que pasa en Santa Cruz", "30 px · Semibold"],
@@ -189,7 +189,7 @@ export default function Identidad() {
         </ul>
       </Seccion>
 
-      <Seccion id="t-i-comp" titulo="Componentes" texto="Lo que se ve en todas las páginas. Se construyen con las mismas piezas (components/Pagina.tsx).">
+      <Seccion mitad id="t-i-comp" titulo="Componentes" texto="Lo que se ve en todas las páginas. Se construyen con las mismas piezas (components/Pagina.tsx).">
         <div className="vidrio vidrio--quieto space-y-5 rounded-2xl p-4 sm:p-5">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <Kpi valor="22,4 %" texto="llegan al Metro en 10 min" tono="rojo" />
@@ -210,7 +210,7 @@ export default function Identidad() {
         </div>
       </Seccion>
 
-      <Seccion id="t-i-ico" titulo="Íconos" texto="Línea de 1,8 px, esquinas redondeadas, 24 px. Siempre con una palabra al lado.">
+      <Seccion mitad id="t-i-ico" titulo="Íconos" texto="Línea de 1,8 px, esquinas redondeadas, 24 px. Siempre con una palabra al lado.">
         <div className="vidrio vidrio--quieto grid grid-cols-4 gap-3 rounded-2xl p-4 sm:grid-cols-7 sm:p-5">
           {ICONOS.map((n) => (
             <div key={n} className="flex flex-col items-center gap-1.5 text-center">
@@ -221,7 +221,7 @@ export default function Identidad() {
         </div>
       </Seccion>
 
-      <Seccion id="t-i-voz" titulo="Voz" texto="Un vecino que sabe de datos: claro, directo y sin hacerse el importante.">
+      <Seccion mitad id="t-i-voz" titulo="Voz" texto="Un vecino que sabe de datos: claro, directo y sin hacerse el importante.">
         <div className="space-y-3">
           <Par si="Solo 22,4 % de las personas llega al Metro en 10 minutos caminando." no="Se evidencia una deficiencia significativa de accesibilidad multimodal en el área de estudio." />
           <Par si="No sabemos si la Alcaldía publica esos reportes. Hay que preguntarlo." no="Los reportes ciudadanos están plenamente integrados a la plataforma." />

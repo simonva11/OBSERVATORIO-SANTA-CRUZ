@@ -258,7 +258,7 @@ function Contenido({ d }: { d: Eje49 }) {
       </Seccion>
 
       {/* ------------------------------------------------------------------ estado de la vía */}
-      <Seccion id="t-estado" titulo="Cómo está la 49 por dentro" texto={`Datos oficiales a menos de 25 m de sus ${dec(e.largo_km)} km existentes (Venezuela, 49B y 49C).`}>
+      <Seccion mitad id="t-estado" titulo="Cómo está la 49 por dentro" texto={`Datos oficiales a menos de 25 m de sus ${dec(e.largo_km)} km existentes (Venezuela, 49B y 49C).`}>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           {[
             { n: e.siniestros, t: "siniestros viales entre 2019 y 2025", c: "rgb(var(--peligro))" },
@@ -328,7 +328,7 @@ function Contenido({ d }: { d: Eje49 }) {
       </Seccion>
 
       {/* ------------------------------------------------------------------ qué sigue */}
-      <Seccion id="t-sigue" titulo="Qué dice esto y qué falta">
+      <Seccion mitad id="t-sigue" titulo="Qué dice esto y qué falta">
         <div className="grid gap-6 lg:grid-cols-2">
           <Revelar>
             <div className="h-full rounded-2xl border-l-4 border-marca bg-menta-2 p-6">
@@ -377,7 +377,7 @@ export default function Corredor49() {
   return (
     <div className="relative isolate overflow-hidden">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-papel" />
-      <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
+      <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
         <ConDatos estado={estado}>{(d) => <Contenido d={d} />}</ConDatos>
       </div>
     </div>

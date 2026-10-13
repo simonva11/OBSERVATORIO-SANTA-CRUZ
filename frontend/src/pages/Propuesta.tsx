@@ -32,7 +32,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
   const atropellos = ind.barrios.reduce((s, b) => s + b.atropellos, 0);
 
   return (
-    <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
+    <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
       <Cabecera etiqueta="Propuesta de valor" icono="corazon" titulo="Por qué Santa Cruz necesita un observatorio"
         texto={<>Qué problemas tiene la comuna, qué existe ya, qué falta, cómo lo detectamos y quién lo usaría. Escrito con lo que pudimos verificar y marcando lo que todavía no.</>}>
         <BotonCabecera to="/radar">Ver el radar de noticias</BotonCabecera>
@@ -54,7 +54,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
         </div>
       </Seccion>
 
-      <Seccion id="t-p-existe" titulo="¿Ya existe algo así?" texto="Lo que encontramos. No es una revisión exhaustiva: antes de presentarlo, hay que confirmarlo con la Alcaldía y la comunidad.">
+      <Seccion mitad id="t-p-existe" titulo="¿Ya existe algo así?" texto="Lo que encontramos. No es una revisión exhaustiva: antes de presentarlo, hay que confirmarlo con la Alcaldía y la comunidad.">
         <div className="grid gap-3 md:grid-cols-2">
           <Tarjeta titulo="ReportesMED (Alcaldía de Medellín)">
             <p>App para que los vecinos reporten huecos, escombros y basuras en las calles y daños en luminarias; reemplazó a HuecosMed. Se puede usar sin registrarse y los reportes llegan a las entidades responsables (según la <a className="font-semibold text-marca underline" href="https://www.medellin.gov.co/es/sala-de-prensa/noticias/con-reportesmed-ciudadanos-podran-reportar-escombros-huecos-en-las-calles-y-danos-en-luminarias/" target="_blank" rel="noopener noreferrer">noticia de 2022</a>).</p>
@@ -74,7 +74,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
         </div>
       </Seccion>
 
-      <Seccion id="t-p-dif" titulo="Qué lo hace distinto" texto="Cinco cosas que ya funcionan en esta versión.">
+      <Seccion mitad id="t-p-dif" titulo="Qué lo hace distinto" texto="Cinco cosas que ya funcionan en esta versión.">
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {[
             ["Minutos reales", "Caminando por calles, escaleras y puentes, con la pendiente de la ladera, para cada una de las 476 manzanas."],
@@ -106,7 +106,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
         </p>
       </Seccion>
 
-      <Seccion id="t-p-redes" titulo="¿Y TikTok, Facebook y otras redes?">
+      <Seccion mitad id="t-p-redes" titulo="¿Y TikTok, Facebook y otras redes?">
         <div className="grid gap-3 md:grid-cols-2">
           <Tarjeta titulo="Lo que no hacemos" tono="#c0583a">
             <p>No sacamos información de TikTok, Facebook o Instagram con programas automáticos. Esas plataformas lo prohíben en sus términos de servicio, y lo que publica una persona sigue siendo un dato personal protegido por la Ley 1581 de 2012 (habeas data) aunque sea visible.</p>
@@ -121,7 +121,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
         </div>
       </Seccion>
 
-      <Seccion id="t-p-vende" titulo="Por qué se puede vender, y a quién" texto="Son hipótesis. Cada una se valida con entrevistas antes de decir que es un cliente.">
+      <Seccion mitad id="t-p-vende" titulo="Por qué se puede vender, y a quién" texto="Son hipótesis. Cada una se valida con entrevistas antes de decir que es un cliente.">
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
           {[
             ["Alcaldía y secretarías", "Priorizar obras de andenes, vías y espacio público con criterios claros y trazables."],
@@ -133,7 +133,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
         <p className="mt-3 text-sm text-tinta-suave">Modelo posible: una suscripción por comuna o municipio con actualización de datos e informes. Los números de precio no están calculados todavía.</p>
       </Seccion>
 
-      <Seccion id="t-p-gana" titulo="¿Ganará el reto?" texto="Nadie lo puede asegurar. Esto es lo que juega a favor y lo que hay que reforzar.">
+      <Seccion mitad id="t-p-gana" titulo="¿Ganará el reto?" texto="Nadie lo puede asegurar. Esto es lo que juega a favor y lo que hay que reforzar.">
         <div className="grid gap-3 md:grid-cols-2">
           <Tarjeta titulo="A favor" tono="#3b82f6">
             <ul className="list-disc space-y-1 pl-5">
@@ -154,7 +154,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
         </div>
       </Seccion>
 
-      <Seccion id="t-p-datos" titulo="Qué información necesitamos" texto="Lo que ya tenemos y lo que falta conseguir.">
+      <Seccion mitad id="t-p-datos" titulo="Qué información necesitamos" texto="Lo que ya tenemos y lo que falta conseguir.">
         <div className="grid gap-2 md:grid-cols-2">
           {([
             ["Censo 2018, POT, movilidad, equipamientos, riesgo, seguridad", "Hecho"],

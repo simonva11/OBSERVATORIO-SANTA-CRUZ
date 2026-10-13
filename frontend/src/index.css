@@ -494,3 +494,18 @@ html.noche .cabecera-panel {
 @media (print) {
   .revelar { opacity: 1 !important; transform: none !important; }
 }
+
+/* Rejilla de página: en pantallas anchas las secciones marcadas "mitad" se ponen de a dos; lo demás ocupa todo el ancho */
+.pagina-rejilla {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.5rem 2rem;
+  align-content: start;
+}
+@media (min-width: 1280px) {
+  .pagina-rejilla { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.75rem 2.25rem; }
+  .pagina-rejilla > * { grid-column: 1 / -1; }
+  .pagina-rejilla > .col-mitad { grid-column: span 1; }
+  .col-mitad .grid[class*="grid-cols-3"],
+  .col-mitad .grid[class*="grid-cols-4"] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
