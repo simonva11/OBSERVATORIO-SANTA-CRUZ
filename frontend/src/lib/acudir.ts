@@ -63,7 +63,7 @@ export const DIRECTORIO: GrupoAcudir[] = [
     entradas: [
       { quien: "Metro de Medellín", para: "Estaciones, Metrocable y acceso peatonal a ellos.", como: "Por los canales de atención de su página.", url: "https://www.metrodemedellin.gov.co" },
       { quien: "Emergencias: 123", para: "Una emergencia en curso. Los bomberos atienden a toda hora.", como: "Llamar al 123." },
-      { quien: "SIATA", para: "Alertas de lluvia y crecientes en tiempo real.", como: "Mirar la página o la aplicación.", url: "https://siata.gov.co" },
+      { quien: "SIATA", para: "Alerta temprana: clima, lluvia y ríos del Valle de Aburrá en tiempo real.", como: "Mirar la página.", url: "https://siata.gov.co" },
     ],
   },
   {

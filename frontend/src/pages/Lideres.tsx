@@ -12,7 +12,6 @@ import { Cabecera, Seccion } from "../components/Pagina";
 type Fila = Record<string, number | string | null>;
 
 const CLAVE = "observatorio-santa-cruz:lideres-peticiones:v1";
-const CLAVE_AGENDA = "observatorio-santa-cruz:lideres-agenda:v1";
 
 const TEMAS: Record<string, { nombre: string; entidad: string; pedir: string[] }> = {
   andenes: {
@@ -72,25 +71,10 @@ interface Peticion {
   tipo?: TipoPeticion; // las guardadas antes no lo traen: cuentan como petición general
 }
 
-interface Cita {
-  id: string;
-  fecha: string; // AAAA-MM-DD
-  titulo: string;
-}
-
 function leer(): Peticion[] {
   try {
     const l = JSON.parse(localStorage.getItem(CLAVE) ?? "[]");
     return Array.isArray(l) ? l.filter((p) => p && typeof p.id === "string" && typeof p.radicado === "string") : [];
-  } catch {
-    return [];
-  }
-}
-
-function leerAgenda(): Cita[] {
-  try {
-    const l = JSON.parse(localStorage.getItem(CLAVE_AGENDA) ?? "[]");
-    return Array.isArray(l) ? l.filter((c) => c && typeof c.id === "string" && typeof c.fecha === "string" && typeof c.titulo === "string") : [];
   } catch {
     return [];
   }
@@ -125,7 +109,6 @@ function Actores({ codigo }: { codigo: string }) {
   );
 }
 
-const diasDesde = (iso: string) => Math.floor((Date.now() - new Date(`${iso}T00:00:00`).getTime()) / 86400000);
 const limite = (p: Peticion) => vence(p.radicado, TIPOS_PETICION[p.tipo ?? "general"].dias);
 
 function Contenido({ ind }: { ind: Indicadores }) {
@@ -139,10 +122,6 @@ function Contenido({ ind }: { ind: Indicadores }) {
   const [entidadNueva, setEntidadNueva] = useState("");
   const [rad, setRad] = useState(new Date().toISOString().slice(0, 10));
   const [errorLista, setErrorLista] = useState("");
-  const [agenda, setAgenda] = useState<Cita[]>(leerAgenda);
-  const [citaFecha, setCitaFecha] = useState("");
-  const [citaTitulo, setCitaTitulo] = useState("");
-  const [errorAgenda, setErrorAgenda] = useState("");
 
   useEffect(() => {
     try {
@@ -151,14 +130,6 @@ function Contenido({ ind }: { ind: Indicadores }) {
       /* sin almacenamiento: dura solo esta visita */
     }
   }, [lista]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(CLAVE_AGENDA, JSON.stringify(agenda));
-    } catch {
-      /* sin almacenamiento */
-    }
-  }, [agenda]);
 
   const b = ind.barrios.find((x) => x.codigo === codigo)!;
   const sinRespuesta = lista.filter((p) => !p.respondida && habilesHasta(limite(p)) < 0).length;
@@ -195,14 +166,6 @@ function Contenido({ ind }: { ind: Indicadores }) {
     "[NOMBRE COMPLETO]",
     "C.C. [NÚMERO]",
   ].join("\n");
-
-  const agregarCita = () => {
-    const t = limpiarTexto(citaTitulo).slice(0, 100);
-    if (t.length < 3 || !/^\d{4}-\d{2}-\d{2}$/.test(citaFecha)) return setErrorAgenda("Escriba un título y elija la fecha.");
-    setErrorAgenda("");
-    setAgenda((a) => [...a, { id: crypto.randomUUID?.() ?? String(Date.now()), fecha: citaFecha, titulo: t }].sort((x, y) => x.fecha.localeCompare(y.fecha)).slice(0, 60));
-    setCitaTitulo("");
-  };
 
   const copiar = async () => {
     try {
@@ -260,7 +223,11 @@ function Contenido({ ind }: { ind: Indicadores }) {
       </Seccion>
 
       <Seccion id="t-l-carta" titulo="Carta de derecho de petición" texto="Elija el tema: la carta se llena con las cifras del barrio. Complete los datos entre corchetes antes de radicarla.">
-        <div className="no-imprimir flex flex-wrap gap-2" role="group" aria-label="Tema de la petición">
+        <details className="group">
+          <summary className="no-imprimir w-fit cursor-pointer list-none rounded-full bg-superficie px-4 py-2 text-sm font-semibold text-marca ring-1 ring-nivel hover:bg-menta">
+            <span className="group-open:hidden">Ver la carta</span><span className="hidden group-open:inline">Ocultar la carta</span>
+          </summary>
+        <div className="no-imprimir mt-3 flex flex-wrap gap-2" role="group" aria-label="Tema de la petición">
           {Object.entries(TEMAS).map(([id, x]) => (
             <button key={id} type="button" aria-pressed={id === tema} onClick={() => setTema(id)}
               className={`rounded-full px-3 py-1 text-xs font-medium transition ${id === tema ? "bg-[#1d4f9a] text-white" : "bg-superficie ring-1 ring-nivel hover:bg-menta"}`}>{x.nombre}</button>
@@ -271,6 +238,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
           <button type="button" onClick={copiar} className="rounded-full bg-marca px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110">{copiado ? "Copiada" : "Copiar carta"}</button>
           <p className="text-xs text-tinta-suave">La entidad es una sugerencia: confirme qué dependencia atiende su tema antes de radicar.</p>
         </div>
+        </details>
       </Seccion>
 
       <Seccion id="t-l-plazos" titulo="Contador de plazos" texto="Cuente los días hábiles que tiene la entidad para responder (Ley 1755 de 2015, art. 14): sin sábados, domingos ni festivos, y sin contar el día en que radicó. Si la entidad le avisa por escrito que necesita más tiempo, el plazo cambia.">
@@ -344,42 +312,6 @@ function Contenido({ ind }: { ind: Indicadores }) {
             <Actores codigo={codigo} />
           </div>
         </div>
-      </Seccion>
-
-      <Seccion id="t-l-agenda" titulo="Agenda del líder" texto="Anote las fechas que le importan (reuniones, cierres de inscripción, rendición de cuentas). Las fechas del Presupuesto Participativo cambian cada año: cópielas de la página oficial, aquí no se inventan.">
-        <div className="no-imprimir grid gap-3 rounded-2xl border border-nivel bg-superficie p-4 shadow-sm sm:grid-cols-[1fr_2fr_auto] sm:items-end">
-          <label className="text-sm font-semibold">Fecha<input type="date" value={citaFecha} onChange={(e) => setCitaFecha(e.target.value)} className={campo} /></label>
-          <label className="text-sm font-semibold">Qué es<input value={citaTitulo} onChange={(e) => setCitaTitulo(e.target.value)} maxLength={100} className={campo} placeholder="Asamblea de la JAC" /></label>
-          <button type="button" onClick={agregarCita} className="rounded-full bg-marca px-4 py-2 text-sm font-semibold text-white">Agregar</button>
-          {errorAgenda && <p role="alert" className="text-sm text-ladrillo sm:col-span-3">{errorAgenda}</p>}
-        </div>
-        {agenda.length === 0 ? (
-          <p className="mt-3 text-sm text-tinta-suave">La agenda está vacía.</p>
-        ) : (
-          <ul className="mt-3 divide-y divide-nivel border-y border-nivel">
-            {agenda.map((c) => {
-              const d = -diasDesde(c.fecha);
-              return (
-                <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
-                  <span><span className="font-medium">{c.titulo}</span> <span className="text-xs text-tinta-suave">· {fecha(`${c.fecha}T12:00:00`)}</span></span>
-                  <span className="flex items-center gap-3">
-                    <span className={`rounded px-2 py-0.5 text-xs font-semibold ${d < 0 ? "bg-papel-hondo text-tinta-suave" : "bg-menta text-tinta"}`}>{d < 0 ? `Pasó hace ${-d} d` : d === 0 ? "Hoy" : `En ${d} d`}</span>
-                    <button type="button" onClick={() => setAgenda((a) => a.filter((x) => x.id !== c.id))} className="no-imprimir text-xs text-ladrillo hover:underline">Quitar</button>
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </Seccion>
-
-      <Seccion id="t-l-alertas" titulo="Alertas de lluvia y ladera" texto="OTEA no emite alertas ni pronósticos: no tenemos una fuente verificada para hacerlo con responsabilidad. Para alertas en tiempo real use los canales oficiales.">
-        <ul className="space-y-1 text-sm">
-          <li><a className="font-semibold text-marca underline underline-offset-2" href="https://siata.gov.co" target="_blank" rel="noopener noreferrer">SIATA, Sistema de Alerta Temprana del Valle de Aburrá</a></li>
-          <li><a className="font-semibold text-marca underline underline-offset-2" href="https://www.medellin.gov.co" target="_blank" rel="noopener noreferrer">Alcaldía de Medellín (busque al DAGRD, Gestión del Riesgo, para recomendaciones en temporada de lluvias)</a></li>
-          <li>Emergencias: línea 123.</li>
-        </ul>
-        <p className="mt-2 text-sm text-tinta-suave">Lo que sí hace OTEA: mostrar qué parte de cada barrio está en amenaza alta por movimiento en masa (módulo Riesgo de ladera), para saber a qué sectores prestar más atención.</p>
       </Seccion>
 
       <Seccion id="t-l-ruta" titulo="Planeación Local y Presupuesto Participativo" texto="Las cuatro fases según la Subsecretaría de Planeación Local y Presupuesto Participativo de la Alcaldía. Las fechas de cada fase se consultan allá: cambian cada año.">

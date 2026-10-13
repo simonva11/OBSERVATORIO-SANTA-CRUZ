@@ -143,6 +143,24 @@ function Contenido({ r, ind }: { r: Riesgo; ind: Indicadores }) {
         </div>
       </Seccion>
 
+      <Seccion id="t-r-alerta" titulo="Alerta temprana y a quién acudir" texto="OTEA no emite alertas ni predice lluvias o deslizamientos. Para eso están estos canales oficiales.">
+        <ul className="grid gap-3 sm:grid-cols-2">
+          <li className="rounded-2xl border border-nivel bg-superficie p-4 text-sm shadow-sm">
+            <p className="font-semibold">SIATA, alerta temprana del Valle de Aburrá</p>
+            <p className="mt-1 text-tinta-suave">Vigila minuto a minuto las condiciones del clima y los ríos, y muestra el radar de lluvia acumulada. Es lo que hay que mirar en temporada de lluvias.</p>
+            <p className="mt-2"><span className="font-semibold">Cómo: </span>Entrar a la página. Para consultas, contacto@siata.gov.co.</p>
+            <a className="mt-2 inline-block font-semibold text-marca underline underline-offset-2" href="https://siata.gov.co" target="_blank" rel="noopener noreferrer">siata.gov.co</a>
+          </li>
+          <li className="rounded-2xl border border-nivel bg-superficie p-4 text-sm shadow-sm">
+            <p className="font-semibold">DAGRD, Gestión del Riesgo de Desastres</p>
+            <p className="mt-1 text-tinta-suave">Monitorea el riesgo en la ciudad y da asesorías, acompañamiento y talleres a juntas y grupos comunitarios.</p>
+            <p className="mt-2"><span className="font-semibold">Cómo: </span>Línea Única 604 44 44 144 para pedir una asesoría o un taller para su junta. Si es una emergencia en curso, llame al 123.</p>
+            <a className="mt-2 inline-block font-semibold text-marca underline underline-offset-2" href="https://www.medellin.gov.co/es/dagrd/" target="_blank" rel="noopener noreferrer">Página del DAGRD</a>
+          </li>
+        </ul>
+        <p className="mt-3 text-sm text-tinta-suave">Para pedir una visita técnica o una obra de mitigación por escrito, use la carta de riesgo del <Link className="font-semibold text-marca underline underline-offset-2" to="/lideres">Kit para líderes</Link>.</p>
+      </Seccion>
+
       <Seccion id="t-r-metodo" titulo="Cómo se calculó y qué no dice">
         <div className="vidrio vidrio--quieto space-y-2 rounded-xl p-4 text-sm leading-relaxed text-tinta-suave">
           <p>{r.metodo}</p>
