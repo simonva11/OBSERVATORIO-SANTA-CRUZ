@@ -3,6 +3,8 @@ import { useDatos } from "../lib/datos";
 import { dec, dec2, fecha, num, pct } from "../lib/formato";
 import { calcularIndice } from "../lib/indice";
 import { limpiarTexto } from "../lib/reporte";
+import { DIRECTORIO } from "../lib/acudir";
+import { habilesHasta, TIPOS_PETICION, vence, type TipoPeticion } from "../lib/plazos";
 import type { Coleccion, Indicadores } from "../lib/tipos";
 import { ConDatos } from "../components/Estado";
 import { Cabecera, Seccion } from "../components/Pagina";
@@ -11,7 +13,6 @@ type Fila = Record<string, number | string | null>;
 
 const CLAVE = "observatorio-santa-cruz:lideres-peticiones:v1";
 const CLAVE_AGENDA = "observatorio-santa-cruz:lideres-agenda:v1";
-const PLAZO_DIAS = 15; // Ley 1755 de 2015, art. 14: peticiones en general, "quince (15) días siguientes a su recepción".
 
 const TEMAS: Record<string, { nombre: string; entidad: string; pedir: string[] }> = {
   andenes: {
@@ -68,6 +69,7 @@ interface Peticion {
   radicado: string; // AAAA-MM-DD
   numero: string;
   respondida?: boolean;
+  tipo?: TipoPeticion; // las guardadas antes no lo traen: cuentan como petición general
 }
 
 interface Cita {
@@ -124,6 +126,7 @@ function Actores({ codigo }: { codigo: string }) {
 }
 
 const diasDesde = (iso: string) => Math.floor((Date.now() - new Date(`${iso}T00:00:00`).getTime()) / 86400000);
+const limite = (p: Peticion) => vence(p.radicado, TIPOS_PETICION[p.tipo ?? "general"].dias);
 
 function Contenido({ ind }: { ind: Indicadores }) {
   const [codigo, setCodigo] = useState(ind.barrios[0].codigo);
@@ -132,6 +135,8 @@ function Contenido({ ind }: { ind: Indicadores }) {
   const [lista, setLista] = useState<Peticion[]>(leer);
   const [asunto, setAsunto] = useState("");
   const [numero, setNumero] = useState("");
+  const [tipoNuevo, setTipoNuevo] = useState<TipoPeticion>("general");
+  const [entidadNueva, setEntidadNueva] = useState("");
   const [rad, setRad] = useState(new Date().toISOString().slice(0, 10));
   const [errorLista, setErrorLista] = useState("");
   const [agenda, setAgenda] = useState<Cita[]>(leerAgenda);
@@ -156,7 +161,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
   }, [agenda]);
 
   const b = ind.barrios.find((x) => x.codigo === codigo)!;
-  const sinRespuesta = lista.filter((p) => !p.respondida && diasDesde(p.radicado) > PLAZO_DIAS).length;
+  const sinRespuesta = lista.filter((p) => !p.respondida && habilesHasta(limite(p)) < 0).length;
   const ranking = useMemo(() => calcularIndice(ind), [ind]);
   const mio = ranking.find((x) => x.codigo === codigo)!;
   const peores = [...mio.componentes].sort((x, y) => x.puntos - y.puntos).slice(0, 2);
@@ -182,7 +187,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
     ...hs.map((h) => `- ${h}`),
     `Fuente: OTEA, Observatorio Santa Cruz, con datos de la Alcaldía de Medellín y el DANE (Censo 2018), calculados el ${fecha(ind.generado)}.`,
     "",
-    `Les pido responder dentro de los ${PLAZO_DIAS} días siguientes a la recepción de esta petición (artículo 14, Ley 1755 de 2015).`,
+    `Les pido responder dentro de los ${TIPOS_PETICION.general.dias} días siguientes a la recepción de esta petición (artículo 14, Ley 1755 de 2015).`,
     "",
     "Notificaciones: [DIRECCIÓN O CORREO]",
     "",
@@ -215,9 +220,10 @@ function Contenido({ ind }: { ind: Indicadores }) {
     if (a.length < 5) return setErrorLista("Escriba un asunto de al menos 5 caracteres.");
     if (!/^\d{4}-\d{2}-\d{2}$/.test(rad) || new Date(rad).getTime() > Date.now() + 86400000) return setErrorLista("La fecha de radicación no es válida.");
     setErrorLista("");
-    setLista((l) => [{ id: crypto.randomUUID?.() ?? String(Date.now()), asunto: a, entidad: t.entidad, radicado: rad, numero: n }, ...l].slice(0, 50));
+    setLista((l) => [{ id: crypto.randomUUID?.() ?? String(Date.now()), asunto: a, entidad: limpiarTexto(entidadNueva).slice(0, 100) || t.entidad, radicado: rad, numero: n, tipo: tipoNuevo }, ...l].slice(0, 50));
     setAsunto("");
     setNumero("");
+    setEntidadNueva("");
   };
 
   const campo = "mt-1 w-full rounded-md border border-nivel bg-superficie px-2 py-2 text-sm";
@@ -227,7 +233,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
         etiqueta="Comunidad"
         icono="estrella"
         titulo="Kit para líderes"
-        texto="Para presidentes y miembros de JAC, ediles de la JAL y representantes al Consejo de Planeación: cifras del barrio para la reunión, una carta de petición lista para completar y un contador de plazos."
+        texto="Para presidentes y miembros de JAC, ediles de la JAL y representantes al Consejo de Planeación: cifras del barrio para la reunión, cartas de petición, un contador de plazos y a quién acudir."
       />
 
       {sinRespuesta > 0 && (
@@ -267,30 +273,41 @@ function Contenido({ ind }: { ind: Indicadores }) {
         </div>
       </Seccion>
 
-      <Seccion id="t-l-plazos" titulo="Contador de plazos" texto={`La Ley 1755 de 2015 (art. 14) da ${PLAZO_DIAS} días desde la recepción para resolver una petición general, 10 para pedir documentos y 30 para consultas. Aquí cuenta días corridos desde la fecha que escriba; si la entidad cuenta de otra forma, el plazo real puede cambiar.`}>
-        <div className="no-imprimir grid gap-3 rounded-2xl border border-nivel bg-superficie p-4 shadow-sm sm:grid-cols-[2fr_1fr_1fr_auto] sm:items-end">
-          <label className="text-sm font-semibold">Asunto<input value={asunto} onChange={(e) => setAsunto(e.target.value)} maxLength={120} className={campo} placeholder="Andén de la calle 107" /></label>
-          <label className="text-sm font-semibold">N.º de radicado<input value={numero} onChange={(e) => setNumero(e.target.value)} maxLength={40} className={campo} placeholder="Opcional" /></label>
+      <Seccion id="t-l-plazos" titulo="Contador de plazos" texto="Cuente los días hábiles que tiene la entidad para responder (Ley 1755 de 2015, art. 14): sin sábados, domingos ni festivos, y sin contar el día en que radicó. Si la entidad le avisa por escrito que necesita más tiempo, el plazo cambia.">
+        <div className="no-imprimir grid gap-3 rounded-2xl border border-nivel bg-superficie p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
+          <label className="text-sm font-semibold sm:col-span-2">Asunto<input value={asunto} onChange={(e) => setAsunto(e.target.value)} maxLength={120} className={campo} placeholder="Andén de la calle 107" /></label>
+          <label className="text-sm font-semibold sm:col-span-2">Entidad
+            <input value={entidadNueva} onChange={(e) => setEntidadNueva(e.target.value)} maxLength={100} list="entidades-l" className={campo} placeholder={t.entidad} />
+            <datalist id="entidades-l">{[...new Set(Object.values(TEMAS).map((x) => x.entidad))].map((e) => <option key={e} value={e} />)}</datalist>
+          </label>
+          <label className="text-sm font-semibold">Qué pidió
+            <select value={tipoNuevo} onChange={(e) => setTipoNuevo(e.target.value as TipoPeticion)} className={campo}>
+              {Object.entries(TIPOS_PETICION).map(([id, x]) => <option key={id} value={id}>{x.nombre} ({x.dias} días)</option>)}
+            </select>
+          </label>
           <label className="text-sm font-semibold">Radicada el<input type="date" value={rad} onChange={(e) => setRad(e.target.value)} className={campo} /></label>
+          <label className="text-sm font-semibold">N.º de radicado<input value={numero} onChange={(e) => setNumero(e.target.value)} maxLength={40} className={campo} placeholder="Opcional" /></label>
           <button type="button" onClick={agregar} className="rounded-full bg-marca px-4 py-2 text-sm font-semibold text-white">Agregar</button>
-          {errorLista && <p role="alert" className="text-sm text-ladrillo sm:col-span-4">{errorLista}</p>}
+          {errorLista && <p role="alert" className="text-sm text-ladrillo sm:col-span-2 lg:col-span-4">{errorLista}</p>}
         </div>
         {lista.length === 0 ? (
           <p className="mt-3 text-sm text-tinta-suave">Todavía no hay peticiones en seguimiento.</p>
         ) : (
           <ul className="mt-3 divide-y divide-nivel border-y border-nivel">
-            {lista.map((p) => {
-              const d = diasDesde(p.radicado);
-              const vencida = !p.respondida && d > PLAZO_DIAS;
+            {[...lista].sort((x, y) => Number(!!x.respondida) - Number(!!y.respondida) || limite(x).localeCompare(limite(y))).map((p) => {
+              const fin = limite(p);
+              const h = habilesHasta(fin);
+              const vencida = !p.respondida && h < 0;
+              const tipo = TIPOS_PETICION[p.tipo ?? "general"];
               return (
                 <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
                   <div>
                     <p className="font-medium">{p.asunto}</p>
-                    <p className="text-xs text-tinta-suave">{p.entidad}{p.numero ? ` · radicado ${p.numero}` : ""} · {fecha(`${p.radicado}T12:00:00`)}</p>
+                    <p className="text-xs text-tinta-suave">{p.entidad}{p.numero ? ` · radicado ${p.numero}` : ""} · {tipo.nombre.toLowerCase()} · radicada el {fecha(`${p.radicado}T12:00:00`)} · vence el {fecha(`${fin}T12:00:00`)}</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className={`rounded px-2 py-0.5 text-xs font-semibold ${vencida ? "bg-ladrillo/15 text-ladrillo" : "bg-menta text-tinta"}`}>
-                      {p.respondida ? "Respondida" : vencida ? `Plazo de referencia vencido hace ${d - PLAZO_DIAS} d` : `Quedan ${PLAZO_DIAS - d} d de ${PLAZO_DIAS}`}
+                      {p.respondida ? "Respondida" : vencida ? `Vencida hace ${-h} ${h === -1 ? "día hábil" : "días hábiles"}` : h === 0 ? "Vence hoy" : `Quedan ${h} ${h === 1 ? "día hábil" : "días hábiles"}`}
                     </span>
                     <button type="button" onClick={() => setLista((l) => l.map((x) => (x.id === p.id ? { ...x, respondida: !x.respondida } : x)))} className="no-imprimir text-xs text-marca hover:underline">{p.respondida ? "Reabrir" : "Marcar respondida"}</button>
                     <button type="button" onClick={() => setLista((l) => l.filter((x) => x.id !== p.id))} className="no-imprimir text-xs text-ladrillo hover:underline">Quitar</button>
@@ -300,10 +317,33 @@ function Contenido({ ind }: { ind: Indicadores }) {
             })}
           </ul>
         )}
+        {sinRespuesta > 0 && <p className="no-imprimir mt-2 text-sm text-tinta-suave">Una petición vencida sin respuesta se puede llevar a la Personería. Mire a quién acudir más abajo.</p>}
       </Seccion>
 
-      <Seccion id="t-l-actores" titulo={`Con quién aliarse en ${b.nombre}`} texto="Sedes educativas, escenarios y equipamientos del inventario oficial que están dentro del barrio. Sirve para armar la lista de invitados a una reunión.">
-        <Actores codigo={codigo} />
+      <Seccion id="t-l-acudir" titulo="A quién acudir" texto="Quién es cada entidad, para qué sirve y cómo llegarle. Solo están los datos que se confirmaron en páginas oficiales.">
+        <div className="space-y-6">
+          {DIRECTORIO.map((g) => (
+            <div key={g.titulo}>
+              <h3 className="text-base font-semibold">{g.titulo}</h3>
+              <ul className="mt-2 grid gap-3 sm:grid-cols-2">
+                {g.entradas.map((e) => (
+                  <li key={e.quien} className="rounded-2xl border border-nivel bg-superficie p-4 text-sm shadow-sm">
+                    <p className="font-semibold">{e.quien}</p>
+                    <p className="mt-1 text-tinta-suave">{e.para}</p>
+                    <p className="mt-2"><span className="font-semibold">Cómo: </span>{e.como}</p>
+                    {e.donde && <p className="mt-1"><span className="font-semibold">Dónde: </span>{e.donde}</p>}
+                    {e.url && <a className="mt-2 inline-block font-semibold text-marca underline underline-offset-2" href={e.url} target="_blank" rel="noopener noreferrer">Página oficial</a>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+          <div>
+            <h3 className="text-base font-semibold">Lugares de {b.nombre} para reunirse</h3>
+            <p className="mb-2 text-sm text-tinta-suave">Sedes educativas, escenarios y equipamientos del inventario oficial dentro del barrio. Sirven para escoger dónde hacer una reunión o a quién invitar.</p>
+            <Actores codigo={codigo} />
+          </div>
+        </div>
       </Seccion>
 
       <Seccion id="t-l-agenda" titulo="Agenda del líder" texto="Anote las fechas que le importan (reuniones, cierres de inscripción, rendición de cuentas). Las fechas del Presupuesto Participativo cambian cada año: cópielas de la página oficial, aquí no se inventan.">
