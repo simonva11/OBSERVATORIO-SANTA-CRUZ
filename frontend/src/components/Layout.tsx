@@ -9,12 +9,6 @@ export function Logo({ className = "" }: { className?: string }) {
   // Curvas de nivel de una ladera con la línea de un cable aéreo encima.
   return (
     <svg viewBox="0 0 40 40" className={className} aria-hidden="true">
-      <rect width="40" height="40" rx="8" fill="#3d2fa8" />
-      <path d="M2 34 C12 30 18 22 38 20" stroke="#a8cbb6" strokeWidth="1.6" fill="none" />
-      <path d="M2 38 C14 34 22 28 38 27" stroke="#a8cbb6" strokeWidth="1.6" fill="none" />
-      <path d="M4 26 L36 8" stroke="#f5f6f2" strokeWidth="1.6" />
-      <rect x="17" y="15" width="6" height="5" rx="1" fill="#f5f6f2" />
-      <path d="M20 13.5 V15" stroke="#f5f6f2" strokeWidth="1.4" />
       <defs><linearGradient id="logo-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#6a4fe0" /><stop offset="1" stopColor="#1d4f9a" /></linearGradient></defs>
       <rect width="40" height="40" rx="9" fill="url(#logo-g)" />
       <path d="M2 34 C12 30 18 22 38 20" stroke="#c9c2ff" strokeWidth="1.6" fill="none" />
@@ -63,22 +57,26 @@ function ItemMenu({ m, compacta, onNavegar }: { m: ModuloMenu; compacta: boolean
       aria-label={m.nombre}
       style={({ isActive }) => (isActive ? { backgroundImage: `linear-gradient(135deg, ${ACENTOS.violeta.medio}, ${ACENTOS.violeta.vivo})` } : undefined)}
       className={({ isActive }) =>
-        `group relative flex items-center rounded-xl text-[0.95rem] transition-colors ${compacta ? "justify-center px-0 py-2.5" : "gap-3 px-3 py-2"} ${
-          isActive ? "text-white" : "text-tinta hover:bg-acento/10"
+        `group relative flex items-center rounded-xl transition-colors ${compacta ? "flex-col justify-center gap-1 px-1 py-2" : "gap-3 px-3 py-2 text-[0.9rem]"} ${
+          isActive ? "text-white shadow-md shadow-acento/25" : "text-tinta hover:bg-acento/10"
         }`
       }
     >
       {({ isActive }) => (
         <>
-          <IconoNav nombre={m.icono} className="h-6 w-6 shrink-0" trazo={isActive ? 2 : 1.7} />
-          {!compacta && <span className={`flex-1 ${isActive ? "font-semibold" : ""}`}>{m.nombre}</span>}
+          <IconoNav nombre={m.icono} className="h-5 w-5 shrink-0" trazo={isActive ? 2 : 1.7} />
+          {compacta ? (
+            <span className={`w-full truncate text-center text-[0.62rem] leading-none ${isActive ? "font-semibold" : "text-tinta-suave"}`}>{m.corto}</span>
+          ) : (
+            <span className={`flex-1 ${isActive ? "font-semibold" : ""}`}>{m.nombre}</span>
+          )}
           {m.fase && !compacta && (
             <span className={`flex items-center gap-1.5 text-[0.7rem] font-medium ${isActive ? "text-white/85" : "text-ambar-texto"}`}>
               <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-ambar" />
               {m.fase}
             </span>
           )}
-          {m.fase && compacta && <span aria-hidden="true" className="absolute right-2.5 top-2 h-2 w-2 rounded-full bg-[#6ab7ff]" />}
+          {m.fase && compacta && <span aria-hidden="true" className="absolute right-2 top-1.5 h-1.5 w-1.5 rounded-full bg-[#6ab7ff]" />}
         </>
       )}
     </NavLink>
@@ -94,14 +92,17 @@ function Navegacion({ onNavegar, compacta = false }: { onNavegar?: () => void; c
         // En la barra angosta (solo íconos) todos los módulos quedan a la vista, separados por una línea fina.
         const abierto = compacta || abiertos.includes(g.id);
         return (
-          <div key={g.id} role="group" aria-label={g.titulo} className={i === 0 ? "" : compacta ? "mt-2 border-t border-nivel/70 pt-2" : "mt-2"}>
+          <div key={g.id} role="group" aria-label={g.titulo} className={i === 0 ? "" : "mt-2"}>
+            {compacta && (
+              <p className={`px-1 pb-1 text-center text-[0.56rem] font-semibold uppercase tracking-[0.1em] text-tinta-tenue ${i === 0 ? "" : "border-t border-nivel/70 pt-2"}`}>{g.corto}</p>
+            )}
             {!compacta && (
               <button
                 type="button"
                 aria-expanded={abierto}
                 aria-controls={`grupo-${g.id}`}
                 onClick={() => alternar(g.id)}
-                className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-left text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-tinta-tenue transition-colors hover:text-tinta"
+                className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-left text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-tinta-tenue transition-colors hover:text-tinta"
               >
                 {g.titulo}
                 <svg viewBox="0 0 24 24" aria-hidden="true" className={`h-4 w-4 transition-transform duration-200 ${abierto ? "" : "-rotate-90"}`} fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
@@ -170,14 +171,19 @@ export function useNocheActiva() {
   return noche;
 }
 
-function BotonTema({ noche, onCambiar, compacta = false }: { noche: boolean; onCambiar: () => void; compacta?: boolean }) {
+/** Botón del pie de la barra: mismo tamaño que un módulo; en la barra angosta lleva su rótulo debajo del ícono. */
+function BotonPie({ icono, texto, corto, compacta, ...resto }: { icono: string; texto: string; corto: string; compacta: boolean } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
-    <button type="button" onClick={onCambiar} aria-pressed={noche} title={noche ? "Cambiar a modo día" : "Cambiar a modo noche"}
-      className={`flex w-full items-center rounded-xl py-2.5 text-base font-medium text-tinta-suave transition hover:bg-menta hover:text-tinta ${compacta ? "justify-center" : "gap-3 px-3"}`}>
-      <IconoNav nombre={noche ? "sol" : "luna"} className="h-6 w-6 shrink-0" trazo={2} />
-      {!compacta && (noche ? "Modo día" : "Modo noche")}
+    <button type="button" title={texto} {...resto}
+      className={`flex items-center rounded-xl text-tinta-suave transition hover:bg-menta hover:text-tinta ${compacta ? "w-full flex-col justify-center gap-1 px-1 py-2" : "flex-1 justify-center gap-2 px-2 py-2 text-[0.8rem] font-medium"}`}>
+      <IconoNav nombre={icono} className="h-5 w-5 shrink-0" trazo={2} />
+      <span className={compacta ? "text-[0.62rem] leading-none" : ""}>{compacta ? corto : texto}</span>
     </button>
   );
+}
+
+function BotonTema({ noche, onCambiar, compacta = false }: { noche: boolean; onCambiar: () => void; compacta?: boolean }) {
+  return <BotonPie icono={noche ? "sol" : "luna"} texto={noche ? "Modo día" : "Modo noche"} corto={noche ? "Día" : "Noche"} compacta={compacta} onClick={onCambiar} aria-pressed={noche} />;
 }
 
 // ------------------------------------------------------------------ tamaño de la letra (A- / A+)
@@ -226,7 +232,7 @@ function LetraTamano({ nivel, onNivel, variante }: { nivel: number; onNivel: (n:
   if (variante === "barra")
     return (
       <div role="group" aria-label="Tamaño de la letra" className="flex items-center justify-between rounded-2xl border border-nivel bg-superficie px-3 py-1">
-        <span className="text-sm font-semibold text-tinta-suave">Letra</span>
+        <span className="text-[0.8rem] font-semibold text-tinta-suave">Letra</span>
         <div className="flex items-center gap-1">{botones}</div>
       </div>
     );
@@ -284,39 +290,39 @@ export default function Layout({ children }: { children: ReactNode }) {
         data-animar={esMapa ? undefined : ""}
         className={`hidden shrink-0 flex-col overflow-y-auto overflow-x-hidden border-r border-nivel bg-papel py-5 lg:flex ${colapsada ? "w-[5.5rem] px-2.5" : "w-64 px-3"}`}
       >
-        <div className={`mb-6 flex items-center gap-3 ${colapsada ? "justify-center" : "px-2"}`}>
+        <div className={`mb-5 flex items-center gap-3 ${colapsada ? "flex-col gap-1.5" : "px-2"}`}>
           <Logo className="h-10 w-10 shrink-0" />
-          {!colapsada && (
+          {colapsada ? (
+            <p className="text-[0.7rem] font-bold tracking-[0.18em]">OTEA</p>
+          ) : (
             <div className="leading-tight">
-              <p className="text-lg font-bold tracking-[0.14em]">OTEA</p>
-              <p className="text-sm text-tinta-suave">Observatorio Santa Cruz · Comuna 2</p>
+              <p className="text-[1.05rem] font-bold tracking-[0.14em]">OTEA</p>
+              <p className="text-[0.75rem] text-tinta-suave">Observatorio Santa Cruz · Comuna 2</p>
             </div>
           )}
         </div>
         <button type="button" onClick={() => setBuscar(true)} title="Buscar (Ctrl + K)" aria-label="Buscar un módulo o barrio"
-          className={`mb-3 flex items-center rounded-xl border border-nivel bg-superficie py-2 text-sm text-tinta-suave transition hover:border-marca hover:text-tinta ${colapsada ? "justify-center px-0" : "gap-2 px-3"}`}>
+          className={`mb-3 flex items-center rounded-xl border border-nivel bg-superficie text-tinta-suave transition hover:border-marca hover:text-tinta ${colapsada ? "flex-col justify-center gap-1 px-1 py-2" : "gap-3 px-3 py-2 text-[0.9rem]"}`}>
           <IconoNav nombre="lupa" className="h-5 w-5 shrink-0" trazo={2} />
-          {!colapsada && <><span className="flex-1 text-left">Buscar…</span><kbd className="rounded bg-papel px-1.5 py-0.5 text-[0.7rem] font-semibold">Ctrl K</kbd></>}
+          {colapsada ? <span className="text-[0.62rem] leading-none">Buscar</span> : <><span className="flex-1 text-left">Buscar…</span><kbd className="rounded bg-papel px-1.5 py-0.5 text-[0.68rem] font-semibold">Ctrl K</kbd></>}
         </button>
         <Navegacion compacta={colapsada} />
-        <div className="mt-auto space-y-2 pt-4">
+        <div className="mt-auto space-y-1.5 border-t border-nivel/70 pt-3">
           {esMapa && !colapsada && <LetraTamano nivel={nivel} onNivel={setNivel} variante="barra" />}
-          <BotonTema noche={noche} onCambiar={() => setNoche((v) => !v)} compacta={colapsada} />
-          <button
-            type="button"
-            onClick={() => setColapsada((v) => !v)}
-            aria-expanded={!colapsada}
-            aria-label={colapsada ? "Mostrar el menú completo" : "Contraer el menú"}
-            title={colapsada ? "Mostrar el menú completo" : "Contraer el menú"}
-            className={`flex w-full items-center rounded-xl py-2.5 text-base font-medium text-tinta-suave transition hover:bg-menta hover:text-tinta ${colapsada ? "justify-center" : "gap-3 px-3"}`}
-          >
-            <IconoNav nombre={colapsada ? "derecha" : "izquierda"} className="h-6 w-6 shrink-0" trazo={2} />
-            {!colapsada && "Contraer menú"}
-          </button>
+          <div className={colapsada ? "space-y-0.5" : "flex gap-1"}>
+            <BotonTema noche={noche} onCambiar={() => setNoche((v) => !v)} compacta={colapsada} />
+            <BotonPie
+              icono={colapsada ? "derecha" : "izquierda"}
+              texto={colapsada ? "Mostrar el menú completo" : "Contraer menú"}
+              corto="Abrir"
+              compacta={colapsada}
+              onClick={() => setColapsada((v) => !v)}
+              aria-expanded={!colapsada}
+              aria-label={colapsada ? "Mostrar el menú completo" : "Contraer el menú"}
+            />
+          </div>
         </div>
-        {!colapsada && (
-          <p className="mt-2 px-3 text-xs text-tinta-tenue">Prototipo de la Fase 2 para Territorio INN 2026. Reto #4: espacios públicos, equipamientos y movilidad.</p>
-        )}
+        {!colapsada && <p className="mt-2 px-2 text-[0.68rem] leading-snug text-tinta-tenue">Territorio INN 2026 · Reto #4: espacios públicos, equipamientos y movilidad.</p>}
       </aside>
 
       {/* Barra superior en celular y tableta */}

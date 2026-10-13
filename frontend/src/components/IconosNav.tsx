@@ -35,6 +35,7 @@ const TRAZOS: Record<string, ReactNode> = {
     </>
   ),
   alerta: <path d="M12 3 2 20h20zM12 10v4M12 17h.01" />,
+  ladera: <path d="M2 20 9 8l4 6 3-4 6 10zM9 8l1.5 2.5" />,
   cubo: <path d="M12 2 3 7v10l9 5 9-5V7zM3 7l9 5 9-5M12 12v10" />,
   tren: (
     <>

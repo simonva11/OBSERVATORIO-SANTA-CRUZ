@@ -234,6 +234,17 @@ export default function Participacion() {
           <button type="submit" className="w-full rounded-md bg-acento px-4 py-2.5 font-semibold text-white hover:bg-acento-hondo">
             Guardar reporte
           </button>
+          {/* shortcut: sin servidor, así que el reporte "sale" por el WhatsApp de quien lo hace; con backend se cambia por un POST. */}
+          {categoria && descripcion.trim().length >= 10 && (
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(`Reporte OTEA Santa Cruz\n${CATEGORIAS[categoria] ?? categoria}: ${descripcion.trim()}${punto ? `\nUbicación: https://maps.google.com/?q=${punto.lat.toFixed(5)},${punto.lon.toFixed(5)}` : ""}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full rounded-md border border-nivel px-4 py-2.5 text-center font-semibold hover:bg-menta"
+            >
+              Compartir por WhatsApp
+            </a>
+          )}
           {mensaje && (
             <p role="status" className="text-sm text-marca">
               {mensaje}

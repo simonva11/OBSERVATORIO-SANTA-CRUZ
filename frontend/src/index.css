@@ -402,3 +402,12 @@ html.cambiando-tema *, html.cambiando-tema *::before, html.cambiando-tema *::aft
 html.noche .icono-tema {
   filter: brightness(1.55) saturate(1.1);
 }
+
+/* Ficha imprimible: solo el contenido, sin barras ni botones */
+@media print {
+  [data-cromo], .no-imprimir, [role="group"][aria-label="Tamaño de la letra"] { display: none !important; }
+  html, body, #root { height: auto !important; background: #fff !important; }
+  main, #contenido { overflow: visible !important; height: auto !important; }
+  .h-\[100dvh\] { height: auto !important; }
+  section, .rounded-2xl { break-inside: avoid; }
+}

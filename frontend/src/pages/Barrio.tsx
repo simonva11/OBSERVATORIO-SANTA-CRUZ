@@ -1,4 +1,5 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { calcularIndice } from "../lib/indice";
 import { useDatos } from "../lib/datos";
 import { dec, dec2, num, pct } from "../lib/formato";
 import type { Indicadores } from "../lib/tipos";
@@ -32,10 +33,25 @@ function Comparar({ titulo, barrio, comuna, unidad, mayorEsMalo = true, dec: d =
   );
 }
 
+/** Lee en voz alta con la voz del navegador (sin servicios externos). Si no existe, el botón no aparece. */
+function leer(texto: string) {
+  const s = window.speechSynthesis;
+  if (s.speaking) return s.cancel();
+  const u = new SpeechSynthesisUtterance(texto);
+  u.lang = "es-CO";
+  s.speak(u);
+}
+
 function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad | null; eje: Eje | null }) {
   const { codigo } = useParams();
   const ir = useNavigate();
   const b = ind.barrios.find((x) => x.codigo === codigo) ?? ind.barrios[0];
+  const [params, setParams] = useSearchParams();
+  const otro = ind.barrios.find((x) => x.codigo === params.get("vs") && x.codigo !== b.codigo);
+  const ranking = calcularIndice(ind);
+  const mio = ranking.find((x) => x.codigo === b.codigo)!;
+  const puesto = ranking.indexOf(mio) + 1;
+  const hablar = `${b.nombre}. ${num(b.poblacion_2018)} personas. ${dec2(b.espacio_publico_m2_hab)} metros cuadrados de espacio público por habitante. Puesto ${puesto} de ${ranking.length} en el índice de entorno, con ${mio.total} puntos de 100.`;
   const c = ind.comuna;
   const acc = (ind.accesibilidad?.barrios as Fila[] | undefined)?.find((x) => x.barrio === b.nombre);
   const accC = ind.accesibilidad?.comuna as Fila | undefined;
@@ -54,8 +70,14 @@ function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad | null;
         <BotonCabecera to={`/mapa?barrio=${b.codigo}`}>Verlo en el mapa</BotonCabecera>
         <BotonCabecera to="/accesibilidad" claro>Accesibilidad</BotonCabecera>
       </Cabecera>
+      <div className="no-imprimir -mt-4 flex flex-wrap gap-2">
+        <button type="button" onClick={() => window.print()} className="rounded-full bg-superficie px-3 py-1.5 text-sm font-medium ring-1 ring-nivel transition hover:bg-menta">Imprimir ficha</button>
+        {"speechSynthesis" in window && (
+          <button type="button" onClick={() => leer(hablar)} className="rounded-full bg-superficie px-3 py-1.5 text-sm font-medium ring-1 ring-nivel transition hover:bg-menta">Escuchar resumen</button>
+        )}
+      </div>
 
-      <nav aria-label="Elegir barrio" className="flex flex-wrap gap-2">
+      <nav aria-label="Elegir barrio" className="no-imprimir flex flex-wrap gap-2">
         {ind.barrios.map((x) => (
           <button key={x.codigo} type="button" onClick={() => ir(`/barrios/${x.codigo}`)} aria-pressed={x.codigo === b.codigo}
             className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${x.codigo === b.codigo ? "bg-[#3a2d8f] text-white shadow" : "bg-superficie text-tinta ring-1 ring-nivel hover:bg-menta"}`}>
@@ -73,6 +95,73 @@ function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad | null;
             <Kpi key="q" valor={num(b.equipamientos)} texto="equipamientos colectivos" nota={`${b.sedes_educativas} sedes educativas`} />,
           ].map((k, i) => <Revelar key={i} retraso={i * 50} className="h-full">{k}</Revelar>)}
         </div>
+      </Seccion>
+
+      <Seccion id="t-b-indice" titulo="Índice de entorno" texto="De 0 a 100, comparando los 11 barrios entre sí. Promedia espacio público, cercanía al Metro, atropellos y amenaza alta con el mismo peso. Es una guía relativa, no una cifra oficial.">
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-2xl border border-nivel bg-superficie p-4 shadow-sm">
+            <p className="text-4xl font-bold tabular-nums text-marca">{mio.total}<span className="text-base font-medium text-tinta-suave"> / 100</span></p>
+            <p className="text-sm text-tinta-suave">Puesto {puesto} de {ranking.length}</p>
+            <ul className="mt-3 space-y-1.5 text-xs">
+              {mio.componentes.map((c) => (
+                <li key={c.clave} className="grid grid-cols-[1fr_5rem_2rem] items-center gap-2">
+                  <span>{c.nombre}</span>
+                  <span className="h-2 rounded-full bg-papel-hondo"><span className="block h-full rounded-full bg-marca" style={{ width: `${c.puntos}%` }} /></span>
+                  <span className="text-right font-semibold tabular-nums">{c.puntos}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <ol className="rounded-2xl border border-nivel bg-superficie p-4 text-xs shadow-sm">
+            {ranking.map((r, i) => (
+              <li key={r.codigo}>
+                <Link to={`/barrios/${r.codigo}`} className={`grid grid-cols-[1.5rem_1fr_5rem_2rem] items-center gap-2 rounded-md px-1 py-1 hover:bg-menta ${r.codigo === b.codigo ? "font-bold" : ""}`}>
+                  <span className="tabular-nums text-tinta-suave">{i + 1}</span>
+                  <span>{r.nombre}</span>
+                  <span className="h-2 rounded-full bg-papel-hondo"><span className="block h-full rounded-full" style={{ width: `${r.total}%`, background: r.codigo === b.codigo ? "#6a4fe0" : "#9aa0d6" }} /></span>
+                  <span className="text-right tabular-nums">{r.total}</span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </Seccion>
+
+      <Seccion id="t-b-vs" titulo="Compararlo con otro barrio" texto="Elige un segundo barrio y mira los cuatro componentes lado a lado.">
+        <div className="no-imprimir mb-3 flex flex-wrap gap-2">
+          {ind.barrios.filter((x) => x.codigo !== b.codigo).map((x) => (
+            <button key={x.codigo} type="button" aria-pressed={x.codigo === otro?.codigo} onClick={() => setParams(x.codigo === otro?.codigo ? {} : { vs: x.codigo })}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition ${x.codigo === otro?.codigo ? "bg-[#1d4f9a] text-white" : "bg-superficie ring-1 ring-nivel hover:bg-menta"}`}>{x.nombre}</button>
+          ))}
+        </div>
+        {otro ? (
+          (() => {
+            const po = ranking.find((x) => x.codigo === otro.codigo)!;
+            const f = (v: number | null) => (v == null ? "Sin dato" : v.toLocaleString("es-CO", { maximumFractionDigits: 2 }));
+            return (
+              <div className="overflow-x-auto rounded-2xl border border-nivel bg-superficie shadow-sm">
+                <table className="w-full text-left text-sm">
+                  <thead><tr className="border-b border-nivel text-xs text-tinta-suave"><th className="p-3 font-medium">Componente</th><th className="p-3 font-semibold text-tinta">{b.nombre}</th><th className="p-3 font-semibold text-tinta">{otro.nombre}</th></tr></thead>
+                  <tbody>
+                    {mio.componentes.map((c, i) => {
+                      const o = po.componentes[i];
+                      return (
+                        <tr key={c.clave} className="border-b border-nivel/60">
+                          <td className="p-3">{c.nombre}</td>
+                          <td className={`p-3 tabular-nums ${c.puntos >= o.puntos ? "font-bold" : ""}`}>{f(c.valor)} {c.unidad} <span className="text-xs text-tinta-suave">({c.puntos})</span></td>
+                          <td className={`p-3 tabular-nums ${o.puntos >= c.puntos ? "font-bold" : ""}`}>{f(o.valor)} {o.unidad} <span className="text-xs text-tinta-suave">({o.puntos})</span></td>
+                        </tr>
+                      );
+                    })}
+                    <tr><td className="p-3 font-semibold">Índice de entorno</td><td className="p-3 text-lg font-bold tabular-nums">{mio.total}</td><td className="p-3 text-lg font-bold tabular-nums">{po.total}</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            );
+          })()
+        ) : (
+          <p className="text-sm text-tinta-suave">Aún no has elegido un segundo barrio.</p>
+        )}
       </Seccion>
 
       <Seccion id="t-b-comp" titulo="Este barrio frente a la comuna" texto="Rojo = peor que el total de la comuna.">
