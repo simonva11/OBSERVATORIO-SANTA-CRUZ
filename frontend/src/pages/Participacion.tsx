@@ -1,4 +1,5 @@
 import { Cabecera } from "../components/Pagina";
+import Votacion from "../components/Votacion";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { CircleMarker, GeoJSON, MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import type { LatLngBoundsExpression } from "leaflet";
@@ -213,6 +214,8 @@ export default function Participacion() {
           </p>
         )}
       </Cabecera>
+
+      <Votacion />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
         <form onSubmit={enviar} noValidate className="relative space-y-4 vidrio vidrio--quieto rounded-xl p-4">

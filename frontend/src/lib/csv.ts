@@ -1,7 +1,7 @@
 import { calcularIndice } from "./indice";
 import type { Indicadores } from "./tipos";
 
-const celda = (v: unknown) => {
+export const celda = (v: unknown) => {
   const s = v == null ? "" : String(v);
   // Comillas dobles, y un apóstrofo delante si empieza como fórmula (evita que Excel ejecute texto).
   const seguro = /^[=+\-@]/.test(s) && Number.isNaN(Number(s)) ? `'${s}` : s;

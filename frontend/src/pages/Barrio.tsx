@@ -138,7 +138,9 @@ function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad | null;
           (() => {
             const po = ranking.find((x) => x.codigo === otro.codigo)!;
             const f = (v: number | null) => (v == null ? "Sin dato" : v.toLocaleString("es-CO", { maximumFractionDigits: 2 }));
+            const peor = mio.componentes.map((c, i) => ({ c, o: po.componentes[i] })).filter(({ c, o }) => c.puntos <= o.puntos - 10);
             return (
+              <>
               <div className="overflow-x-auto rounded-2xl border border-nivel bg-superficie shadow-sm">
                 <table className="w-full text-left text-sm">
                   <thead><tr className="border-b border-nivel text-xs text-tinta-suave"><th className="p-3 font-medium">Componente</th><th className="p-3 font-semibold text-tinta">{b.nombre}</th><th className="p-3 font-semibold text-tinta">{otro.nombre}</th></tr></thead>
@@ -157,6 +159,20 @@ function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad | null;
                   </tbody>
                 </table>
               </div>
+              <div className="mt-3 rounded-2xl border border-nivel bg-superficie p-4 text-sm shadow-sm">
+                <p className="font-semibold">Para argumentar</p>
+                {peor.length === 0 ? (
+                  <p className="mt-1 text-tinta-suave">{b.nombre} no queda claramente peor que {otro.nombre} en ningún componente (diferencia menor a 10 puntos).</p>
+                ) : (
+                  <ul className="mt-1 list-disc space-y-1 pl-5">
+                    {peor.map(({ c, o }) => (
+                      <li key={c.clave}>{c.nombre}: {f(c.valor)} {c.unidad} en {b.nombre} frente a {f(o.valor)} {o.unidad} en {otro.nombre}.</li>
+                    ))}
+                  </ul>
+                )}
+                <p className="mt-2 text-xs text-tinta-suave">Comparación entre barrios de la comuna con cifras de la Alcaldía y el DANE; el puntaje es relativo, no oficial.</p>
+              </div>
+              </>
             );
           })()
         ) : (

@@ -10,7 +10,7 @@ export type Resumen = {
 };
 
 /** Dirección de la API. Se cambia con VITE_API_URL al compilar. */
-const API = (import.meta.env.VITE_API_URL as string | undefined) ?? "http://localhost:8000";
+export const API = (import.meta.env.VITE_API_URL as string | undefined) ?? "http://localhost:8000";
 
 /**
  * Resumen de la portada. Primero le pregunta a la API (GET /api/inicio); si no está encendida

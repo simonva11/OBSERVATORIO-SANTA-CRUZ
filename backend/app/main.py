@@ -21,6 +21,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from .resumen import construir as construir_resumen
+from .votos import router as votos_router
 
 RAIZ = Path(__file__).resolve().parents[2]
 DATOS = Path(os.environ.get("OBSERVATORIO_DATOS", RAIZ / "frontend" / "public" / "data"))
@@ -33,10 +34,14 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:4173"],
-    allow_methods=["GET"],
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:4173"]
+    + [o for o in os.environ.get("OTEA_ORIGENES", "").split(",") if o],  # sitio publicado, ej. https://otea.netlify.app
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
+
+
+app.include_router(votos_router)
 
 
 @lru_cache(maxsize=64)

@@ -56,6 +56,7 @@ export const GRUPOS: GrupoMenu[] = [
       { ruta: "/problematicas", nombre: "Problemáticas", corto: "Problemas", icono: "alerta", detalle: "Ocho problemas con datos" },
       { ruta: "/radar", nombre: "Radar de noticias", corto: "Radar", icono: "radar", detalle: "Lo que dicen los medios" },
       { ruta: "/lideres", nombre: "Kit para líderes", corto: "Líderes", icono: "estrella", detalle: "JAC, JAL y Consejo de Planeación: cifras, cartas y plazos" },
+      { ruta: "/visita", nombre: "Acta de recorrido", corto: "Recorrido", icono: "prioridades", detalle: "Anote lo que ve en el barrio con foto y ubicación" },
       { ruta: "/participacion", nombre: "Participación", corto: "Participa", icono: "participacion", detalle: "Reportar un problema", fase: "Pronto" },
     ],
   },

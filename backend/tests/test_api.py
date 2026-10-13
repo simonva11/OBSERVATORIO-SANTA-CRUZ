@@ -50,3 +50,18 @@ def test_fuentes_todas_con_tipo_y_estado():
     for f in cliente.get("/api/fuentes").json():
         assert f["tipo"] in {"oficial", "tercero", "campo", "demostrativo"}
         assert f["estado"] in {"ok", "error", "sin descargar"}
+
+
+def test_votos(tmp_path, monkeypatch):
+    monkeypatch.setenv("OTEA_DB", str(tmp_path / "t.db"))
+    v = {"barrio": "0201", "tema": "andenes", "codigo": "abcdefgh-1234-5678"}
+    assert cliente.post("/api/votos", json=v).status_code == 201
+    # el mismo código cambia su voto, no suma otro
+    assert cliente.post("/api/votos", json={**v, "tema": "riesgo"}).json()["votos"] == {"andenes": 0, "espacio_publico": 0, "movilidad": 0, "seguridad_vial": 0, "riesgo": 1}
+    # otro código suma
+    cliente.post("/api/votos", json={**v, "codigo": "zzzzzzzz-1234-5678"})
+    assert sum(cliente.get("/api/votos").json()["votos"]["0201"].values()) == 2
+    # entradas malas
+    assert cliente.post("/api/votos", json={**v, "barrio": "9999"}).status_code == 422
+    assert cliente.post("/api/votos", json={**v, "tema": "<script>"}).status_code == 422
+    assert cliente.post("/api/votos", json={**v, "codigo": "corto"}).status_code == 422

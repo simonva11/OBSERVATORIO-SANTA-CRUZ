@@ -3,13 +3,14 @@ import { useDatos } from "../lib/datos";
 import { dec, dec2, fecha, num, pct } from "../lib/formato";
 import { calcularIndice } from "../lib/indice";
 import { limpiarTexto } from "../lib/reporte";
-import type { Indicadores } from "../lib/tipos";
+import type { Coleccion, Indicadores } from "../lib/tipos";
 import { ConDatos } from "../components/Estado";
 import { Cabecera, Seccion } from "../components/Pagina";
 
 type Fila = Record<string, number | string | null>;
 
 const CLAVE = "observatorio-santa-cruz:lideres-peticiones:v1";
+const CLAVE_AGENDA = "observatorio-santa-cruz:lideres-agenda:v1";
 const PLAZO_DIAS = 15; // Ley 1755 de 2015, art. 14: peticiones en general, "quince (15) días siguientes a su recepción".
 
 const TEMAS: Record<string, { nombre: string; entidad: string; pedir: string[] }> = {
@@ -66,6 +67,13 @@ interface Peticion {
   entidad: string;
   radicado: string; // AAAA-MM-DD
   numero: string;
+  respondida?: boolean;
+}
+
+interface Cita {
+  id: string;
+  fecha: string; // AAAA-MM-DD
+  titulo: string;
 }
 
 function leer(): Peticion[] {
@@ -75,6 +83,44 @@ function leer(): Peticion[] {
   } catch {
     return [];
   }
+}
+
+function leerAgenda(): Cita[] {
+  try {
+    const l = JSON.parse(localStorage.getItem(CLAVE_AGENDA) ?? "[]");
+    return Array.isArray(l) ? l.filter((c) => c && typeof c.id === "string" && typeof c.fecha === "string" && typeof c.titulo === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Quién hay en el barrio: sedes educativas, escenarios y equipamientos con nombre, del inventario oficial. */
+function Actores({ codigo }: { codigo: string }) {
+  const eq = useDatos<Coleccion>("equipamientos.geojson");
+  const se = useDatos<Coleccion>("sedes_educativas.geojson");
+  const es = useDatos<Coleccion>("escenarios_deportivos.geojson");
+  if (eq.estado !== "listo" || se.estado !== "listo" || es.estado !== "listo") return <p className="text-sm text-tinta-suave">Cargando el inventario…</p>;
+  const de = (c: Coleccion) => c.features.filter((f) => f.properties?.codigo_barrio === codigo);
+  const grupos: Record<string, string[]> = {};
+  const sumar = (g: string, n: unknown) => {
+    const nombre = typeof n === "string" ? n.trim() : "";
+    if (nombre) (grupos[g] ??= []).push(nombre);
+  };
+  de(se.datos).forEach((f) => sumar("Sedes educativas", f.properties?.nombre));
+  de(es.datos).forEach((f) => sumar("Escenarios deportivos", f.properties?.nombre));
+  de(eq.datos).forEach((f) => sumar(String(f.properties?.grupo ?? "Otros equipamientos"), f.properties?.nombre));
+  const filas = Object.entries(grupos).sort((a, b) => b[1].length - a[1].length);
+  if (!filas.length) return <p className="text-sm text-tinta-suave">El inventario oficial no registra sedes ni equipamientos en este barrio.</p>;
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {filas.map(([g, nombres]) => (
+        <div key={g} className="rounded-2xl border border-nivel bg-superficie p-3 text-sm shadow-sm">
+          <p className="font-semibold">{g} <span className="font-normal text-tinta-suave">({nombres.length})</span></p>
+          <ul className="mt-1 list-disc space-y-0.5 pl-4 text-xs text-tinta-suave">{nombres.slice(0, 8).map((n, i) => <li key={i}>{n}</li>)}{nombres.length > 8 && <li>y {nombres.length - 8} más</li>}</ul>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 const diasDesde = (iso: string) => Math.floor((Date.now() - new Date(`${iso}T00:00:00`).getTime()) / 86400000);
@@ -88,6 +134,10 @@ function Contenido({ ind }: { ind: Indicadores }) {
   const [numero, setNumero] = useState("");
   const [rad, setRad] = useState(new Date().toISOString().slice(0, 10));
   const [errorLista, setErrorLista] = useState("");
+  const [agenda, setAgenda] = useState<Cita[]>(leerAgenda);
+  const [citaFecha, setCitaFecha] = useState("");
+  const [citaTitulo, setCitaTitulo] = useState("");
+  const [errorAgenda, setErrorAgenda] = useState("");
 
   useEffect(() => {
     try {
@@ -97,7 +147,16 @@ function Contenido({ ind }: { ind: Indicadores }) {
     }
   }, [lista]);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(CLAVE_AGENDA, JSON.stringify(agenda));
+    } catch {
+      /* sin almacenamiento */
+    }
+  }, [agenda]);
+
   const b = ind.barrios.find((x) => x.codigo === codigo)!;
+  const sinRespuesta = lista.filter((p) => !p.respondida && diasDesde(p.radicado) > PLAZO_DIAS).length;
   const ranking = useMemo(() => calcularIndice(ind), [ind]);
   const mio = ranking.find((x) => x.codigo === codigo)!;
   const peores = [...mio.componentes].sort((x, y) => x.puntos - y.puntos).slice(0, 2);
@@ -132,6 +191,14 @@ function Contenido({ ind }: { ind: Indicadores }) {
     "C.C. [NÚMERO]",
   ].join("\n");
 
+  const agregarCita = () => {
+    const t = limpiarTexto(citaTitulo).slice(0, 100);
+    if (t.length < 3 || !/^\d{4}-\d{2}-\d{2}$/.test(citaFecha)) return setErrorAgenda("Escriba un título y elija la fecha.");
+    setErrorAgenda("");
+    setAgenda((a) => [...a, { id: crypto.randomUUID?.() ?? String(Date.now()), fecha: citaFecha, titulo: t }].sort((x, y) => x.fecha.localeCompare(y.fecha)).slice(0, 60));
+    setCitaTitulo("");
+  };
+
   const copiar = async () => {
     try {
       await navigator.clipboard.writeText(carta);
@@ -162,6 +229,12 @@ function Contenido({ ind }: { ind: Indicadores }) {
         titulo="Kit para líderes"
         texto="Para presidentes y miembros de JAC, ediles de la JAL y representantes al Consejo de Planeación: cifras del barrio para la reunión, una carta de petición lista para completar y un contador de plazos. No hay cuentas ni registro: lo que escriba queda solo en este navegador."
       />
+
+      {sinRespuesta > 0 && (
+        <p role="status" className="no-imprimir rounded-lg bg-ambar-claro px-3 py-2 text-sm text-tinta">
+          Tiene {sinRespuesta} {sinRespuesta === 1 ? "petición" : "peticiones"} sin respuesta con el plazo de referencia vencido. Revise el contador de plazos más abajo.
+        </p>
+      )}
 
       <div className="no-imprimir flex flex-wrap gap-2" role="group" aria-label="Elegir barrio">
         {ind.barrios.map((x) => (
@@ -208,7 +281,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
           <ul className="mt-3 divide-y divide-nivel border-y border-nivel">
             {lista.map((p) => {
               const d = diasDesde(p.radicado);
-              const vencida = d > PLAZO_DIAS;
+              const vencida = !p.respondida && d > PLAZO_DIAS;
               return (
                 <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
                   <div>
@@ -217,8 +290,9 @@ function Contenido({ ind }: { ind: Indicadores }) {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className={`rounded px-2 py-0.5 text-xs font-semibold ${vencida ? "bg-ladrillo/15 text-ladrillo" : "bg-menta text-tinta"}`}>
-                      {vencida ? `Plazo de referencia vencido hace ${d - PLAZO_DIAS} d` : `Quedan ${PLAZO_DIAS - d} d de ${PLAZO_DIAS}`}
+                      {p.respondida ? "Respondida" : vencida ? `Plazo de referencia vencido hace ${d - PLAZO_DIAS} d` : `Quedan ${PLAZO_DIAS - d} d de ${PLAZO_DIAS}`}
                     </span>
+                    <button type="button" onClick={() => setLista((l) => l.map((x) => (x.id === p.id ? { ...x, respondida: !x.respondida } : x)))} className="no-imprimir text-xs text-marca hover:underline">{p.respondida ? "Reabrir" : "Marcar respondida"}</button>
                     <button type="button" onClick={() => setLista((l) => l.filter((x) => x.id !== p.id))} className="no-imprimir text-xs text-ladrillo hover:underline">Quitar</button>
                   </div>
                 </li>
@@ -226,6 +300,46 @@ function Contenido({ ind }: { ind: Indicadores }) {
             })}
           </ul>
         )}
+      </Seccion>
+
+      <Seccion id="t-l-actores" titulo={`Con quién aliarse en ${b.nombre}`} texto="Sedes educativas, escenarios y equipamientos del inventario oficial que están dentro del barrio. Sirve para armar la lista de invitados a una reunión.">
+        <Actores codigo={codigo} />
+      </Seccion>
+
+      <Seccion id="t-l-agenda" titulo="Agenda del líder" texto="Anote las fechas que le importan (reuniones, cierres de inscripción, rendición de cuentas). Las fechas del Presupuesto Participativo cambian cada año: cópielas de la página oficial, aquí no se inventan.">
+        <div className="no-imprimir grid gap-3 rounded-2xl border border-nivel bg-superficie p-4 shadow-sm sm:grid-cols-[1fr_2fr_auto] sm:items-end">
+          <label className="text-sm font-semibold">Fecha<input type="date" value={citaFecha} onChange={(e) => setCitaFecha(e.target.value)} className={campo} /></label>
+          <label className="text-sm font-semibold">Qué es<input value={citaTitulo} onChange={(e) => setCitaTitulo(e.target.value)} maxLength={100} className={campo} placeholder="Asamblea de la JAC" /></label>
+          <button type="button" onClick={agregarCita} className="rounded-full bg-marca px-4 py-2 text-sm font-semibold text-white">Agregar</button>
+          {errorAgenda && <p role="alert" className="text-sm text-ladrillo sm:col-span-3">{errorAgenda}</p>}
+        </div>
+        {agenda.length === 0 ? (
+          <p className="mt-3 text-sm text-tinta-suave">La agenda está vacía.</p>
+        ) : (
+          <ul className="mt-3 divide-y divide-nivel border-y border-nivel">
+            {agenda.map((c) => {
+              const d = -diasDesde(c.fecha);
+              return (
+                <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+                  <span><span className="font-medium">{c.titulo}</span> <span className="text-xs text-tinta-suave">· {fecha(`${c.fecha}T12:00:00`)}</span></span>
+                  <span className="flex items-center gap-3">
+                    <span className={`rounded px-2 py-0.5 text-xs font-semibold ${d < 0 ? "bg-papel-hondo text-tinta-suave" : "bg-menta text-tinta"}`}>{d < 0 ? `Pasó hace ${-d} d` : d === 0 ? "Hoy" : `En ${d} d`}</span>
+                    <button type="button" onClick={() => setAgenda((a) => a.filter((x) => x.id !== c.id))} className="no-imprimir text-xs text-ladrillo hover:underline">Quitar</button>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </Seccion>
+
+      <Seccion id="t-l-alertas" titulo="Alertas de lluvia y ladera" texto="OTEA no emite alertas ni pronósticos: no tenemos una fuente verificada para hacerlo con responsabilidad. Para alertas en tiempo real use los canales oficiales.">
+        <ul className="space-y-1 text-sm">
+          <li><a className="font-semibold text-marca underline underline-offset-2" href="https://siata.gov.co" target="_blank" rel="noopener noreferrer">SIATA, Sistema de Alerta Temprana del Valle de Aburrá</a></li>
+          <li><a className="font-semibold text-marca underline underline-offset-2" href="https://www.medellin.gov.co" target="_blank" rel="noopener noreferrer">Alcaldía de Medellín (busque al DAGRD, Gestión del Riesgo, para recomendaciones en temporada de lluvias)</a></li>
+          <li>Emergencias: línea 123.</li>
+        </ul>
+        <p className="mt-2 text-sm text-tinta-suave">Lo que sí hace OTEA: mostrar qué parte de cada barrio está en amenaza alta por movimiento en masa (módulo Riesgo de ladera), para saber a qué sectores prestar más atención.</p>
       </Seccion>
 
       <Seccion id="t-l-ruta" titulo="Planeación Local y Presupuesto Participativo" texto="Las cuatro fases según la Subsecretaría de Planeación Local y Presupuesto Participativo de la Alcaldía. Las fechas de cada fase se consultan allá: cambian cada año.">

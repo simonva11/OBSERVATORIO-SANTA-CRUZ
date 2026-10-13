@@ -6,3 +6,6 @@ __pycache__/
 *.pyc
 data/raw/*
 !data/raw/.gitkeep
+
+otea.db
+backend/otea.db
