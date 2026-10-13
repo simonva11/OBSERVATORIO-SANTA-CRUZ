@@ -189,7 +189,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
     setEntidadNueva("");
   };
 
-  const campo = "mt-1 w-full rounded-md border border-nivel bg-superficie px-2 py-2 text-sm";
+  const campo = "mt-1 h-10 w-full rounded-md border border-nivel bg-superficie px-2 text-sm";
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-4 py-5 lg:px-8">
       <Cabecera

@@ -75,12 +75,12 @@ function BarrasBarrio({
     .map((b) => ({ nombre: b.nombre, codigo: b.codigo, valor: (b[clave] as number | null) ?? 0 }))
     .sort((a, b) => b.valor - a.valor);
   return (
-    <div className="h-80">
+    <div className="h-[24rem]">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={filas} layout="vertical" margin={{ left: 8, right: 28, top: 22, bottom: 4 }} barCategoryGap={4}>
           <CartesianGrid horizontal={false} stroke={C.rejilla} />
           <XAxis type="number" tick={{ fontSize: 12, fill: C.eje }} axisLine={false} tickLine={false} tickFormatter={(v: number) => dec2(v)} />
-          <YAxis type="category" dataKey="nombre" width={150} tick={{ fontSize: 12, fill: "#1b1d3a" }} axisLine={false} tickLine={false} />
+          <YAxis type="category" dataKey="nombre" width={172} interval={0} tick={{ fontSize: 12, fill: "#1b1d3a" }} axisLine={false} tickLine={false} />
           <Tooltip {...estiloTooltip} formatter={(v: number) => [`${formato(v)} ${unidad}`.trim(), ""]} separator="" />
           {referencia != null && (
             <ReferenceLine
@@ -172,7 +172,7 @@ function Contenido({ d }: { d: Ind }) {
               Ver {ficha.nombre} en el mapa
             </Link>
           </div>
-          <div className="max-w-xl">
+          <div className="md:columns-2 md:gap-10 [&_section]:mb-3 [&_section]:break-inside-avoid">
             <FichaBarrio ficha={ficha} indicadores={d} />
           </div>
         </section>
@@ -290,7 +290,7 @@ function Contenido({ d }: { d: Ind }) {
                 <th className="py-2 pr-3 text-right font-semibold">Espacio público m²/hab</th>
                 <th className="py-2 pr-3 text-right font-semibold">Amenaza alta</th>
                 <th className="py-2 pr-3 text-right font-semibold">Atropellos</th>
-                <th className="py-2 text-right font-semibold">Estación más cercana (línea recta)</th>
+                <th className="py-2 text-left font-semibold">Estación más cercana (línea recta)</th>
               </tr>
             </thead>
             <tbody>
@@ -307,8 +307,8 @@ function Contenido({ d }: { d: Ind }) {
                   <td className="py-1.5 pr-3 text-right tabular-nums">{dec2(b.espacio_publico_m2_hab)}</td>
                   <td className="py-1.5 pr-3 text-right tabular-nums">{pct(b.amenaza_alta_pct)}</td>
                   <td className="py-1.5 pr-3 text-right tabular-nums">{num(b.atropellos)}</td>
-                  <td className="py-1.5 text-right">
-                    {b.estacion_mas_cercana} ({num(b.estacion_distancia_lineal_m)} m)
+                  <td className="whitespace-nowrap py-1.5 text-left">
+                    {b.estacion_mas_cercana} <span className="text-tinta-suave">({num(b.estacion_distancia_lineal_m)} m)</span>
                   </td>
                 </tr>
               ))}

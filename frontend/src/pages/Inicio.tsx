@@ -10,6 +10,7 @@ import { useProyeccion } from "../lib/proyeccion";
 import type { Coleccion, Indicadores } from "../lib/tipos";
 import { useResumen } from "../lib/resumen";
 import { acentoDeRuta } from "../lib/marca";
+import { GRUPOS } from "../lib/menu";
 
 const VERDE = "rgb(var(--marca))";
 const ROJO = "rgb(var(--peligro))";
@@ -297,20 +298,6 @@ function MiniCalor({ valores }: { valores: Record<string, { nombre: string; n: n
   );
 }
 
-const MODULOS: { ruta: string; icono: string; nombre: string; texto: string; pronto?: boolean }[] = [
-  { ruta: "/mapa", icono: "mapa", nombre: "Mapa territorial", texto: "Capas oficiales de movilidad, equipamientos, riesgo y POT, con ficha por barrio." },
-  { ruta: "/problematicas", icono: "alerta", nombre: "Problemáticas", texto: "Lo que pasa en Santa Cruz, con datos oficiales: espacio público, atropellos, andenes, riesgo." },
-  { ruta: "/corredor-49", icono: "corredor", nombre: "Corredor Carrera 49", texto: "¿Conviene ir por la 49? Minutos a pie, andenes, buses y siniestros del eje." },
-  { ruta: "/radar", icono: "radar", nombre: "Radar de noticias", texto: "Lo que dicen los medios de la comuna, por tema y barrio, recogido solo." },
-  { ruta: "/indicadores", icono: "indicadores", nombre: "Indicadores", texto: "Población, espacio público, siniestros y calidad de vida de cada barrio." },
-  { ruta: "/accesibilidad", icono: "accesibilidad", nombre: "Accesibilidad", texto: "Minutos caminando al Metro, al colegio, a salud y a los parques, con pendientes." },
-  { ruta: "/prioridades", icono: "prioridades", nombre: "Prioridad de obras", texto: "Un puntaje claro para ordenar qué obra ayuda a más personas." },
-  { ruta: "/participacion", icono: "participacion", nombre: "Participación", texto: "Reportes de la comunidad sobre andenes dañados y puntos peligrosos.", pronto: true },
-  { ruta: "/datos", icono: "subir", nombre: "Mis datos", texto: "Sube tu archivo y míralo en el mapa; mira qué más se puede bajar y cómo llevarlo al Valle de Aburrá." },
-  { ruta: "/propuesta", icono: "corazon", nombre: "Propuesta de valor", texto: "Qué necesita la comuna, qué existe, qué falta y cómo se detectan los daños." },
-  { ruta: "/fuentes", icono: "fuentes", nombre: "Fuentes y calidad", texto: "De dónde sale cada dato, cuándo se descargó y qué falta por verificar." },
-];
-
 /** Franja "El pulso de la comuna": una cifra de cada módulo, cada una lleva a su página. Viene de la API o, si no está encendida, de inicio.json. */
 function PulsoComuna() {
   const r = useResumen();
@@ -325,7 +312,7 @@ function PulsoComuna() {
           </div>
           <span className="inline-flex items-center gap-2 rounded-full bg-superficie px-3 py-1.5 text-xs font-semibold text-tinta-suave ring-1 ring-nivel" title={r.origen === "api" ? "Los datos llegaron de la API" : "La API no está encendida, se leyó el archivo inicio.json"}>
             <span className={`h-2 w-2 rounded-full ${r.origen === "api" ? "bg-[#2d9a5a]" : "bg-[#e0a526]"}`} aria-hidden="true" />
-            {r.origen === "api" ? "En vivo desde la API" : "Desde archivo local"}
+            {r.origen === "api" ? "Datos en vivo" : "Datos guardados en la página"}
           </span>
         </div>
       </Revelar>
@@ -571,38 +558,31 @@ export default function Inicio() {
             </h2>
             <p className="mt-2 max-w-2xl text-base text-tinta-suave">Toque cualquiera para entrar.</p>
           </Revelar>
-          <ul className="mt-10 space-y-4">
-            {MODULOS.map((m, i) => (
-              <li key={m.ruta}>
-                <Revelar retraso={i * 70}>
-                  <Link
-                    to={m.ruta}
-                    className="fila-modulo group flex items-center gap-4 rounded-2xl border border-nivel bg-superficie px-4 py-4 shadow-sm sm:gap-5 sm:px-6 sm:py-5"
-                  >
-                    <span className="fila-modulo-icono grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-menta text-marca sm:h-16 sm:w-16">
-                      <IconoNav nombre={m.icono} className="h-8 w-8" trazo={1.7} />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-xl font-semibold leading-snug">{m.nombre}</span>
-                      <span className="mt-0.5 block text-base text-tinta-suave">{m.texto}</span>
-                    </span>
-                    {m.pronto ? (
-                      <span className="hidden shrink-0 items-center gap-2 rounded-full bg-ambar-claro px-3.5 py-1.5 text-sm font-semibold text-ambar-texto sm:inline-flex">
-                        <span className="h-2.5 w-2.5 rounded-full bg-[#6ab7ff]" /> Próximamente
-                      </span>
-                    ) : (
-                      <span className="hidden shrink-0 items-center gap-2 rounded-full bg-menta px-3.5 py-1.5 text-sm font-semibold text-marca sm:inline-flex">
-                        <span className="punto-vivo" /> Disponible
-                      </span>
-                    )}
-                    <span className="hidden w-28 shrink-0 items-center justify-end gap-1.5 text-base font-semibold text-marca opacity-0 transition duration-200 group-hover:translate-x-0 group-hover:opacity-100 md:flex md:translate-x-2">
-                      Explorar <IconoNav nombre="flecha" className="h-5 w-5" trazo={2.2} />
-                    </span>
-                  </Link>
-                </Revelar>
-              </li>
+          <div className="mt-8 space-y-8">
+            {GRUPOS.map((g) => ({ ...g, modulos: g.modulos.filter((m) => m.ruta !== "/") })).filter((g) => g.modulos.length > 0).map((g) => (
+              <div key={g.id}>
+                <h3 className="text-xs font-semibold uppercase tracking-widest text-tinta-tenue">{g.titulo}</h3>
+                <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {g.modulos.map((m) => (
+                    <li key={m.ruta}>
+                      <Link to={m.ruta} className="fila-modulo group flex h-full items-start gap-3 rounded-2xl border border-nivel bg-superficie p-4 shadow-sm">
+                        <span className="fila-modulo-icono grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-menta text-marca">
+                          <IconoNav nombre={m.icono} className="h-6 w-6" trazo={1.7} />
+                        </span>
+                        <span className="min-w-0">
+                          <span className="flex flex-wrap items-center gap-2 text-base font-semibold leading-snug">
+                            {m.nombre}
+                            {m.fase && <span className="rounded-full bg-ambar-claro px-2 py-0.5 text-xs font-semibold text-ambar-texto">{m.fase}</span>}
+                          </span>
+                          <span className="mt-0.5 block text-sm text-tinta-suave">{m.detalle}</span>
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
 
         {/* ------------------------------------------------------------------ FUENTES */}

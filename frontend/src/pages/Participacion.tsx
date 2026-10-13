@@ -261,8 +261,11 @@ export default function Participacion() {
 
           <div>
             <label htmlFor="foto" className="block font-semibold">3. Una foto (opcional)</label>
-            <input id="foto" type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => { ponerFoto(e.target.files?.[0]); e.target.value = ""; }}
-              className="mt-1 block w-full text-sm file:mr-3 file:rounded-full file:border-0 file:bg-marca file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white" />
+            <div className="mt-1 flex items-center gap-3">
+              <input id="foto" type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => { ponerFoto(e.target.files?.[0]); e.target.value = ""; }} className="peer sr-only" />
+              <label htmlFor="foto" className="cursor-pointer rounded-full bg-marca px-4 py-1.5 text-sm font-medium text-white transition hover:brightness-110 peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-marca">{foto ? "Cambiar foto" : "Elegir foto"}</label>
+              <span className="text-sm text-tinta-suave">{foto ? "Foto lista" : "Ninguna foto elegida"}</span>
+            </div>
             <p className={`mt-1 text-xs ${errores.foto ? "text-ladrillo" : "text-tinta-tenue"}`}>{errores.foto || "JPG, PNG o WebP. Se reduce y se le borra la ubicación y los datos del celular. Evite que salgan caras o placas."}</p>
             {foto && (
               <div className="mt-2 flex items-center gap-3">

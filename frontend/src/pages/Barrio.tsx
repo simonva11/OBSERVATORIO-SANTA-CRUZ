@@ -102,9 +102,9 @@ function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad | null;
           <div className="rounded-2xl border border-nivel bg-superficie p-4 shadow-sm">
             <p className="text-4xl font-bold tabular-nums text-marca">{mio.total}<span className="text-base font-medium text-tinta-suave"> / 100</span></p>
             <p className="text-sm text-tinta-suave">Puesto {puesto} de {ranking.length}</p>
-            <ul className="mt-3 space-y-1.5 text-xs">
+            <ul className="mt-5 space-y-4 text-sm">
               {mio.componentes.map((c) => (
-                <li key={c.clave} className="grid grid-cols-[1fr_5rem_2rem] items-center gap-2">
+                <li key={c.clave} className="grid grid-cols-[1fr_6rem_2.2rem] items-center gap-2">
                   <span>{c.nombre}</span>
                   <span className="h-2 rounded-full bg-papel-hondo"><span className="block h-full rounded-full bg-marca" style={{ width: `${c.puntos}%` }} /></span>
                   <span className="text-right font-semibold tabular-nums">{c.puntos}</span>

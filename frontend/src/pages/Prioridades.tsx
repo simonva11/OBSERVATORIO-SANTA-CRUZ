@@ -175,6 +175,7 @@ function Contenido({ escenarios }: { escenarios: Escenario[] }) {
 
   const calculos = useMemo(() => calcular(escenarios, precios, pesos), [escenarios, precios, pesos]);
   const visibles = calculos.filter((c) => filtro === "todos" || c.e.tipo === filtro).sort((a, b) => a.posicion - b.posicion);
+  const conPrecios = calculos.some((c) => c.costoTotal != null);
   const totalPesos = Object.values(pesos).reduce((a, b) => a + b, 0);
   const hayCostos = calculos.some((c) => c.costoTotal != null);
 
@@ -216,8 +217,8 @@ function Contenido({ escenarios }: { escenarios: Escenario[] }) {
             const sinFuente = p.valor != null && !p.fuente.trim();
             return (
               <fieldset key={t.id} className="space-y-2 rounded-xl bg-papel p-4">
-                <legend className="font-semibold">{t.nombre}</legend>
-                <label className="block text-sm">
+                <legend className="float-left mb-2 w-full font-semibold">{t.nombre}</legend>
+                <label className="clear-both block text-sm">
                   Precio unitario ({t.unidad})
                   <input type="number" min={0} inputMode="numeric" value={p.valor ?? ""} onChange={(e) => cambiarPrecio(t.id, "valor", e.target.value)} className="mt-1 w-full rounded-lg border border-nivel bg-superficie px-3 py-2 text-base" placeholder="Pendiente de datos" />
                 </label>
@@ -284,17 +285,17 @@ function Contenido({ escenarios }: { escenarios: Escenario[] }) {
           </div>
         </div>
         <div className="mt-3 overflow-x-auto rounded-2xl border border-nivel bg-superficie">
-          <table className="w-full min-w-[980px] text-sm">
+          <table className={`w-full text-sm ${conPrecios ? "min-w-[980px]" : "min-w-[620px]"}`}>
             <thead>
               <tr className="border-b border-nivel text-left text-tinta-suave">
                 <th className="px-3 py-2 font-semibold">Puesto</th>
                 <th className="px-3 py-2 font-semibold">Escenario</th>
                 <th className="px-3 py-2 text-right font-semibold">Beneficiarios</th>
                 <th className="px-3 py-2 text-right font-semibold">Necesidad</th>
-                <th className="px-3 py-2 text-right font-semibold">Costo total</th>
-                <th className="px-3 py-2 text-right font-semibold">COP/m²</th>
-                <th className="px-3 py-2 text-right font-semibold">COP/persona</th>
-                <th className="px-3 py-2 text-right font-semibold">Viabilidad</th>
+                {conPrecios && <th className="px-3 py-2 text-right font-semibold">Costo total</th>}
+                {conPrecios && <th className="px-3 py-2 text-right font-semibold">COP/m²</th>}
+                {conPrecios && <th className="px-3 py-2 text-right font-semibold">COP/persona</th>}
+                {conPrecios && <th className="px-3 py-2 text-right font-semibold">Viabilidad</th>}
                 <th className="px-3 py-2 text-right font-semibold">Prioridad</th>
               </tr>
             </thead>
@@ -316,15 +317,15 @@ function Contenido({ escenarios }: { escenarios: Escenario[] }) {
                     </td>
                     <td className="px-3 py-2 text-right tabular-nums">{num(c.e.beneficiarios)}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{Math.round(c.necesidad * 100)}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{c.costoTotal == null ? <span className="text-tinta-tenue">Pendiente de datos</span> : cop(c.costoTotal)}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{c.costoM2 == null ? <span className="text-tinta-tenue">Pendiente</span> : cop(c.costoM2)}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{c.costoBenef == null ? <span className="text-tinta-tenue">Pendiente</span> : cop(c.costoBenef)}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{c.viabilidad == null ? <span className="text-tinta-tenue">Pendiente</span> : Math.round(c.viabilidad * 100)}</td>
+                    {conPrecios && <td className="px-3 py-2 text-right tabular-nums">{c.costoTotal == null ? <span className="text-tinta-tenue">Pendiente de datos</span> : cop(c.costoTotal)}</td>}
+                    {conPrecios && <td className="px-3 py-2 text-right tabular-nums">{c.costoM2 == null ? <span className="text-tinta-tenue">Pendiente</span> : cop(c.costoM2)}</td>}
+                    {conPrecios && <td className="px-3 py-2 text-right tabular-nums">{c.costoBenef == null ? <span className="text-tinta-tenue">Pendiente</span> : cop(c.costoBenef)}</td>}
+                    {conPrecios && <td className="px-3 py-2 text-right tabular-nums">{c.viabilidad == null ? <span className="text-tinta-tenue">Pendiente</span> : Math.round(c.viabilidad * 100)}</td>}
                     <td className="px-3 py-2 text-right text-base font-semibold tabular-nums">{Math.round(c.prioridad * 100)}</td>
                   </tr>
                   {abierto === c.e.id && (
                     <tr className="border-b border-nivel/70 bg-papel">
-                      <td colSpan={9} className="px-3 py-3">
+                      <td colSpan={conPrecios ? 9 : 5} className="px-3 py-3">
                         <dl className="grid gap-x-6 gap-y-2 md:grid-cols-2">
                           <div><dt className="font-semibold">Problema identificado</dt><dd>{c.e.problema}</dd></div>
                           <div><dt className="font-semibold">Origen del escenario</dt><dd>{c.e.origen}</dd></div>

@@ -9,7 +9,7 @@ import type { Coleccion, Indicadores } from "../lib/tipos";
 import { Cabecera, Relacionados, Seccion } from "../components/Pagina";
 
 const ROJO = "#c2301a";
-const VERDE = "#3a2d8f";
+const VERDE = "rgb(var(--marca))";
 const AMBAR = "#b7791f";
 
 interface Seguridad {
@@ -131,7 +131,7 @@ function Contenido({ ind, seg, eje, andenes }: { ind: Indicadores; seg: Segurida
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-white" style={{ background: p.color }}><IconoNav nombre={p.icono} className="h-7 w-7" trazo={1.9} /></span>
                 <h2 className="text-base font-semibold leading-snug">{p.titulo}</h2>
               </div>
-              <p className="mt-4 text-[1.9rem] font-semibold leading-none tabular-nums" style={{ color: p.color }}>
+              <p className="mt-4 text-[1.9rem] font-semibold leading-none tabular-nums" style={{ color: p.color === ROJO ? "rgb(var(--peligro))" : "rgb(var(--ambar))" }}>
                 <Cuenta hasta={p.numero} decimales={p.decimales ?? 0} activo />
               </p>
               <p className="mt-1 text-base font-semibold">{p.unidad}</p>
@@ -160,9 +160,9 @@ function Contenido({ ind, seg, eje, andenes }: { ind: Indicadores; seg: Segurida
 
       <Revelar>
         <div className="rounded-xl bg-menta-2 px-5 py-5">
-          <h2 className="text-2xl font-semibold" style={{ color: VERDE }}>Y qué se hace con esto</h2>
-          <p className="mt-2 max-w-3xl text-lg">La plataforma convierte estas problemáticas en obras posibles, con cuánta gente ayuda cada una y cuánto cuesta. Los costos quedan en blanco hasta que se registre una fuente.</p>
-          <Link to="/prioridades" className="mt-4 inline-flex items-center gap-2 text-lg font-semibold underline underline-offset-4" style={{ color: VERDE }}>
+          <h2 className="text-lg font-semibold" style={{ color: VERDE }}>Y qué se hace con esto</h2>
+          <p className="mt-2 max-w-3xl text-sm text-tinta-suave">La plataforma convierte estas problemáticas en obras posibles, con cuánta gente ayuda cada una y cuánto cuesta. Los costos quedan en blanco hasta que se registre una fuente.</p>
+          <Link to="/prioridades" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold underline underline-offset-4" style={{ color: VERDE }}>
             Ver prioridad de obras <IconoNav nombre="flecha" className="h-5 w-5" trazo={2} />
           </Link>
         </div>

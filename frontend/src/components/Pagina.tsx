@@ -67,9 +67,9 @@ export function Kpi({ valor, texto, nota, tono = "verde", grande = false }: { va
   const punto = tono === "rojo" ? "#c0583a" : tono === "ambar" ? "#e0a526" : "#2d9a5a";
   return (
     <div className="vidrio vidrio--quieto relative h-full rounded-xl p-3.5">
-      <p className="flex items-center gap-2 text-sm leading-snug text-tinta-suave">
-        <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: punto }} />
-        {texto}
+      <p className="flex items-start gap-2 text-sm leading-snug text-tinta-suave">
+        <span aria-hidden="true" className="mt-[0.4rem] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: punto }} />
+        <span>{texto}</span>
       </p>
       <p className={`mt-1 font-semibold leading-none tabular-nums text-tinta ${grande ? "text-[2rem]" : "text-[1.4rem]"}`}>{valor}</p>
       {nota && <p className="mt-1.5 text-xs text-tinta-tenue">{nota}</p>}

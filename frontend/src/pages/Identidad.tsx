@@ -169,10 +169,10 @@ export default function Identidad() {
       <Seccion id="t-i-tipo" titulo="Letra" texto="Una sola familia, Inter, con pesos y tamaños fijos.">
         <div className="vidrio vidrio--quieto divide-y divide-nivel rounded-2xl px-4 sm:px-5">
           {[
-            ["Título de página", "text-[2.4rem] font-semibold leading-tight tracking-tight", "Lo que pasa en Santa Cruz", "38 px · Bold"],
-            ["Título de sección", "text-[1.56rem] font-semibold tracking-tight text-marca", "Diferencias entre barrios", "25 px · Bold"],
-            ["Cifra grande", "text-[2.6rem] font-semibold tabular-nums leading-none", "22,4 %", "42 px · Bold · números de ancho fijo"],
-            ["Texto", "text-base", "Minutos estimados que camina cada manzana hasta el lugar más cercano.", "16 px · Regular · línea de 1,6"],
+            ["Título de página", "text-[1.9rem] font-semibold leading-tight tracking-tight", "Lo que pasa en Santa Cruz", "30 px · Semibold"],
+            ["Título de sección", "text-lg font-semibold tracking-tight", "Diferencias entre barrios", "18 px · Semibold, con un punto del color del módulo"],
+            ["Cifra grande", "text-[2rem] font-semibold tabular-nums leading-none", "22,4 %", "32 px · Semibold · números de ancho fijo"],
+            ["Texto", "text-base", "Minutos estimados que camina cada manzana hasta el lugar más cercano.", "14 a 16 px · Regular"],
             ["Nota y fuente", "text-xs text-tinta-tenue", "Fuente: Censo 2018, DANE. Descargado el 10 de octubre de 2026.", "13 px · Regular"],
           ].map(([t, cl, ej, d]) => (
             <div key={t} className="grid gap-1 py-3 md:grid-cols-[10rem_1fr_auto] md:items-baseline md:gap-4">
@@ -183,7 +183,7 @@ export default function Identidad() {
           ))}
         </div>
         <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-tinta-suave">
-          <li>El cuerpo nunca baja de 16 px y la persona puede agrandarlo con A+ (cuatro niveles, hasta 138 %).</li>
+          <li>El texto de lectura es de 14 a 16 px, las notas de 12 a 13 px, y la persona puede agrandarlo con A+ (cuatro niveles, hasta 138 %).</li>
           <li>Las líneas de texto no pasan de unos 70 caracteres.</li>
           <li>Los números llevan coma decimal y punto de miles: 108.252 personas, 0,85 m².</li>
         </ul>

@@ -34,7 +34,7 @@ function Tabla({ fuentes }: { fuentes: Fuente[] }) {
         </p>
       ) : (
         <div className="relative mt-3 overflow-x-auto">
-          <table className="w-full min-w-[860px] text-sm">
+          <table className="w-full min-w-[960px] text-sm">
             <thead>
               <tr className="border-b border-nivel text-left text-tinta-suave">
                 <th className="py-2 pr-3 font-semibold">Fuente</th>
@@ -60,8 +60,8 @@ function Tabla({ fuentes }: { fuentes: Fuente[] }) {
                     <EtiquetaTipo tipo={f.tipo} />
                   </td>
                   <td className="py-2 pr-3 text-right tabular-nums">{num(f.registros)}</td>
-                  <td className="py-2 pr-3 text-tinta-suave">{f.cobertura}</td>
-                  <td className="py-2 pr-3 text-xs">
+                  <td className="py-2 pr-3 text-xs text-tinta-suave">{f.cobertura}</td>
+                  <td className="whitespace-nowrap py-2 pr-3 text-xs">
                     Descargada: {fecha(f.fecha_descarga)}
                     <span className="block text-tinta-tenue">
                       {f.ultima_actualizacion_en_datos ? `En los datos: ${fecha(f.ultima_actualizacion_en_datos)}` : "La capa no informa fecha"}
@@ -81,7 +81,7 @@ function Tabla({ fuentes }: { fuentes: Fuente[] }) {
                       type="button"
                       aria-expanded={abierta === f.id}
                       onClick={() => setAbierta(abierta === f.id ? null : f.id)}
-                      className="rounded-md border border-nivel px-2 py-1 text-xs hover:bg-papel-hondo"
+                      className="whitespace-nowrap rounded-md border border-nivel px-2 py-1 text-xs hover:bg-papel-hondo"
                     >
                       {abierta === f.id ? "Ocultar" : "Ver trazabilidad"}
                     </button>

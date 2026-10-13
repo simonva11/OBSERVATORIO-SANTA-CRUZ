@@ -60,14 +60,27 @@ function Contenido({ r }: { r: Radar }) {
 
       <Seccion id="t-r-tiempo" titulo="Cuándo aparece la comuna en las noticias" texto="Noticias relevantes por mes. Un pico casi siempre es una emergencia.">
         <div className="rounded-2xl border border-nivel bg-superficie p-4 shadow-sm sm:p-5">
-          <div className="flex h-32 items-end gap-[3px]" role="img" aria-label="Noticias por mes">
-            {meses.map(([k, n]) => (
-              <div key={k} className="group relative flex h-full flex-1 items-end" title={`${k}: ${n}`}>
-                <span className="w-full rounded-t bg-[#6a4fe0] transition group-hover:bg-[#c0583a]" style={{ height: `${(n / maxMes) * 100}%`, minHeight: n ? 3 : 0 }} />
+          <div className="grid grid-cols-[1.5rem_1fr] gap-2">
+            <div className="flex h-40 flex-col justify-between pb-0.5 text-right text-xs tabular-nums text-tinta-tenue" aria-hidden="true"><span>{maxMes}</span><span>{Math.round(maxMes / 2)}</span><span>0</span></div>
+            <div>
+              <div className="relative flex h-40 items-end gap-[3px] border-b border-nivel" role="img" aria-label={`Noticias por mes, de ${meses[0]?.[0]} a ${meses[meses.length - 1]?.[0]}. El mes con más tuvo ${maxMes}.`}>
+                <div className="pointer-events-none absolute inset-x-0 top-0 border-t border-dashed border-nivel" />
+                <div className="pointer-events-none absolute inset-x-0 top-1/2 border-t border-dashed border-nivel" />
+                {meses.map(([k, n]) => (
+                  <div key={k} className="group relative z-10 flex h-full flex-1 flex-col items-center justify-end" title={`${nombreMes(k)}: ${n} ${n === 1 ? "noticia" : "noticias"}`}>
+                    {n > 0 && meses.length <= 26 && <span className="mb-0.5 text-[0.65rem] font-semibold leading-none tabular-nums text-tinta-suave">{n}</span>}
+                    <span className="w-full rounded-t bg-[#6a4fe0] transition group-hover:bg-[#c0583a]" style={{ height: `${(n / maxMes) * 82}%`, minHeight: n ? 3 : 0 }} />
+                  </div>
+                ))}
               </div>
-            ))}
+              <div className="mt-1 flex gap-[3px] text-[0.65rem] text-tinta-tenue" aria-hidden="true">
+                {meses.map(([k], i) => (
+                  <span key={k} className="flex-1 overflow-visible whitespace-nowrap text-center">{i % 3 === 0 || i === meses.length - 1 ? nombreMes(k, true) : ""}</span>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="mt-1 flex justify-between text-xs text-tinta-tenue"><span>{meses[0]?.[0]}</span><span>{meses[meses.length - 1]?.[0]}</span></div>
+          <p className="mt-3 text-xs text-tinta-suave">Cada barra es un mes. Los meses sin barra no tuvieron noticias relevantes.</p>
         </div>
       </Seccion>
 
@@ -134,6 +147,13 @@ function Contenido({ r }: { r: Radar }) {
       <Relacionados ids={["problematicas", "propuesta", "mapa"]} />
     </div>
   );
+}
+
+const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+/** "2024-11" a "nov 2024" (o "nov 24" si es corto). */
+function nombreMes(k: string, corto = false) {
+  const [a, m] = k.split("-");
+  return `${MESES[Number(m) - 1] ?? k} ${corto ? a.slice(2) : a}`;
 }
 
 export default function RadarPagina() {
