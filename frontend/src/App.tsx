@@ -20,6 +20,7 @@ const Radar = lazy(() => import("./pages/Radar"));
 const Propuesta = lazy(() => import("./pages/Propuesta"));
 const Barrio = lazy(() => import("./pages/Barrio"));
 const Inmobiliario = lazy(() => import("./pages/Inmobiliario"));
+const Lideres = lazy(() => import("./pages/Lideres"));
 const Riesgo = lazy(() => import("./pages/Riesgo"));
 
 function NoEncontrada() {
@@ -59,6 +60,7 @@ export default function App() {
             <Route path="/identidad" element={<Identidad />} />
             <Route path="/radar" element={<Radar />} />
             <Route path="/propuesta" element={<Propuesta />} />
+            <Route path="/lideres" element={<Lideres />} />
             <Route path="/inmobiliario" element={<Inmobiliario />} />
             <Route path="/riesgo" element={<Riesgo />} />
             <Route path="/barrios" element={<Barrio />} />
