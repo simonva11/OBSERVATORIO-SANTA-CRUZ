@@ -353,7 +353,7 @@ export default function Inicio() {
       <FondoHero />
       {/* ------------------------------------------------------------------ HERO */}
       <div className="relative">
-        <section className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pb-10 pt-6 lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:px-8 lg:pt-10">
+        <section className="relative mx-auto grid max-w-[100rem] items-center gap-12 px-4 pb-10 pt-6 lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:px-8 lg:pt-10 2xl:px-12">
           <div>
             <Revelar>
               <p className="inline-flex items-center gap-2 rounded-full bg-superficie/80 px-4 py-1.5 text-sm font-semibold text-marca shadow-sm ring-1 ring-marca/15">
@@ -416,7 +416,7 @@ export default function Inicio() {
         </section>
       </div>
 
-      <div className="mx-auto max-w-6xl px-4 lg:px-8">
+      <div className="mx-auto max-w-[100rem] px-4 lg:px-8 2xl:px-12">
         <PulsoComuna />
         {/* ------------------------------------------------------------------ DATOS */}
         <section className="mt-4 lg:mt-8" aria-labelledby="t-datos">
@@ -558,11 +558,14 @@ export default function Inicio() {
             </h2>
             <p className="mt-2 max-w-2xl text-base text-tinta-suave">Toque cualquiera para entrar.</p>
           </Revelar>
-          <div className="mt-8 space-y-8">
+          <div className="mt-8 divide-y divide-nivel/70 border-y border-nivel/70">
             {GRUPOS.map((g) => ({ ...g, modulos: g.modulos.filter((m) => m.ruta !== "/") })).filter((g) => g.modulos.length > 0).map((g) => (
-              <div key={g.id}>
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-tinta-tenue">{g.titulo}</h3>
-                <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div key={g.id} className="gap-6 py-6 lg:grid lg:grid-cols-[11rem_minmax(0,1fr)]">
+                <div>
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-marca">{g.titulo}</h3>
+                  <p className="mt-1 text-sm text-tinta-tenue">{g.modulos.length === 1 ? "1 módulo" : `${g.modulos.length} módulos`}</p>
+                </div>
+                <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:mt-0 xl:grid-cols-3">
                   {g.modulos.map((m) => (
                     <li key={m.ruta}>
                       <Link to={m.ruta} className="fila-modulo group flex h-full items-start gap-3 rounded-2xl border border-nivel bg-superficie p-4 shadow-sm">
@@ -605,7 +608,7 @@ export default function Inicio() {
         </section>
       </div>
 
-      <footer className="mx-auto mt-28 max-w-6xl border-t border-nivel px-4 py-8 text-center text-sm text-tinta-suave lg:px-8">
+      <footer className="mx-auto mt-28 max-w-[100rem] border-t border-nivel px-4 py-8 text-center text-sm text-tinta-suave lg:px-8">
         Datos de la Alcaldía de Medellín y del DANE (Censo 2018) <span className="mx-2 text-nivel">|</span> Proyecto Territorio INN 2026 · Reto #4
       </footer>
     </div>
