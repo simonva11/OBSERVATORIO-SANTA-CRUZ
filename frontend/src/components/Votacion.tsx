@@ -79,9 +79,9 @@ export default function Votacion() {
   return (
     <section aria-labelledby="t-votacion" className="space-y-3">
       <h2 id="t-votacion" className="text-lg font-semibold">¿Qué debería arreglarse primero en su barrio?</h2>
-      <p className="text-sm text-tinta-suave">Un voto por barrio y por navegador, que se puede cambiar. No se pide nombre ni correo. Es una consulta de prueba: no reemplaza el Presupuesto Participativo.</p>
+      <p className="text-sm text-tinta-suave">Un voto por barrio, que se puede cambiar. Es una consulta de prueba y no reemplaza el Presupuesto Participativo.</p>
       {estado === "sin_servidor" && (
-        <p role="status" className="rounded-lg bg-ambar-claro px-3 py-2 text-sm text-tinta">El servidor de votaciones no está conectado en este momento, así que todavía no se puede votar ni ver resultados.</p>
+        <p role="status" className="rounded-lg bg-ambar-claro px-3 py-2 text-sm text-tinta">La votación no está disponible por ahora.</p>
       )}
       <div className="flex flex-wrap gap-2" role="group" aria-label="Barrio de la votación">
         {barrios.map((b) => (

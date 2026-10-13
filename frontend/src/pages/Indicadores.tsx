@@ -323,7 +323,7 @@ function Contenido({ d }: { d: Ind }) {
         <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-tinta-suave">
           <li>Estado de los andenes: el inventario oficial trae códigos sin diccionario publicado.</li>
           <li>Costos de obra: no hay precios unitarios públicos confiables; se pueden registrar con su fuente en Prioridad de obras.</li>
-          <li>Reportes ciudadanos validados: se habilita con el servidor de la Fase 4.</li>
+          <li>Reportes ciudadanos validados: todavía no está disponible.</li>
         </ul>
       </section>
       <Relacionados ids={["problematicas", "accesibilidad", "prioridades"]} />

@@ -206,7 +206,7 @@ export default function Participacion() {
       <Cabecera etiqueta="Participación" icono="participacion" titulo="Reportar un problema"
         texto="Andenes dañados, puntos peligrosos, barreras de acceso, parques deteriorados o conexiones que hacen falta. Los reportes servirán como insumo para el Presupuesto Participativo y las entidades, no como decisiones automáticas.">
         <p className="w-full rounded-lg bg-ambar-claro px-3 py-2 text-sm text-tinta">
-          Prueba local, la versión con servidor llega en la Fase 4. Los reportes se guardan solo en este navegador: no se envían a ninguna entidad ni los ven otras personas.
+          Por ahora esto es una prueba: los reportes todavía no llegan a ninguna entidad.
         </p>
         {!almacenamiento && (
           <p role="alert" className="w-full text-sm text-ladrillo">
@@ -353,10 +353,7 @@ export default function Participacion() {
       </div>
 
       <section>
-        <h2 className="text-lg font-semibold">Reportes guardados en este navegador</h2>
-        <p className="mt-1 text-sm text-tinta-suave">
-          Estados de seguimiento previstos: {ESTADOS.join(", ").toLowerCase()}. En la Fase 4 un equipo moderador revisará y validará cada reporte.
-        </p>
+        <h2 className="text-lg font-semibold">Sus reportes</h2>
         {reportes.length === 0 ? (
           <p className="mt-3 rounded-md border border-dashed border-nivel p-4 text-sm text-tinta-suave">
             Todavía no hay reportes. Use el formulario para crear el primero.

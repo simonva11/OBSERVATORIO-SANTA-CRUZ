@@ -46,19 +46,19 @@ const TIPOS = ["image/jpeg", "image/png", "image/webp"];
  * Valida la foto y la dibuja de nuevo en un JPEG de máximo 1280 px. Al redibujar se pierden los metadatos
  * (ubicación GPS, modelo del celular) y cualquier cosa escondida en el archivo. Devuelve un data URL.
  */
-export async function procesarFoto(archivo: File, maxLado = MAX_LADO, calidad = 0.72): Promise<string> {
+export async function procesarFoto(archivo: File): Promise<string> {
   if (!TIPOS.includes(archivo.type)) throw new Error("La foto debe ser JPG, PNG o WebP.");
   if (archivo.size > MAX_ENTRADA) throw new Error("La foto pesa más de 10 MB.");
   const bmp = await createImageBitmap(archivo).catch(() => {
     throw new Error("No se pudo leer la foto. Pruebe con otra.");
   });
-  const k = Math.min(1, maxLado / Math.max(bmp.width, bmp.height));
+  const k = Math.min(1, MAX_LADO / Math.max(bmp.width, bmp.height));
   const c = document.createElement("canvas");
   c.width = Math.round(bmp.width * k);
   c.height = Math.round(bmp.height * k);
   c.getContext("2d")!.drawImage(bmp, 0, 0, c.width, c.height);
   bmp.close();
-  return c.toDataURL("image/jpeg", calidad);
+  return c.toDataURL("image/jpeg", 0.72);
 }
 
 /** Solo se pintan fotos que salieron de procesarFoto. */

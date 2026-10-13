@@ -227,7 +227,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
         etiqueta="Comunidad"
         icono="estrella"
         titulo="Kit para líderes"
-        texto="Para presidentes y miembros de JAC, ediles de la JAL y representantes al Consejo de Planeación: cifras del barrio para la reunión, una carta de petición lista para completar y un contador de plazos. No hay cuentas ni registro: lo que escriba queda solo en este navegador."
+        texto="Para presidentes y miembros de JAC, ediles de la JAL y representantes al Consejo de Planeación: cifras del barrio para la reunión, una carta de petición lista para completar y un contador de plazos."
       />
 
       {sinRespuesta > 0 && (
