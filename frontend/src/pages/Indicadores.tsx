@@ -123,7 +123,7 @@ function Contenido({ d }: { d: Ind }) {
   const imcv = ecv.imcv;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
+    <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
       <Cabecera etiqueta="Indicadores" icono="indicadores" titulo="Indicadores de Santa Cruz"
         texto={<>Calculados con datos oficiales de la Alcaldía de Medellín y del DANE. Última actualización del cálculo: {fecha(d.generado)}.</>}>
         <BotonCabecera to="/mapa">Verlos en el mapa</BotonCabecera>

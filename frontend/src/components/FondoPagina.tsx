@@ -34,10 +34,10 @@ export default function FondoPagina() {
   );
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute -right-24 -top-24 h-[34rem] w-[34rem] rounded-full blur-3xl" style={{ background: "radial-gradient(circle, rgb(var(--brillo) / 0.22), transparent 68%)", animation: "deriva 26s ease-in-out infinite alternate" }} />
-      <div className="absolute -bottom-32 -left-24 h-[30rem] w-[30rem] rounded-full blur-3xl" style={{ background: "radial-gradient(circle, rgb(var(--brillo-2) / 0.16), transparent 68%)", animation: "deriva 32s ease-in-out infinite alternate-reverse" }} />
+      <div className="absolute -right-24 -top-24 h-[34rem] w-[34rem] rounded-full " style={{ background: "radial-gradient(circle, rgb(var(--brillo) / 0.2), transparent 68%)" }} />
+      <div className="absolute -bottom-32 -left-24 h-[30rem] w-[30rem] rounded-full " style={{ background: "radial-gradient(circle, rgb(var(--brillo-2) / 0.14), transparent 68%)" }} />
       <svg viewBox="0 0 1200 1000" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full">
-        <g className="curvas-deriva" fill="none" stroke="rgb(var(--marca))" strokeWidth="1.6" opacity="0.1">
+        <g fill="none" stroke="rgb(var(--marca))" strokeWidth="1.6" opacity="0.1">
           {rutas.map((d, i) => (
             <path key={i} d={d} />
           ))}

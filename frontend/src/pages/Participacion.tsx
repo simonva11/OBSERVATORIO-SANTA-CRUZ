@@ -202,7 +202,7 @@ export default function Participacion() {
   const borrar = (id: string) => setReportes((rs) => rs.filter((r) => r.id !== id));
 
   return (
-    <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
+    <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
       <Cabecera etiqueta="Participación" icono="participacion" titulo="Reportar un problema"
         texto="Andenes dañados, puntos peligrosos, barreras de acceso, parques deteriorados o conexiones que hacen falta. Los reportes servirán como insumo para el Presupuesto Participativo y las entidades, no como decisiones automáticas.">
         <p className="w-full rounded-lg bg-ambar-claro px-3 py-2 text-sm text-tinta">

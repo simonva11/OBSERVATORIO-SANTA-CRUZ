@@ -191,7 +191,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
 
   const campo = "mt-1 h-10 w-full rounded-md border border-nivel bg-superficie px-2 text-sm";
   return (
-    <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
+    <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
       <Cabecera
         etiqueta="Comunidad"
         icono="estrella"

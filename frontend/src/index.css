@@ -473,6 +473,7 @@ html.noche .cabecera-panel {
 .progreso-lectura {
   background: linear-gradient(90deg, rgb(var(--brillo-2)), rgb(var(--brillo)));
   transition: transform 120ms linear;
+  will-change: transform;
 }
 /* Tarjetas de datos: se levantan y brillan al pasar el mouse */
 .kpi-tarjeta {

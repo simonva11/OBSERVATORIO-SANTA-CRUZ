@@ -14,20 +14,20 @@ export function Cabecera({
   return (
     <header className={`cabecera-panel relative overflow-hidden rounded-3xl border border-nivel/80 p-6 sm:p-9 ${className}`} style={{ ["--tono" as string]: a.vivo }}>
       <svg aria-hidden="true" viewBox="0 0 1000 260" preserveAspectRatio="xMaxYMid slice" className="pointer-events-none absolute inset-0 h-full w-full">
-        <g className="curvas-deriva" fill="none" stroke="rgb(var(--marca))" strokeWidth="1.3" opacity="0.14">
+        <g fill="none" stroke="rgb(var(--marca))" strokeWidth="1.3" opacity="0.14">
           {CURVAS_CAB.map((d, i) => (
             <path key={i} d={d} />
           ))}
         </g>
       </svg>
-      <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full blur-3xl" style={{ background: `radial-gradient(circle, ${a.vivo}55, transparent 70%)` }} />
+      <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full " style={{ background: `radial-gradient(circle, ${a.vivo}44, transparent 70%)` }} />
       <div className="relative flex items-start gap-5">
         {icono && (
           <span className="cabecera-icono hidden h-14 w-14 shrink-0 place-items-center rounded-2xl text-white sm:grid" style={{ background: `linear-gradient(145deg, ${a.vivo}, ${a.medio})` }}>
             <IconoNav nombre={icono} className="h-7 w-7" trazo={1.7} />
           </span>
         )}
-        <div className="min-w-0 max-w-3xl">
+        <div className="min-w-0 max-w-5xl">
           <p className="entra inline-flex items-center gap-2 rounded-full border border-marca/25 bg-superficie/70 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-marca backdrop-blur">
             <span aria-hidden="true" className="punto-vivo !h-1.5 !w-1.5 !bg-[var(--tono)]" />
             {etiqueta}

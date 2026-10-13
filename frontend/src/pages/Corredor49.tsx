@@ -377,7 +377,7 @@ export default function Corredor49() {
   return (
     <div className="relative isolate overflow-hidden">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-papel" />
-      <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
+      <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
         <ConDatos estado={estado}>{(d) => <Contenido d={d} />}</ConDatos>
       </div>
     </div>

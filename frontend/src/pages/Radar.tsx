@@ -44,7 +44,7 @@ function Contenido({ r }: { r: Radar }) {
   const temaTop = Object.entries(r.por_tema).filter(([t]) => t !== "Otros")[0];
 
   return (
-    <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
+    <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
       <Cabecera etiqueta="Radar de la comuna" icono="alerta" titulo="Lo que dicen las noticias de Santa Cruz"
         texto={<>Titulares sobre la comuna y sus barrios, recogidos solos desde Google Noticias. Sirven para ver qué problemas aparecen una y otra vez y cuándo. No son datos oficiales: complementan, no reemplazan, los datos de la Alcaldía.</>}>
         <BotonCabecera to="/participacion">Reportar un problema</BotonCabecera>

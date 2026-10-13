@@ -32,7 +32,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
   const atropellos = ind.barrios.reduce((s, b) => s + b.atropellos, 0);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
+    <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
       <Cabecera etiqueta="Propuesta de valor" icono="corazon" titulo="Por qué Santa Cruz necesita un observatorio"
         texto={<>Qué problemas tiene la comuna, qué existe ya, qué falta, cómo lo detectamos y quién lo usaría. Escrito con lo que pudimos verificar y marcando lo que todavía no.</>}>
         <BotonCabecera to="/radar">Ver el radar de noticias</BotonCabecera>

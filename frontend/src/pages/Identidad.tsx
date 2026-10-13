@@ -59,7 +59,7 @@ const ICONOS = ["inicio", "mapa", "personas", "alerta", "corredor", "indicadores
 
 export default function Identidad() {
   return (
-    <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
+    <div className="mx-auto max-w-[112rem] space-y-10 px-4 py-6 lg:px-8 2xl:px-12">
       <Cabecera etiqueta="Manual de identidad" icono="paleta" titulo="Cómo se ve y cómo habla el observatorio"
         texto="Una sola forma de usar el color, las letras, los íconos y las palabras, para que todo el sitio se sienta de la misma casa y siga siendo fácil de usar. Para que lo sigan quienes hereden el proyecto, y para ti si vas a presentarlo.">
         <BotonCabecera to="/propuesta" claro>Ver la propuesta de valor</BotonCabecera>

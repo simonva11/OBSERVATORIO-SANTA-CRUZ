@@ -324,12 +324,11 @@ export default function Layout({ children }: { children: ReactNode }) {
   }, []);
   const esMapa = pathname === "/mapa";
   const principal = useRef<HTMLElement>(null);
-  const [avance, setAvance] = useState(0);
+  const barra = useRef<HTMLDivElement>(null);
   const alDesplazar = () => {
     const el = principal.current;
-    if (el) setAvance(el.scrollHeight > el.clientHeight ? el.scrollTop / (el.scrollHeight - el.clientHeight) : 0);
+    if (el && barra.current) barra.current.style.transform = `scaleX(${el.scrollHeight > el.clientHeight ? el.scrollTop / (el.scrollHeight - el.clientHeight) : 0})`;
   };
-  useEffect(() => setAvance(0), [pathname]);
   const [nivel, setNivel] = useLetra();
   const [noche, setNoche] = useTema();
   useEffect(() => setMenuAbierto(false), [pathname]);
@@ -382,7 +381,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
       <div className="relative min-h-0 flex-1">
         {!esMapa && <FondoPagina />}
-        {!esMapa && <div aria-hidden="true" className="progreso-lectura absolute inset-x-0 top-0 z-10 h-0.5 origin-left" style={{ transform: `scaleX(${avance})` }} />}
+        {!esMapa && <div ref={barra} aria-hidden="true" className="progreso-lectura absolute inset-x-0 top-0 z-10 h-0.5 origin-left scale-x-0" />}
         <main id="contenido" ref={principal} onScroll={alDesplazar} className={`absolute inset-0 ${esMapa ? "overflow-hidden" : "overflow-y-auto"}`}>
           <div key={pathname} className={esMapa ? "h-full" : "animate-[entrar-suave_450ms_ease-out_backwards]"}>{children}</div>
         </main>
