@@ -23,9 +23,9 @@ import type { FichaBarrio as Ficha, Indicadores as Ind } from "../lib/tipos";
 import { BotonCabecera, Cabecera, Kpi, Relacionados, Seccion } from "../components/Pagina";
 
 const C = {
-  barra: "#6a4fe0",
-  resaltada: "#1b1d3a",
-  apagada: "#c9c2ff",
+  barra: "#3b82f6",
+  resaltada: "#0c1d3a",
+  apagada: "#bfdbfe",
   rejilla: "#e2e5de",
   eje: "#6b6f9e",
 };
@@ -50,7 +50,7 @@ function Panel({ titulo, descripcion, children }: { titulo: string; descripcion?
 }
 
 const estiloTooltip = {
-  contentStyle: { borderRadius: 6, border: "1px solid #d9d9ec", fontSize: 13, fontFamily: "Archivo, sans-serif" },
+  contentStyle: { borderRadius: 6, border: "1px solid #d0def4", fontSize: 13, fontFamily: "Archivo, sans-serif" },
   cursor: { fill: "rgba(106,79,224,0.08)" },
 };
 
@@ -80,14 +80,14 @@ function BarrasBarrio({
         <BarChart data={filas} layout="vertical" margin={{ left: 8, right: 28, top: 22, bottom: 4 }} barCategoryGap={4}>
           <CartesianGrid horizontal={false} stroke={C.rejilla} />
           <XAxis type="number" tick={{ fontSize: 12, fill: C.eje }} axisLine={false} tickLine={false} tickFormatter={(v: number) => dec2(v)} />
-          <YAxis type="category" dataKey="nombre" width={172} interval={0} tick={{ fontSize: 12, fill: "#1b1d3a" }} axisLine={false} tickLine={false} />
+          <YAxis type="category" dataKey="nombre" width={172} interval={0} tick={{ fontSize: 12, fill: "#0c1d3a" }} axisLine={false} tickLine={false} />
           <Tooltip {...estiloTooltip} formatter={(v: number) => [`${formato(v)} ${unidad}`.trim(), ""]} separator="" />
           {referencia != null && (
             <ReferenceLine
               x={referencia}
-              stroke="#1b1d3a"
+              stroke="#0c1d3a"
               strokeDasharray="4 3"
-              label={{ value: referenciaEtiqueta, position: "top", fontSize: 11, fill: "#1b1d3a" }}
+              label={{ value: referenciaEtiqueta, position: "top", fontSize: 11, fill: "#0c1d3a" }}
             />
           )}
           <Bar dataKey="valor" radius={[0, 4, 4, 0]} isAnimationActive={false}>
@@ -123,7 +123,7 @@ function Contenido({ d }: { d: Ind }) {
   const imcv = ecv.imcv;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-5 lg:px-8">
+    <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
       <Cabecera etiqueta="Indicadores" icono="indicadores" titulo="Indicadores de Santa Cruz"
         texto={<>Calculados con datos oficiales de la Alcaldía de Medellín y del DANE. Última actualización del cálculo: {fecha(d.generado)}.</>}>
         <BotonCabecera to="/mapa">Verlos en el mapa</BotonCabecera>
@@ -266,7 +266,7 @@ function Contenido({ d }: { d: Ind }) {
                   width={40}
                 />
                 <Tooltip {...estiloTooltip} formatter={(v: number) => [dec(v), "IMCV"]} cursor={{ stroke: "#6b6f9e", strokeDasharray: "3 3" }} />
-                <Line type="monotone" dataKey="valor" stroke="#6a4fe0" strokeWidth={2} dot={{ r: 4, fill: "#6a4fe0", stroke: "#fff", strokeWidth: 2 }} isAnimationActive={false} />
+                <Line type="monotone" dataKey="valor" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4, fill: "#3b82f6", stroke: "#fff", strokeWidth: 2 }} isAnimationActive={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>

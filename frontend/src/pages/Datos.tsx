@@ -155,7 +155,7 @@ function SubirDatos() {
         <p className="mt-4 text-base font-semibold">Arrastra aquí tu archivo</p>
         <p className="mt-1 max-w-xl text-base text-tinta-suave">CSV con columnas <code>lat</code> y <code>lon</code>, o un GeoJSON. Se lee en tu computador: no se manda a ningún servidor.</p>
         <div className="mt-5 flex flex-wrap justify-center gap-3">
-          <button type="button" onClick={() => input.current?.click()} className="rounded-2xl bg-[#3a2d8f] px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5">Elegir archivo</button>
+          <button type="button" onClick={() => input.current?.click()} className="rounded-2xl bg-[#1e40af] px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5">Elegir archivo</button>
           <a href={`data:text/csv;charset=utf-8,${encodeURIComponent(PLANTILLA)}`} download="plantilla-mis-datos.csv" className="rounded-2xl border-2 border-marca/40 px-5 py-2.5 text-sm font-semibold text-marca transition hover:bg-menta">Bajar plantilla CSV</a>
         </div>
         <input ref={input} type="file" accept=".csv,.txt,.json,.geojson,text/csv,application/json" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) void abrir(f); e.target.value = ""; }} />
@@ -214,7 +214,7 @@ function SubirDatos() {
               </div>
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
-              <button type="button" onClick={() => guardar(true)} className="inline-flex items-center gap-2 rounded-2xl bg-[#3a2d8f] px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5"><IconoNav nombre="mapa" className="h-6 w-6" trazo={2} /> Guardar y verlo en el mapa</button>
+              <button type="button" onClick={() => guardar(true)} className="inline-flex items-center gap-2 rounded-2xl bg-[#1e40af] px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5"><IconoNav nombre="mapa" className="h-6 w-6" trazo={2} /> Guardar y verlo en el mapa</button>
               <button type="button" onClick={() => guardar(false)} className="rounded-2xl border-2 border-marca/40 px-5 py-2.5 text-sm font-semibold text-marca transition hover:bg-menta">Solo guardar</button>
               <button type="button" onClick={() => setLectura(null)} className="rounded-2xl px-4 py-2.5 text-sm font-semibold text-tinta-suave hover:underline">Descartar</button>
             </div>
@@ -318,7 +318,7 @@ function ValleDeAburra() {
             { t: "Comparar entre municipios", d: "Con el mismo método se pueden poner lado a lado espacio público por habitante, tiempo al transporte masivo y atropellos por mil habitantes." },
           ].map((p, i) => (
             <li key={p.t} className="flex gap-4 rounded-2xl bg-superficie p-5 shadow ring-1 ring-black/5">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#3a2d8f] text-base font-semibold text-white">{i + 1}</span>
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#1e40af] text-base font-semibold text-white">{i + 1}</span>
               <div><p className="text-base font-semibold">{p.t}</p><p className="mt-0.5 text-base text-tinta-suave">{p.d}</p></div>
             </li>
           ))}
@@ -356,7 +356,7 @@ export default function Datos() {
   return (
     <div className="relative isolate overflow-hidden">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-papel" />
-      <div className="mx-auto max-w-5xl space-y-8 px-4 py-5 lg:px-8">
+      <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
         <Cabecera className="mb-10" etiqueta="Mis datos y descargas" icono="subir" titulo="Todo lo que bajes, aquí se ve"
           texto="Sube un archivo y míralo al instante sobre la comuna, mira qué otros datos se pueden bajar y de dónde, y entiende cómo llevar esto a todo el Valle de Aburrá." />
         <Seccion id="t-subir" titulo="Sube tus datos" texto="Pueden ser encuestas, recorridos de campo, puntos de obras, lo que tengas con una ubicación.">

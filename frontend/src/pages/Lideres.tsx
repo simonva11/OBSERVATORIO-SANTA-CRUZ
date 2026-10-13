@@ -191,7 +191,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
 
   const campo = "mt-1 h-10 w-full rounded-md border border-nivel bg-superficie px-2 text-sm";
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-5 lg:px-8">
+    <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
       <Cabecera
         etiqueta="Comunidad"
         icono="estrella"
@@ -208,7 +208,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
       <div className="no-imprimir flex flex-wrap gap-2" role="group" aria-label="Elegir barrio">
         {ind.barrios.map((x) => (
           <button key={x.codigo} type="button" aria-pressed={x.codigo === codigo} onClick={() => setCodigo(x.codigo)}
-            className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${x.codigo === codigo ? "bg-[#3a2d8f] text-white shadow" : "bg-superficie ring-1 ring-nivel hover:bg-menta"}`}>{x.nombre}</button>
+            className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${x.codigo === codigo ? "bg-[#1e40af] text-white shadow" : "bg-superficie ring-1 ring-nivel hover:bg-menta"}`}>{x.nombre}</button>
         ))}
       </div>
 

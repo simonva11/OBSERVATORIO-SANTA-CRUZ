@@ -61,7 +61,7 @@ function Contenido({ r, puntos }: { r: Reclamos; puntos: PuntoHueco[] }) {
   const mapa = `/mapa?capas=huecos,solicitudes_obras,solicitudes_quebradas`;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-5 lg:px-8">
+    <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
       <Cabecera etiqueta="Huecos y reclamos" icono="alerta" titulo="Lo que la gente ya le reportó a la Alcaldía"
         texto="Huecos, obras pedidas y basuras en las quebradas de la Comuna 2, según los registros públicos de la Alcaldía. Son reportes, no un conteo de todo lo que está dañado: solo aparece lo que alguien se tomó el trabajo de reportar.">
         <BotonCabecera to={mapa}>Verlo en el mapa</BotonCabecera>

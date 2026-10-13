@@ -61,7 +61,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
   const corredoresUnicos = Array.from(new Map(corredores.map((c) => [c.tramo, c])).values());
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-5 lg:px-8">
+    <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
       <Cabecera
         etiqueta="Inmobiliario y norma"
         icono="cubo"

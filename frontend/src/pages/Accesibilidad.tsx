@@ -31,13 +31,13 @@ function Calculadora() {
           <span className="flex justify-between font-medium">
             Distancia del recorrido <span className="tabular-nums">{num(distancia)} m</span>
           </span>
-          <input type="range" min={50} max={2000} step={50} value={distancia} onChange={(e) => setDistancia(+e.target.value)} className="mt-2 w-full accent-[#6a4fe0]" />
+          <input type="range" min={50} max={2000} step={50} value={distancia} onChange={(e) => setDistancia(+e.target.value)} className="mt-2 w-full accent-[#3b82f6]" />
         </label>
         <label className="text-sm">
           <span className="flex justify-between font-medium">
             Pendiente <span className="tabular-nums">{pendiente > 0 ? "subiendo" : pendiente < 0 ? "bajando" : "plano"} {Math.abs(pendiente)} %</span>
           </span>
-          <input type="range" min={-30} max={30} step={1} value={pendiente} onChange={(e) => setPendiente(+e.target.value)} className="mt-2 w-full accent-[#6a4fe0]" />
+          <input type="range" min={-30} max={30} step={1} value={pendiente} onChange={(e) => setPendiente(+e.target.value)} className="mt-2 w-full accent-[#3b82f6]" />
         </label>
       </div>
       <p className="mt-4 rounded-xl bg-menta px-3 py-2 text-base" aria-live="polite">
@@ -68,9 +68,9 @@ const NOMBRE_TIPO: Record<string, string> = {
 
 /** Color según qué tanta gente queda dentro del umbral: más rojo = peor. */
 const tono = (v: number | null) =>
-  v == null ? "#ecebf8" : v >= 80 ? "#e9e7fc" : v >= 60 ? "#eef0d9" : v >= 40 ? "#f6e7c8" : v >= 20 ? "#f0cdb8" : "#e3a08d";
+  v == null ? "#e8f0fc" : v >= 80 ? "#e2edfd" : v >= 60 ? "#eef0d9" : v >= 40 ? "#f6e7c8" : v >= 20 ? "#f0cdb8" : "#e3a08d";
 
-const COLOR_BARRA = (v: number | null) => (v == null ? "#cfd0e6" : v >= 60 ? "#6a4fe0" : v >= 40 ? "#4a7be0" : v >= 20 ? "#e0a526" : "#c0583a");
+const COLOR_BARRA = (v: number | null) => (v == null ? "#cfd0e6" : v >= 60 ? "#3b82f6" : v >= 40 ? "#4a7be0" : v >= 20 ? "#e0a526" : "#c0583a");
 
 function Contenido({ d }: { d: Indicadores }) {
   const a = d.accesibilidad;
@@ -86,7 +86,7 @@ function Contenido({ d }: { d: Indicadores }) {
   const cv = c[clave] as number | null;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-5 lg:px-8">
+    <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
       <Cabecera
         etiqueta="Accesibilidad caminando"
         icono="accesibilidad"
@@ -116,13 +116,13 @@ function Contenido({ d }: { d: Indicadores }) {
       <Seccion
         id="t-barrios"
         titulo="Diferencias entre barrios"
-        texto={<>Personas del barrio a {umbral} min o menos de {dsel.nombre.toLowerCase()}. Más violeta = más gente con acceso.</>}
+        texto={<>Personas del barrio a {umbral} min o menos de {dsel.nombre.toLowerCase()}. Más oscuro = más gente con acceso.</>}
       >
         <div className="rounded-2xl border border-nivel bg-superficie p-4 shadow-sm sm:p-5">
           <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Destino">
             {DESTINOS.map((x) => (
               <button key={x.id} type="button" onClick={() => setDestino(x.id)} aria-pressed={destino === x.id}
-                className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${destino === x.id ? "bg-[#3a2d8f] text-white shadow" : "bg-menta-2 text-tinta hover:bg-menta"}`}>
+                className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${destino === x.id ? "bg-[#1e40af] text-white shadow" : "bg-menta-2 text-tinta hover:bg-menta"}`}>
                 {x.nombre.split(",")[0].replace("Metro", "Metro / Metrocable")}
               </button>
             ))}
@@ -139,7 +139,7 @@ function Contenido({ d }: { d: Indicadores }) {
           <ul className="mt-4 space-y-2">
             <li className="grid grid-cols-[7.5rem_1fr_3.2rem] items-center gap-3 text-sm font-semibold sm:grid-cols-[10rem_1fr_3.6rem]">
               <span>Comuna 2</span>
-              <span className="relative h-3 rounded-full bg-papel-hondo"><span className="absolute inset-y-0 left-0 rounded-full bg-[#1b1d3a]" style={{ width: `${cv ?? 0}%`, transition: "width 600ms ease" }} /></span>
+              <span className="relative h-3 rounded-full bg-papel-hondo"><span className="absolute inset-y-0 left-0 rounded-full bg-[#0c1d3a]" style={{ width: `${cv ?? 0}%`, transition: "width 600ms ease" }} /></span>
               <span className="text-right tabular-nums">{pct(cv)}</span>
             </li>
             {orden.map((f) => {

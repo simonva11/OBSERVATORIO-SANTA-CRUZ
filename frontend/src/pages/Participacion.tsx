@@ -202,7 +202,7 @@ export default function Participacion() {
   const borrar = (id: string) => setReportes((rs) => rs.filter((r) => r.id !== id));
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-5 lg:px-8">
+    <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
       <Cabecera etiqueta="Participación" icono="participacion" titulo="Reportar un problema"
         texto="Andenes dañados, puntos peligrosos, barreras de acceso, parques deteriorados o conexiones que hacen falta. Los reportes servirán como insumo para el Presupuesto Participativo y las entidades, no como decisiones automáticas.">
         <p className="w-full rounded-lg bg-ambar-claro px-3 py-2 text-sm text-tinta">
@@ -300,7 +300,7 @@ export default function Participacion() {
                 {duplicado.descripcion.length > 80 ? "…" : ""}”.
               </p>
               <label className="mt-2 flex items-center gap-2">
-                <input type="checkbox" checked={confirmarDuplicado} onChange={(e) => setConfirmarDuplicado(e.target.checked)} className="accent-[#6a4fe0]" />
+                <input type="checkbox" checked={confirmarDuplicado} onChange={(e) => setConfirmarDuplicado(e.target.checked)} className="accent-[#3b82f6]" />
                 Es un problema distinto
               </label>
               {errores.duplicado && <p className="mt-1 text-ladrillo">{errores.duplicado}</p>}
@@ -338,10 +338,10 @@ export default function Participacion() {
               className="base-clara"
             />
             {barrios.estado === "listo" && (
-              <GeoJSON data={barrios.datos} style={{ color: "#3a2d8f", weight: 1, fillOpacity: 0.03 }} onEachFeature={(f, l) => l.bindTooltip(String(f.properties?.nombre ?? ""), { permanent: true, direction: "center", className: "rotulo-barrio" })} />
+              <GeoJSON data={barrios.datos} style={{ color: "#1e40af", weight: 1, fillOpacity: 0.03 }} onEachFeature={(f, l) => l.bindTooltip(String(f.properties?.nombre ?? ""), { permanent: true, direction: "center", className: "rotulo-barrio" })} />
             )}
             {comuna.estado === "listo" && (
-              <GeoJSON data={comuna.datos} interactive={false} style={{ color: "#1b1d3a", weight: 2.5, dashArray: "8 5", fillOpacity: 0 }} />
+              <GeoJSON data={comuna.datos} interactive={false} style={{ color: "#0c1d3a", weight: 2.5, dashArray: "8 5", fillOpacity: 0 }} />
             )}
             {reportes.map((r) => (
               <CircleMarker key={r.id} center={[r.lat, r.lon]} radius={6} pathOptions={{ color: "#fff", weight: 1.5, fillColor: "#1d4fa0", fillOpacity: 1 }} />

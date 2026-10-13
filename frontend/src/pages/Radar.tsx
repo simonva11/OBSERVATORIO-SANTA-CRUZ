@@ -14,8 +14,8 @@ type Radar = {
 };
 
 const COLOR_TEMA: Record<string, string> = {
-  "Basuras y aseo": "#6a7ae0", "Vías y huecos": "#b05ab0", "Andenes y escaleras": "#9a55d0", "Movilidad y transporte": "#2d6ae0",
-  "Seguridad": "#b04ac0", "Riesgo y clima": "#c0583a", "Servicios públicos": "#2a8ac8", "Espacio público y comunidad": "#6a4fe0", Otros: "#7d83a8",
+  "Basuras y aseo": "#6a7ae0", "Vías y huecos": "#b05ab0", "Andenes y escaleras": "#6a8ff5", "Movilidad y transporte": "#2d6ae0",
+  "Seguridad": "#2e9ad8", "Riesgo y clima": "#c0583a", "Servicios públicos": "#2a8ac8", "Espacio público y comunidad": "#3b82f6", Otros: "#7d83a8",
 };
 
 function Contenido({ r }: { r: Radar }) {
@@ -44,7 +44,7 @@ function Contenido({ r }: { r: Radar }) {
   const temaTop = Object.entries(r.por_tema).filter(([t]) => t !== "Otros")[0];
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-5 lg:px-8">
+    <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
       <Cabecera etiqueta="Radar de la comuna" icono="alerta" titulo="Lo que dicen las noticias de Santa Cruz"
         texto={<>Titulares sobre la comuna y sus barrios, recogidos solos desde Google Noticias. Sirven para ver qué problemas aparecen una y otra vez y cuándo. No son datos oficiales: complementan, no reemplazan, los datos de la Alcaldía.</>}>
         <BotonCabecera to="/participacion">Reportar un problema</BotonCabecera>
@@ -69,7 +69,7 @@ function Contenido({ r }: { r: Radar }) {
                 {meses.map(([k, n]) => (
                   <div key={k} className="group relative z-10 flex h-full flex-1 flex-col items-center justify-end" title={`${nombreMes(k)}: ${n} ${n === 1 ? "noticia" : "noticias"}`}>
                     {n > 0 && meses.length <= 26 && <span className="mb-0.5 text-[0.65rem] font-semibold leading-none tabular-nums text-tinta-suave">{n}</span>}
-                    <span className="w-full rounded-t bg-[#6a4fe0] transition group-hover:bg-[#c0583a]" style={{ height: `${(n / maxMes) * 82}%`, minHeight: n ? 3 : 0 }} />
+                    <span className="w-full rounded-t bg-[#3b82f6] transition group-hover:bg-[#c0583a]" style={{ height: `${(n / maxMes) * 82}%`, minHeight: n ? 3 : 0 }} />
                   </div>
                 ))}
               </div>
@@ -104,7 +104,7 @@ function Contenido({ r }: { r: Radar }) {
             <div className="flex flex-wrap gap-2">
               {Object.entries(r.por_barrio).map(([b, n]) => (
                 <button key={b} type="button" onClick={() => setBarrio(barrio === b ? "" : b)} aria-pressed={barrio === b}
-                  className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${barrio === b ? "bg-[#3a2d8f] text-white" : "bg-menta-2 hover:bg-menta"}`}>
+                  className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${barrio === b ? "bg-[#1e40af] text-white" : "bg-menta-2 hover:bg-menta"}`}>
                   {b === "Santa Cruz" ? "Santa Cruz (barrio o comuna)" : b} <span className="opacity-70">{n}</span>
                 </button>
               ))}

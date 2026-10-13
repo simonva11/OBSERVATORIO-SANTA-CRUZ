@@ -86,7 +86,7 @@ export default function Votacion() {
       <div className="flex flex-wrap gap-2" role="group" aria-label="Barrio de la votación">
         {barrios.map((b) => (
           <button key={b.codigo} type="button" aria-pressed={b.codigo === barrio} onClick={() => setBarrio(b.codigo)}
-            className={`rounded-full px-3 py-1 text-xs font-medium transition ${b.codigo === barrio ? "bg-[#3a2d8f] text-white" : "bg-superficie ring-1 ring-nivel hover:bg-menta"}`}>{b.nombre}</button>
+            className={`rounded-full px-3 py-1 text-xs font-medium transition ${b.codigo === barrio ? "bg-[#1e40af] text-white" : "bg-superficie ring-1 ring-nivel hover:bg-menta"}`}>{b.nombre}</button>
         ))}
       </div>
       <ul className="grid gap-2 sm:grid-cols-2">

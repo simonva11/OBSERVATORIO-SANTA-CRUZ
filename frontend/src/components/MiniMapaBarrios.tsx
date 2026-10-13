@@ -51,7 +51,7 @@ export default function MiniMapaBarrios({
 
   if (!dibujo) return <div className="grid h-72 place-items-center rounded-xl border border-nivel/70 text-sm text-tinta-suave">Cargando el mapa…</div>;
 
-  // Cinco tonos del violeta de la marca; sin valor, un gris suave. El color nunca es el único dato: cada barrio trae su cifra.
+  // Cinco tonos del azul de la marca; sin valor, un gris suave. El color nunca es el único dato: cada barrio trae su cifra.
   const tono = (v: number | undefined) => (v == null || max === 0 || v === 0 ? "rgb(var(--nivel) / 0.45)" : `rgb(var(--marca) / ${0.16 + 0.74 * Math.ceil((v / max) * 5) / 5})`);
 
   return (

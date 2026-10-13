@@ -97,7 +97,7 @@ export default function PanelRuteo({ clic, onGeo, onEncuadrar, onCerrar }: Props
       { type: "Feature", properties: { rol: "origen", etiqueta: "Usted está aquí" }, geometry: { type: "Point", coordinates: [origen.lon, origen.lat] } },
     ];
     if (rutaB && destinoB) {
-      lineas.push({ ...rutaB.geojson, properties: { color: "#1b1d3a", activa: true } });
+      lineas.push({ ...rutaB.geojson, properties: { color: "#0c1d3a", activa: true } });
       puntos.push({ type: "Feature", properties: { rol: "destino", etiqueta: "Destino", color: "#a8452b" }, geometry: { type: "Point", coordinates: [destinoB.lon, destinoB.lat] } });
     } else {
       for (const r of cercanos) {

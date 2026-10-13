@@ -22,7 +22,7 @@ function Comparar({ titulo, barrio, comuna, unidad, mayorEsMalo = true, dec: d =
   return (
     <div className="rounded-2xl border border-nivel bg-superficie p-4 shadow-sm">
       <p className="text-sm font-semibold">{titulo}</p>
-      {[{ n: "Este barrio", v: barrio, c: peor ? "#c0583a" : "#6a4fe0" }, { n: "Toda la comuna", v: comuna, c: "#1b1d3a" }].map((r) => (
+      {[{ n: "Este barrio", v: barrio, c: peor ? "#c0583a" : "#3b82f6" }, { n: "Toda la comuna", v: comuna, c: "#0c1d3a" }].map((r) => (
         <div key={r.n} className="mt-2 grid grid-cols-[6.5rem_1fr_auto] items-center gap-2 text-xs">
           <span className="text-tinta-suave">{r.n}</span>
           <span className="relative h-2.5 rounded-full bg-papel-hondo"><span className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${((r.v ?? 0) / max) * 100}%`, background: r.c, transition: "width 600ms ease" }} /></span>
@@ -64,7 +64,7 @@ function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad | null;
   const anchoB = ind.infraestructura?.andenes.barrios.find((x: Fila) => x.barrio === b.nombre) as Fila | undefined;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-5 lg:px-8">
+    <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
       <Cabecera
         etiqueta="Mi barrio"
         icono="personas"
@@ -84,7 +84,7 @@ function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad | null;
       <nav aria-label="Elegir barrio" className="no-imprimir flex flex-wrap gap-2">
         {ind.barrios.map((x) => (
           <button key={x.codigo} type="button" onClick={() => ir(`/barrios/${x.codigo}`)} aria-pressed={x.codigo === b.codigo}
-            className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${x.codigo === b.codigo ? "bg-[#3a2d8f] text-white shadow" : "bg-superficie text-tinta ring-1 ring-nivel hover:bg-menta"}`}>
+            className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${x.codigo === b.codigo ? "bg-[#1e40af] text-white shadow" : "bg-superficie text-tinta ring-1 ring-nivel hover:bg-menta"}`}>
             {x.nombre}
           </button>
         ))}
@@ -122,7 +122,7 @@ function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad | null;
                 <Link to={`/barrios/${r.codigo}`} className={`grid grid-cols-[1.5rem_1fr_5rem_2rem] items-center gap-2 rounded-md px-1 py-1 hover:bg-menta ${r.codigo === b.codigo ? "font-bold" : ""}`}>
                   <span className="tabular-nums text-tinta-suave">{i + 1}</span>
                   <span>{r.nombre}</span>
-                  <span className="h-2 rounded-full bg-papel-hondo"><span className="block h-full rounded-full" style={{ width: `${r.total}%`, background: r.codigo === b.codigo ? "#6a4fe0" : "#9aa0d6" }} /></span>
+                  <span className="h-2 rounded-full bg-papel-hondo"><span className="block h-full rounded-full" style={{ width: `${r.total}%`, background: r.codigo === b.codigo ? "#3b82f6" : "#9aa0d6" }} /></span>
                   <span className="text-right tabular-nums">{r.total}</span>
                 </Link>
               </li>

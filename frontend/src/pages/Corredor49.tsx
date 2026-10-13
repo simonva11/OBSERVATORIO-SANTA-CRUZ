@@ -10,7 +10,7 @@ import IconoNav from "../components/IconosNav";
 import type { Coleccion } from "../lib/tipos";
 import { BotonCabecera, Cabecera, Relacionados, Seccion } from "../components/Pagina";
 
-const VERDE = "#3a2d8f";
+const VERDE = "#1e40af";
 const AMBAR = "#6ab7ff";
 
 interface PorBarrio { barrio: string; personas: number; minutos_ruta_rapida: number; minutos_por_la_49: number; pct_49_en_el_camino: number }
@@ -113,7 +113,7 @@ function MapaEje({ tipo }: { tipo: string }) {
         ))}
       </svg>
       {tip && (
-        <div className="pointer-events-none absolute z-10 max-w-[14rem] -translate-x-1/2 -translate-y-full rounded-lg bg-[#3a2d8f] px-3 py-2 text-xs font-medium text-white shadow-lg" style={{ left: `${(tip.x / ANCHO) * 100}%`, top: `${(tip.y / ALTO) * 100 - 2}%` }}>
+        <div className="pointer-events-none absolute z-10 max-w-[14rem] -translate-x-1/2 -translate-y-full rounded-lg bg-[#1e40af] px-3 py-2 text-xs font-medium text-white shadow-lg" style={{ left: `${(tip.x / ANCHO) * 100}%`, top: `${(tip.y / ALTO) * 100 - 2}%` }}>
           {tip.texto}
         </div>
       )}
@@ -121,7 +121,7 @@ function MapaEje({ tipo }: { tipo: string }) {
         {ESCALA.map((e) => (
           <li key={e.color} className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full" style={{ background: e.color }} />{e.texto}</li>
         ))}
-        <li className="flex items-center gap-1.5"><span className="h-1.5 w-6 rounded bg-[#3a2d8f]" />Carrera 49 existente</li>
+        <li className="flex items-center gap-1.5"><span className="h-1.5 w-6 rounded bg-[#1e40af]" />Carrera 49 existente</li>
         <li className="flex items-center gap-1.5"><span className="h-1.5 w-6 rounded border-t-4 border-dotted border-[#6ab7ff]" />Tramo proyectado en el POT</li>
         <li className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-[#1d4fa0]" />Estación</li>
       </ul>
@@ -186,7 +186,7 @@ function Contenido({ d }: { d: Eje49 }) {
           {ORDEN.filter((o) => d.destinos[o.id]).map((o) => (
             <button
               key={o.id} role="tab" aria-selected={tipo === o.id} onClick={() => setTipo(o.id)}
-              className={`flex items-center gap-2 rounded-full px-4 py-2 text-base font-semibold transition ${tipo === o.id ? "bg-[#3a2d8f] text-white shadow-md" : "bg-superficie text-tinta ring-1 ring-black/10 hover:bg-menta"}`}
+              className={`flex items-center gap-2 rounded-full px-4 py-2 text-base font-semibold transition ${tipo === o.id ? "bg-[#1e40af] text-white shadow-md" : "bg-superficie text-tinta ring-1 ring-black/10 hover:bg-menta"}`}
             >
               <IconoNav nombre={o.icono} className="h-5 w-5" />
               {o.corto}
@@ -287,7 +287,7 @@ function Contenido({ d }: { d: Eje49 }) {
                 {e.siniestros_por_km_comuna != null && (
                   <div>
                     <div className="flex justify-between text-base"><span className="font-semibold">Promedio de las calles de la comuna</span><span className="tabular-nums font-bold">{dec(e.siniestros_por_km_comuna)}</span></div>
-                    <Barra valor={e.siniestros_por_km_comuna} max={anchoMax} color="#6a4fe0" />
+                    <Barra valor={e.siniestros_por_km_comuna} max={anchoMax} color="#3b82f6" />
                   </div>
                 )}
               </div>
@@ -362,7 +362,7 @@ function Contenido({ d }: { d: Eje49 }) {
           <p className="mt-3 text-sm text-tinta-tenue">Script: <code>data-pipeline/eje49.py</code>. Tramos del eje: {d.eje.tramos.map((t) => `${t.nombre} (${t.estado.toLowerCase()}, ${num(t.metros)} m)`).join("; ")}.</p>
         </details>
         <div>
-          <Link to="/mapa" className="inline-flex items-center gap-3 rounded-2xl bg-[#3a2d8f] px-6 py-3 text-base font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl">
+          <Link to="/mapa" className="inline-flex items-center gap-3 rounded-2xl bg-[#1e40af] px-6 py-3 text-base font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl">
             <IconoNav nombre="mapa" className="h-6 w-6" trazo={2} /> Probar mi propia ruta en el mapa
           </Link>
         </div>
@@ -377,7 +377,7 @@ export default function Corredor49() {
   return (
     <div className="relative isolate overflow-hidden">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-papel" />
-      <div className="mx-auto max-w-5xl space-y-8 px-4 py-5 lg:px-8">
+      <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
         <ConDatos estado={estado}>{(d) => <Contenido d={d} />}</ConDatos>
       </div>
     </div>

@@ -130,7 +130,7 @@ export default function Fuentes() {
   const metodologia = useDatos<Metodologia>("metodologia.json");
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-5 lg:px-8 overflow-x-clip">
+    <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10 overflow-x-clip">
       <Cabecera etiqueta="Fuentes y calidad" icono="fuentes" titulo="De dónde sale cada dato"
         texto="Cada capa del mapa y cada indicador sale de una de estas fuentes. Se descargan con un programa que guarda la consulta exacta, la fecha y el número de registros. Lo que no se pudo verificar aparece como pendiente." />
 

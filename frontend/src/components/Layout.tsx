@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import IconoNav from "./IconosNav";
 import Paleta from "./Paleta";
+import FondoPagina from "./FondoPagina";
 import { ACENTOS } from "../lib/marca";
 import { GRUPOS, grupoDeRuta, type ModuloMenu } from "../lib/menu";
 
@@ -9,13 +10,13 @@ export function Logo({ className = "" }: { className?: string }) {
   // Curvas de nivel de una ladera con la línea de un cable aéreo encima.
   return (
     <svg viewBox="0 0 40 40" className={className} aria-hidden="true">
-      <defs><linearGradient id="logo-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#6a4fe0" /><stop offset="1" stopColor="#1d4f9a" /></linearGradient></defs>
+      <defs><linearGradient id="logo-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#3b82f6" /><stop offset="1" stopColor="#1d4f9a" /></linearGradient></defs>
       <rect width="40" height="40" rx="9" fill="url(#logo-g)" />
-      <path d="M2 34 C12 30 18 22 38 20" stroke="#c9c2ff" strokeWidth="1.6" fill="none" />
-      <path d="M2 38 C14 34 22 28 38 27" stroke="#c9c2ff" strokeWidth="1.6" fill="none" />
-      <path d="M4 26 L36 8" stroke="#f6f6fc" strokeWidth="1.6" />
-      <rect x="17" y="15" width="6" height="5" rx="1" fill="#f6f6fc" />
-      <path d="M20 13.5 V15" stroke="#f6f6fc" strokeWidth="1.4" />
+      <path d="M2 34 C12 30 18 22 38 20" stroke="#bfdbfe" strokeWidth="1.6" fill="none" />
+      <path d="M2 38 C14 34 22 28 38 27" stroke="#bfdbfe" strokeWidth="1.6" fill="none" />
+      <path d="M4 26 L36 8" stroke="#f4f8fe" strokeWidth="1.6" />
+      <rect x="17" y="15" width="6" height="5" rx="1" fill="#f4f8fe" />
+      <path d="M20 13.5 V15" stroke="#f4f8fe" strokeWidth="1.4" />
     </svg>
   );
 }
@@ -322,6 +323,13 @@ export default function Layout({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", f);
   }, []);
   const esMapa = pathname === "/mapa";
+  const principal = useRef<HTMLElement>(null);
+  const [avance, setAvance] = useState(0);
+  const alDesplazar = () => {
+    const el = principal.current;
+    if (el) setAvance(el.scrollHeight > el.clientHeight ? el.scrollTop / (el.scrollHeight - el.clientHeight) : 0);
+  };
+  useEffect(() => setAvance(0), [pathname]);
   const [nivel, setNivel] = useLetra();
   const [noche, setNoche] = useTema();
   useEffect(() => setMenuAbierto(false), [pathname]);
@@ -372,9 +380,13 @@ export default function Layout({ children }: { children: ReactNode }) {
         )}
       </header>
 
-      <main id="contenido" className={`min-h-0 flex-1 ${esMapa ? "overflow-hidden" : "overflow-y-auto"}`}>
-        <div key={pathname} className={esMapa ? "h-full" : "animate-[entrar-suave_450ms_ease-out_backwards]"}>{children}</div>
-      </main>
+      <div className="relative min-h-0 flex-1">
+        {!esMapa && <FondoPagina />}
+        {!esMapa && <div aria-hidden="true" className="progreso-lectura absolute inset-x-0 top-0 z-10 h-0.5 origin-left" style={{ transform: `scaleX(${avance})` }} />}
+        <main id="contenido" ref={principal} onScroll={alDesplazar} className={`absolute inset-0 ${esMapa ? "overflow-hidden" : "overflow-y-auto"}`}>
+          <div key={pathname} className={esMapa ? "h-full" : "animate-[entrar-suave_450ms_ease-out_backwards]"}>{children}</div>
+        </main>
+      </div>
 
       <Paleta abierta={buscar} onCerrar={() => setBuscar(false)} />
       {!esMapa && <LetraTamano nivel={nivel} onNivel={setNivel} variante="flotante" />}

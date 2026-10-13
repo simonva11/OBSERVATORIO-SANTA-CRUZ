@@ -1,29 +1,45 @@
 import type { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import IconoNav from "./IconosNav";
-import { Revelar } from "./Animacion";
+import { Cuenta, Revelar, useVisto } from "./Animacion";
+import { curvas } from "./FondoPagina";
 import { acentoDeRuta } from "../lib/marca";
 
-/** Encabezado de cada módulo: ligero, sin banda de color. El módulo se reconoce por su ícono y una raya de acento. */
+/** Encabezado de cada módulo: panel con degradado azul, curvas de nivel y la coordenada de la comuna. */
+const CURVAS_CAB = curvas([{ cx: 760, cy: 120, n: 9, base: 20, paso: 24, fase: 1.4 }]);
 export function Cabecera({
   etiqueta, titulo, texto, icono, children, className = "",
 }: { etiqueta: string; titulo: string; texto: ReactNode; icono?: string; children?: ReactNode; className?: string }) {
   const a = acentoDeRuta(useLocation().pathname);
   return (
-    <header className={`relative border-b border-nivel/70 pb-5 ${className}`}>
-      <div className="flex items-start gap-3.5">
+    <header className={`cabecera-panel relative overflow-hidden rounded-3xl border border-nivel/80 p-6 sm:p-9 ${className}`} style={{ ["--tono" as string]: a.vivo }}>
+      <svg aria-hidden="true" viewBox="0 0 1000 260" preserveAspectRatio="xMaxYMid slice" className="pointer-events-none absolute inset-0 h-full w-full">
+        <g className="curvas-deriva" fill="none" stroke="rgb(var(--marca))" strokeWidth="1.3" opacity="0.14">
+          {CURVAS_CAB.map((d, i) => (
+            <path key={i} d={d} />
+          ))}
+        </g>
+      </svg>
+      <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full blur-3xl" style={{ background: `radial-gradient(circle, ${a.vivo}55, transparent 70%)` }} />
+      <div className="relative flex items-start gap-5">
         {icono && (
-          <span className="hidden h-10 w-10 shrink-0 place-items-center rounded-xl text-white sm:grid" style={{ background: a.medio }}>
-            <IconoNav nombre={icono} className="h-5 w-5" trazo={1.8} />
+          <span className="cabecera-icono hidden h-14 w-14 shrink-0 place-items-center rounded-2xl text-white sm:grid" style={{ background: `linear-gradient(145deg, ${a.vivo}, ${a.medio})` }}>
+            <IconoNav nombre={icono} className="h-7 w-7" trazo={1.7} />
           </span>
         )}
         <div className="min-w-0 max-w-3xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-marca">{etiqueta}</p>
-          <h1 className="mt-1 text-[1.6rem] font-semibold leading-tight tracking-tight [text-wrap:balance] sm:text-[1.9rem]">{titulo}</h1>
-          <div className="mt-2 text-base leading-relaxed text-tinta-suave">{texto}</div>
-          {children && <div className="mt-4 flex flex-wrap gap-2">{children}</div>}
+          <p className="entra inline-flex items-center gap-2 rounded-full border border-marca/25 bg-superficie/70 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-marca backdrop-blur">
+            <span aria-hidden="true" className="punto-vivo !h-1.5 !w-1.5 !bg-[var(--tono)]" />
+            {etiqueta}
+          </p>
+          <h1 className="entra mt-3 text-[1.9rem] font-bold leading-[1.1] tracking-tight [text-wrap:balance] sm:text-[2.6rem]" style={{ animationDelay: "80ms" }}>
+            <span className="titulo-degradado">{titulo}</span>
+          </h1>
+          <div className="entra mt-3 text-base leading-relaxed text-tinta-suave sm:text-[1.05rem]" style={{ animationDelay: "160ms" }}>{texto}</div>
+          {children && <div className="entra mt-5 flex flex-wrap gap-2.5" style={{ animationDelay: "240ms" }}>{children}</div>}
         </div>
       </div>
+      <p aria-hidden="true" className="absolute bottom-3 right-5 hidden text-[0.65rem] font-semibold tracking-[0.18em] text-marca/45 md:block">6°18′N · 75°33′O · COMUNA 2</p>
     </header>
   );
 }
@@ -42,23 +58,39 @@ export function BotonCabecera({ to, children, claro = false }: { to: string; chi
   );
 }
 
-/** Sección con título pequeño y una línea de ayuda. */
+/** Sección con título, una línea de ayuda y entrada animada al llegar a la pantalla. */
 export function Seccion({ id, titulo, texto, derecha, children }: { id: string; titulo: string; texto?: ReactNode; derecha?: ReactNode; children: ReactNode }) {
   const a = acentoDeRuta(useLocation().pathname);
   return (
-    <section aria-labelledby={id}>
-      <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
-        <div className="min-w-0">
-          <h2 id={id} className="flex items-center gap-2 text-lg font-semibold tracking-tight">
-            <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ background: a.vivo }} />
-            {titulo}
-          </h2>
-          {texto && <p className="mt-0.5 max-w-3xl pl-4 text-sm text-tinta-tenue">{texto}</p>}
+    <Revelar>
+      <section aria-labelledby={id}>
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+          <div className="min-w-0">
+            <h2 id={id} className="flex items-center gap-3 text-xl font-bold tracking-tight sm:text-[1.4rem]">
+              <span aria-hidden="true" className="h-6 w-1.5 rounded-full" style={{ background: `linear-gradient(180deg, ${a.vivo}, ${a.medio})` }} />
+              {titulo}
+            </h2>
+            {texto && <p className="mt-1 max-w-3xl pl-[1.125rem] text-sm text-tinta-tenue">{texto}</p>}
+          </div>
+          {derecha}
         </div>
-        {derecha}
-      </div>
-      {children}
-    </section>
+        {children}
+      </section>
+    </Revelar>
+  );
+}
+
+/** Si el valor es un número en formato colombiano ("3.336", "12,2 min", "91 %"), cuenta desde 0 al aparecer. */
+function ValorAnimado({ valor }: { valor: ReactNode }) {
+  const [ref, visto] = useVisto<HTMLSpanElement>(0.3);
+  const m = typeof valor === "string" ? /^(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d+))?(.*)$/.exec(valor) : null;
+  if (!m || (m[1].length > 1 && m[1].startsWith("0") && !m[2])) return <>{valor}</>;
+  const hasta = Number(m[1].replace(/\./g, "") + (m[2] ? "." + m[2] : ""));
+  return (
+    <span ref={ref}>
+      <Cuenta hasta={hasta} decimales={m[2]?.length ?? 0} activo={visto} duracion={1300} />
+      {m[3]}
+    </span>
   );
 }
 
@@ -66,12 +98,13 @@ export function Seccion({ id, titulo, texto, derecha, children }: { id: string; 
 export function Kpi({ valor, texto, nota, tono = "verde", grande = false }: { valor: ReactNode; texto: ReactNode; nota?: ReactNode; tono?: "verde" | "ambar" | "rojo"; grande?: boolean }) {
   const punto = tono === "rojo" ? "#c0583a" : tono === "ambar" ? "#e0a526" : "#2d9a5a";
   return (
-    <div className="vidrio vidrio--quieto relative h-full rounded-xl p-3.5">
+    <div className="vidrio kpi-tarjeta relative h-full overflow-hidden rounded-2xl p-4" style={{ ["--glow" as string]: punto }}>
+      <span aria-hidden="true" className="absolute inset-x-0 top-0 h-[3px]" style={{ background: `linear-gradient(90deg, ${punto}, transparent)` }} />
       <p className="flex items-start gap-2 text-sm leading-snug text-tinta-suave">
         <span aria-hidden="true" className="mt-[0.4rem] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: punto }} />
         <span>{texto}</span>
       </p>
-      <p className={`mt-1 font-semibold leading-none tabular-nums text-tinta ${grande ? "text-[2rem]" : "text-[1.4rem]"}`}>{valor}</p>
+      <p className={`mt-1 font-semibold leading-none tabular-nums text-tinta ${grande ? "text-[2.4rem]" : "text-[1.75rem]"}`}><ValorAnimado valor={valor} /></p>
       {nota && <p className="mt-1.5 text-xs text-tinta-tenue">{nota}</p>}
     </div>
   );

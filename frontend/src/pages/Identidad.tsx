@@ -18,14 +18,14 @@ const nota = (c: number) => (c >= 7 ? "AAA" : c >= 4.5 ? "AA" : c >= 3 ? "Solo t
 
 // Los mismos valores que index.css (fuente única de verdad: allá). Si cambian allá, cambian aquí.
 const NEUTROS: { nombre: string; uso: string; dia: string; noche: string }[] = [
-  { nombre: "Papel", uso: "Fondo de la página", dia: "#f6f6fc", noche: "#0a0d1f" },
+  { nombre: "Papel", uso: "Fondo de la página", dia: "#f4f8fe", noche: "#0a0d1f" },
   { nombre: "Superficie", uso: "Tarjetas y paneles", dia: "#ffffff", noche: "#12172f" },
-  { nombre: "Tinta", uso: "Texto principal", dia: "#1b1d3a", noche: "#e9ebff" },
+  { nombre: "Tinta", uso: "Texto principal", dia: "#0c1d3a", noche: "#e9ebff" },
   { nombre: "Tinta suave", uso: "Texto de apoyo", dia: "#4a4d6e", noche: "#aab0d6" },
   { nombre: "Tinta tenue", uso: "Notas y fuentes", dia: "#5f6285", noche: "#8d94c4" },
-  { nombre: "Marca", uso: "Títulos y enlaces", dia: "#3a2d8f", noche: "#a99cff" },
-  { nombre: "Menta", uso: "Fondos suaves", dia: "#e9e7fc", noche: "#231f55" },
-  { nombre: "Nivel", uso: "Bordes y líneas", dia: "#d9d9ec", noche: "#2b3260" },
+  { nombre: "Marca", uso: "Títulos y enlaces", dia: "#1e40af", noche: "#93c5fd" },
+  { nombre: "Menta", uso: "Fondos suaves", dia: "#e2edfd", noche: "#231f55" },
+  { nombre: "Nivel", uso: "Bordes y líneas", dia: "#d0def4", noche: "#2b3260" },
 ];
 
 const copiar = (t: string) => {
@@ -59,7 +59,7 @@ const ICONOS = ["inicio", "mapa", "personas", "alerta", "corredor", "indicadores
 
 export default function Identidad() {
   return (
-    <div className="mx-auto max-w-5xl space-y-9 px-4 py-5 lg:px-8">
+    <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
       <Cabecera etiqueta="Manual de identidad" icono="paleta" titulo="Cómo se ve y cómo habla el observatorio"
         texto="Una sola forma de usar el color, las letras, los íconos y las palabras, para que todo el sitio se sienta de la misma casa y siga siendo fácil de usar. Para que lo sigan quienes hereden el proyecto, y para ti si vas a presentarlo.">
         <BotonCabecera to="/propuesta" claro>Ver la propuesta de valor</BotonCabecera>
@@ -68,9 +68,9 @@ export default function Identidad() {
       <Seccion id="t-i-con" titulo="Concepto: Ladera" texto="Tres cosas que se ven desde cualquier calle de Santa Cruz.">
         <div className="grid gap-3 md:grid-cols-3">
           {[
-            ["Las curvas de nivel", "El territorio. La comuna es una ladera y todo lo que medimos pasa sobre ella. Por eso las curvas de nivel son el patrón de fondo.", "#6a4fe0"],
+            ["Las curvas de nivel", "El territorio. La comuna es una ladera y todo lo que medimos pasa sobre ella. Por eso las curvas de nivel son el patrón de fondo.", "#3b82f6"],
             ["El cable", "La conexión. El Metrocable cruza la comuna: la línea, la estación y el punto que late son nuestros símbolos de movimiento.", "#2d6ae0"],
-            ["La gente y lo construido", "La gente y lo construido. El magenta y los colores de semáforo marcan problemas y alertas, siempre con un número al lado.", "#b04ac0"],
+            ["La gente y lo construido", "La gente y lo construido. El zafiro y los colores de semáforo marcan problemas y alertas, siempre con un número al lado.", "#2e9ad8"],
           ].map(([t, x, col]) => (
             <Revelar key={t} className="h-full">
               <div className="vidrio h-full rounded-2xl p-4" style={{ ["--glow" as string]: col, borderTop: `4px solid ${col}` }}>
@@ -82,11 +82,11 @@ export default function Identidad() {
         <p className="mt-3 text-sm text-tinta-suave"><strong className="text-tinta">Valores:</strong> claro (lo entiende cualquiera), verificable (cada cifra tiene fuente) y cercano (habla como un vecino que sabe de datos).</p>
       </Seccion>
 
-      <Seccion id="t-i-logo" titulo="Logo" texto="Una ladera con la línea de un cable encima, sobre un degradado de violeta a azul. Se usa siempre completo.">
+      <Seccion id="t-i-logo" titulo="Logo" texto="Una ladera con la línea de un cable encima, sobre un degradado de cobalto a azul cielo. Se usa siempre completo.">
         <div className="grid gap-3 md:grid-cols-4">
-          {[["Sobre claro", "#f6f6fc"], ["Sobre oscuro", "#0a0d1f"], ["Sobre violeta", "#3a2d8f"], ["Sobre color de módulo", "#1d4f7a"]].map(([t, bg]) => (
+          {[["Sobre claro", "#f4f8fe"], ["Sobre oscuro", "#0a0d1f"], ["Sobre cobalto", "#1e40af"], ["Sobre color de módulo", "#1d4f7a"]].map(([t, bg]) => (
             <div key={t} className="grid h-28 place-items-center rounded-2xl ring-1 ring-black/10" style={{ background: bg }}>
-              <div className="text-center"><Logo className="mx-auto h-12 w-12" /><p className="mt-1.5 text-xs font-semibold" style={{ color: bg === "#f6f6fc" ? "#4a4d6e" : "#e9ebff" }}>{t}</p></div>
+              <div className="text-center"><Logo className="mx-auto h-12 w-12" /><p className="mt-1.5 text-xs font-semibold" style={{ color: bg === "#f4f8fe" ? "#4a4d6e" : "#e9ebff" }}>{t}</p></div>
             </div>
           ))}
         </div>
@@ -138,7 +138,7 @@ export default function Identidad() {
         </div>
 
         <div className="vidrio vidrio--quieto mt-4 rounded-3xl p-4 sm:p-5">
-          <h3 className="font-bold text-marca">Un color por módulo (todos en la familia violeta y azul)</h3>
+          <h3 className="font-bold text-marca">Un color por módulo (todos en la familia de azules)</h3>
           <p className="mt-0.5 text-sm text-tinta-suave">Aparece en la cabecera, en el menú y en los detalles de ese módulo. Con eso sabes dónde estás sin leer.</p>
           <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-7">
             {Object.values(ACENTOS).map((a) => (
@@ -152,7 +152,7 @@ export default function Identidad() {
               </div>
             ))}
           </div>
-          <p className="mt-3 text-xs text-tinta-tenue">Violeta: Inicio, Mapa, Indicadores, Prioridades, Propuesta, Fuentes · Azul: Accesibilidad · Índigo: Corredor 49 · Magenta: Problemáticas · Cielo: Radar · Orquídea: Mi barrio · Ultramar: Mis datos.</p>
+          <p className="mt-3 text-xs text-tinta-tenue">Cobalto: Inicio, Mapa, Indicadores, Prioridades, Propuesta, Fuentes · Azul: Accesibilidad · Índigo: Corredor 49 · Zafiro: Problemáticas · Cielo: Radar · Añil: Mi barrio · Ultramar: Mis datos.</p>
         </div>
 
         <div className="vidrio vidrio--quieto mt-4 rounded-2xl p-4 sm:p-5">
@@ -198,9 +198,9 @@ export default function Identidad() {
             <Kpi grande valor="0,85" texto="m² de espacio público por habitante" nota="Referencia: 15 m²" tono="rojo" />
           </div>
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="rounded-xl bg-[#3a2d8f] px-4 py-2.5 text-sm font-semibold text-white shadow">Botón principal</span>
+            <span className="rounded-xl bg-[#1e40af] px-4 py-2.5 text-sm font-semibold text-white shadow">Botón principal</span>
             <span className="rounded-xl bg-menta px-4 py-2.5 text-sm font-semibold text-marca">Botón suave</span>
-            {[["Hecho", "#3a2d8f"], ["Prototipo", "#2d6ae0"], ["Por validar", "#9a55d0"], ["Propuesta", "#7d83a8"]].map(([t, c]) => <span key={t} className="rounded-full px-2.5 py-0.5 text-xs font-semibold text-white" style={{ background: c }}>{t}</span>)}
+            {[["Hecho", "#1e40af"], ["Prototipo", "#2d6ae0"], ["Por validar", "#6a8ff5"], ["Propuesta", "#7d83a8"]].map(([t, c]) => <span key={t} className="rounded-full px-2.5 py-0.5 text-xs font-semibold text-white" style={{ background: c }}>{t}</span>)}
           </div>
           <div className="grid gap-3 text-sm text-tinta-suave md:grid-cols-3">
             <p><strong className="text-tinta">Tarjetas:</strong> bordes de 16 px (24 px las grandes), borde fino y, al pasar el mouse, un brillo del color de su dato. En modo noche son de vidrio.</p>

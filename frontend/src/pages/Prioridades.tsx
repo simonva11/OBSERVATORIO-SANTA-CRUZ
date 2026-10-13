@@ -315,7 +315,7 @@ function Contenido({ escenarios, oficiales }: { escenarios: Escenario[]; oficial
   const mostrarEp = filtro !== "andenes" && ep.length > 0, mostrarAn = filtro !== "espacio_publico" && an.length > 0;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-5 lg:px-8">
+    <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 lg:px-10">
       <Cabecera etiqueta="Prioridad de obras" icono="prioridades" titulo="Dónde intervenir primero"
         texto="Una lista para conversar con la comunidad: qué espacios públicos y andenes podrían hacerle más falta a cada barrio, y por qué. Son propuestas del modelo, no obras aprobadas ni contratadas." >
         <BotonCabecera to="/mapa?capas=espacio_publico_proyectado">Verlo en el mapa</BotonCabecera>

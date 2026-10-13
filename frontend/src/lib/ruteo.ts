@@ -33,7 +33,7 @@ export const DESTINOS_RUTEO: { tipo: string; nombre: string; color: string }[] =
   { tipo: "parada_bus", nombre: "Parada de bus", color: "#4a86e0" },
   { tipo: "colegio", nombre: "Colegio", color: "#1f63a8" },
   { tipo: "salud", nombre: "Centro de salud", color: "#a8452b" },
-  { tipo: "parque", nombre: "Parque o espacio público", color: "#6a4fe0" },
+  { tipo: "parque", nombre: "Parque o espacio público", color: "#3b82f6" },
   { tipo: "deporte", nombre: "Cancha o escenario deportivo", color: "#2a8ac8" },
   { tipo: "biblioteca", nombre: "Biblioteca", color: "#7a4e9b" },
 ];
