@@ -128,13 +128,13 @@ function Navegacion({ onNavegar, compacta = false }: { onNavegar?: () => void; c
 // ------------------------------------------------------------------ modo noche
 const CLAVE_TEMA = "observatorio-santa-cruz:tema";
 
-/** Oscuro por defecto (panel de control); el modo día es una opción y se recuerda. */
+/** Claro por defecto (limpio, se lee bien al sol); el modo noche es una opción y se recuerda. */
 export function useTema() {
   const [noche, setNoche] = useState(() => {
     try {
-      return localStorage.getItem(CLAVE_TEMA) !== "dia";
+      return localStorage.getItem(CLAVE_TEMA) === "noche";
     } catch {
-      return true;
+      return false;
     }
   });
   useEffect(() => {

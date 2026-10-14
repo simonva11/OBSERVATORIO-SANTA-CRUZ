@@ -5,7 +5,7 @@
 /* ---------------------------------------------------------------- tokens de color (ver /identidad) */
 /* Marca: gamas de azul. Los colores de semáforo (verde, ámbar, rojo) solo se usan para datos, nunca para decorar. */
 :root {
-  --papel: 244 248 254; --papel-hondo: 230 239 252; --superficie: 255 255 255; --nivel: 208 222 244;
+  --papel: 255 255 255; --papel-hondo: 243 247 253; --superficie: 255 255 255; --nivel: 222 232 247;
   --tinta: 12 29 58; --tinta-suave: 44 66 104; --tinta-tenue: 70 92 130;
   --acento: 30 64 175; --acento-hondo: 15 36 90;
   --marca: 30 64 175; --menta: 226 238 254; --menta-2: 238 245 254;
@@ -30,7 +30,7 @@ html.noche,
 
 @layer base {
   html {
-    font-size: 15px;
+    font-size: 16px;
     font-family: "Inter Variable", "Inter", system-ui, sans-serif;
     font-variation-settings: normal;
     -webkit-font-smoothing: antialiased;
@@ -542,4 +542,28 @@ html.noche #contenido h2[id]::before {
 }
 html.noche header[data-cromo="cabecera"] { background: rgb(4 11 28 / 0.92); border-color: rgb(96 165 250 / 0.2); backdrop-filter: blur(10px); }
 html.noche .progreso-lectura { box-shadow: 0 0 12px rgb(34 211 238 / 0.8); }
-html.noche .noche-oculto { display: none; }
+.noche-oculto { display: none; }
+
+/* ------------------------------------------------------------ modo claro limpio (principal): pocas cajas, mucho aire */
+html:not(.noche) .cabecera-panel {
+  background: none; border: 0; box-shadow: none; padding-left: 0; padding-right: 0;
+}
+html:not(.noche) .cabecera-panel h1 { font-size: clamp(1.9rem, 3.2vw, 2.9rem); font-weight: 750; letter-spacing: -0.025em; line-height: 1.08; }
+html:not(.noche) .cabecera-panel p:first-of-type { color: rgb(var(--brillo)); font-weight: 600; letter-spacing: 0.02em; }
+html:not(.noche) .cabecera-panel > div > div:nth-child(2) > div { font-size: 1.05rem; max-width: 52rem; color: rgb(var(--tinta-suave)); }
+html:not(.noche) .vidrio {
+  background: rgb(var(--papel-hondo)); border: 0; box-shadow: none; border-radius: 1.25rem;
+}
+html:not(.noche) .vidrio:hover { background: rgb(var(--menta)); }
+html:not(.noche) .kpi-tarjeta { box-shadow: none; padding: 1rem 1.15rem; }
+html:not(.noche) .kpi-tarjeta > span[aria-hidden] { display: none; }
+html:not(.noche) .kpi-tarjeta p.tabular-nums { font-size: 2.4rem; font-weight: 700; letter-spacing: -0.03em; color: rgb(var(--acento)); margin: 0.2rem 0; }
+html:not(.noche) #contenido h2[id] { font-size: clamp(1.45rem, 2.2vw, 1.9rem); font-weight: 750; letter-spacing: -0.02em; }
+html:not(.noche) section[aria-labelledby] > div:first-child { border-bottom: 0; padding-bottom: 0; margin-bottom: 1rem; }
+html:not(.noche) .pagina-rejilla { gap: 3rem 1.5rem; }
+html:not(.noche) .pagina-rejilla > header { margin-top: 0.5rem; }
+html:not(.noche) header[data-cromo="cabecera"] { border-color: transparent; box-shadow: 0 1px 0 rgb(var(--nivel)); }
+html:not(.noche) #contenido :is(.rounded-2xl,.rounded-xl)[class*="border"][class*="border-nivel"]:not(.vidrio):not(.cabecera-panel):not(input):not(button):not(a) {
+  border-color: transparent; background-color: rgb(var(--papel-hondo)); box-shadow: none;
+}
+html:not(.noche) .cabecera-panel > div > span { display: none !important; }

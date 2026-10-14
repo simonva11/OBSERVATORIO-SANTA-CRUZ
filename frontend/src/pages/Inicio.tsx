@@ -48,7 +48,7 @@ function FondoHero() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10" >
       <div className="absolute inset-x-0 top-0 h-[900px]" style={{ background: "radial-gradient(ellipse 62% 70% at 76% 34%, rgb(var(--menta)) 0%, rgb(var(--menta) / 0.5) 42%, transparent 75%)" }} />
-      <svg viewBox="0 0 1200 3600" preserveAspectRatio="xMidYMin slice" className="absolute inset-0 h-full w-full" style={{ opacity: 0.05 }}>
+      <svg viewBox="0 0 1200 3600" preserveAspectRatio="xMidYMin slice" className="absolute inset-0 h-full w-full" style={{ opacity: 0.025 }}>
         {CONTORNOS.map((d, i) => (
           <path key={i} d={d} fill="none" stroke={VERDE} strokeWidth="2" />
         ))}
