@@ -353,7 +353,7 @@ export default function Inicio() {
       <FondoHero />
       {/* ------------------------------------------------------------------ HERO */}
       <div className="relative">
-        <section className="relative mx-auto grid max-w-[100rem] items-center gap-12 px-4 pb-10 pt-6 lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:px-8 lg:pt-10 2xl:px-12">
+        <section className="relative mx-auto grid max-w-[100rem] items-center gap-8 px-4 pb-6 pt-4 lg:grid-cols-[1.1fr_1fr] lg:gap-8 lg:px-8 lg:pt-6 2xl:px-12">
           <div>
             <Revelar>
               <p className="inline-flex items-center gap-2 rounded-full bg-superficie/80 px-4 py-1.5 text-sm font-semibold text-marca shadow-sm ring-1 ring-marca/15">
@@ -361,9 +361,9 @@ export default function Inicio() {
               </p>
             </Revelar>
             <Revelar retraso={80}>
-              <h1 className="mt-6 text-tinta">
-                <span className="block text-[1.7rem] font-light leading-[1.15] tracking-tight [text-wrap:balance] sm:text-[2.4rem]">¿Qué tan bien conectada está</span>
-                <span className="relative mt-1 inline-block text-[2.1rem] font-semibold leading-[1.1] tracking-tight sm:text-[3rem]" style={{ color: VERDE }}>
+              <h1 className="mt-4 text-tinta">
+                <span className="block text-[1.35rem] font-light leading-[1.15] tracking-tight [text-wrap:balance] sm:text-[1.9rem]">¿Qué tan bien conectada está</span>
+                <span className="relative mt-1 inline-block text-[1.7rem] font-semibold leading-[1.1] tracking-tight sm:text-[2.4rem]" style={{ color: VERDE }}>
                   Santa Cruz?
                   <svg viewBox="0 0 330 18" className="subrayado absolute -bottom-3 left-0 w-full" aria-hidden="true">
                     <path d="M3 12 C 50 3, 105 17, 170 8 S 280 4, 327 11" fill="none" stroke="#6ab7ff" strokeWidth="6" strokeLinecap="round" pathLength="1" />
@@ -372,40 +372,40 @@ export default function Inicio() {
               </h1>
             </Revelar>
             <Revelar retraso={160}>
-              <p className="mt-9 max-w-xl text-lg text-tinta-suave">
+              <p className="mt-6 max-w-xl text-base text-tinta-suave">
                 Una plataforma para entender cómo se mueve la gente en la Comuna 2 de Medellín, dónde faltan andenes, escaleras,
                 equipamientos y espacio público, y qué obras ayudarían a más personas.
               </p>
             </Revelar>
             <Revelar retraso={240}>
-              <div className="mt-9 flex flex-wrap items-center gap-4">
+              <div className="mt-5 flex flex-wrap items-center gap-3">
                 <Link
                   to="/mapa"
-                  className="group inline-flex items-center gap-3 rounded-2xl bg-[#1e40af] px-8 py-4 text-xl font-semibold text-white shadow-lg shadow-[#1e40af]/30 transition duration-200 hover:scale-105 hover:bg-[#0b1f5c] hover:shadow-xl"
+                  className="group inline-flex items-center gap-3 rounded-xl bg-[#1e40af] px-5 py-2.5 text-base font-semibold text-white shadow-md shadow-[#1e40af]/25 transition duration-200 hover:bg-[#0b1f5c]"
                 >
-                  <IconoNav nombre="mapa" className="h-7 w-7 transition-transform group-hover:-rotate-6" trazo={2} />
+                  <IconoNav nombre="mapa" className="h-5 w-5" trazo={2} />
                   Abrir el mapa
                 </Link>
                 <Link
                   to="/indicadores"
-                  className="inline-flex items-center gap-2 rounded-2xl border-2 border-marca/40 bg-superficie/40 px-6 py-3.5 text-lg font-semibold text-marca transition hover:border-marca hover:bg-[#1e40af]/5"
+                  className="inline-flex items-center gap-2 rounded-xl border border-marca/40 bg-superficie/40 px-4 py-2.5 text-base font-semibold text-marca transition hover:border-marca hover:bg-[#1e40af]/5"
                 >
                   Ver indicadores
                 </Link>
               </div>
-              <Link to="/mapa?3d=1" className="mt-5 inline-flex items-center gap-2 text-base font-medium text-tinta-suave transition hover:text-marca">
+              <Link to="/mapa?3d=1" className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-tinta-suave transition hover:text-marca">
                 <IconoNav nombre="cubo" className="h-5 w-5" /> Explora los 11 barrios en 3D
               </Link>
             </Revelar>
             <Revelar retraso={320}>
-              <p className="mt-9 max-w-xl border-l-2 border-[#6ab7ff] pl-4 text-sm italic text-tinta-suave">
+              <p className="mt-5 max-w-xl border-l-2 border-[#6ab7ff] pl-4 text-sm italic text-tinta-suave">
                 Pregunta del reto: ¿cómo optimizar la infraestructura vial, peatonal y de acceso, facilitando la conexión interna de la
                 comuna 2 Santa Cruz con el resto de Medellín?
               </p>
             </Revelar>
           </div>
           <Revelar retraso={200}>
-            <figure className="rounded-2xl bg-superficie/70 p-3 shadow-sm ring-1 ring-black/5 backdrop-blur">
+            <figure className="mx-auto w-full max-w-[34rem] rounded-2xl bg-superficie/70 p-3 lg:ml-auto shadow-sm ring-1 ring-black/5 backdrop-blur">
               <DibujoComuna stats={stats} />
               <figcaption className="px-2 pb-1 pt-3 text-sm text-tinta-suave">
                 <strong className="text-tinta">Pase el mouse o toque un barrio.</strong> Las líneas que se mueven son el Metrocable y los
@@ -419,16 +419,16 @@ export default function Inicio() {
       <div className="mx-auto max-w-[100rem] px-4 lg:px-8 2xl:px-12">
         <PulsoComuna />
         {/* ------------------------------------------------------------------ DATOS */}
-        <section className="mt-4 lg:mt-8" aria-labelledby="t-datos">
+        <section className="mt-2 lg:mt-4" aria-labelledby="t-datos">
           <Revelar>
-            <h2 id="t-datos" className="text-2xl font-semibold tracking-tight">
+            <h2 id="t-datos" className="text-xl font-semibold tracking-tight">
               Lo que ya muestran los datos oficiales
             </h2>
-            <p className="mt-2 max-w-2xl text-base text-tinta-suave">Tres cifras para entender la comuna. Todas salen de la Alcaldía de Medellín y del DANE.</p>
+            <p className="mt-1 max-w-2xl text-sm text-tinta-suave">Tres cifras para entender la comuna. Todas salen de la Alcaldía de Medellín y del DANE.</p>
           </Revelar>
           {c ? (
             <>
-              <div className="mt-5 grid gap-4 md:grid-cols-3">
+              <div className="mt-3 grid gap-3 md:grid-cols-3">
                 <Tarjeta tono={VERDE}>
                   {(v) => (
                     <>
@@ -440,12 +440,12 @@ export default function Inicio() {
                         </strong>{" "}
                         vivían en 2018
                       </p>
-                      <p className="text-[1.7rem] font-semibold leading-tight tabular-nums" style={{ color: VERDE }}>
+                      <p className="text-[1.4rem] font-semibold leading-tight tabular-nums" style={{ color: VERDE }}>
                         <Cuenta hasta={c.poblacion_2018} activo={v} /> <span className="text-xl font-semibold text-tinta">personas</span>
                       </p>
                       <div className="mt-6 flex items-end gap-5">
                         <div>
-                          <p className="text-[1.9rem] font-semibold leading-none tabular-nums" style={{ color: VERDE }}>
+                          <p className="text-[1.55rem] font-semibold leading-none tabular-nums" style={{ color: VERDE }}>
                             <Cuenta hasta={Math.round(c.densidad_hab_ha ?? 0)} activo={v} />
                           </p>
                           <p className="mt-1 text-base font-semibold">personas por hectárea</p>
@@ -468,7 +468,7 @@ export default function Inicio() {
                       <div className="mt-7">
                         <div className="flex items-baseline justify-between gap-2">
                           <span className="font-semibold">Santa Cruz hoy</span>
-                          <span className="text-[1.9rem] font-semibold leading-none tabular-nums" style={{ color: ROJO }}>
+                          <span className="text-[1.55rem] font-semibold leading-none tabular-nums" style={{ color: ROJO }}>
                             <Cuenta hasta={ep} decimales={2} activo={v} /> <span className="text-lg font-semibold">m²</span>
                           </span>
                         </div>
@@ -477,7 +477,7 @@ export default function Inicio() {
                       <div className="mt-6">
                         <div className="flex items-baseline justify-between gap-2">
                           <span className="font-semibold">Referencia nacional</span>
-                          <span className="text-[1.9rem] font-semibold leading-none tabular-nums text-marca">
+                          <span className="text-[1.55rem] font-semibold leading-none tabular-nums text-marca">
                             <Cuenta hasta={REFERENCIA_M2} activo={v} /> <span className="text-lg font-semibold">m²</span>
                           </span>
                         </div>
@@ -498,7 +498,7 @@ export default function Inicio() {
                   {(v) => (
                     <>
                       <Cabecera icono="alerta" color={ROJO} titulo="Personas atropelladas" />
-                      <p className="mt-6 text-[1.9rem] font-semibold leading-none tabular-nums" style={{ color: ROJO }}>
+                      <p className="mt-6 text-[1.55rem] font-semibold leading-none tabular-nums" style={{ color: ROJO }}>
                         <Cuenta hasta={atropellos ?? 0} activo={v} />
                       </p>
                       <p className="mt-2 text-base font-semibold">atropellos entre 2019 y 2025</p>
@@ -514,7 +514,7 @@ export default function Inicio() {
                 </Tarjeta>
               </div>
 
-              <div className="mt-4 grid gap-3 md:grid-cols-3">
+              <div className="mt-3 grid gap-3 md:grid-cols-3">
                 <Revelar>
                   <div className="flex h-full gap-4 rounded-2xl bg-superficie/70 p-5 ring-1 ring-black/5">
                     <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-menta text-marca"><IconoNav nombre="tren" className="h-6 w-6" /></span>
@@ -551,29 +551,29 @@ export default function Inicio() {
         </section>
 
         {/* ------------------------------------------------------------------ MÓDULOS */}
-        <section className="mt-12 lg:mt-16" aria-labelledby="t-modulos">
+        <section className="mt-8 lg:mt-10" aria-labelledby="t-modulos">
           <Revelar>
-            <h2 id="t-modulos" className="text-2xl font-semibold tracking-tight">
+            <h2 id="t-modulos" className="text-xl font-semibold tracking-tight">
               Qué hay en la plataforma
             </h2>
-            <p className="mt-2 max-w-2xl text-base text-tinta-suave">Toque cualquiera para entrar.</p>
+            <p className="mt-1 max-w-2xl text-sm text-tinta-suave">Toque cualquiera para entrar.</p>
           </Revelar>
-          <div className="mt-8 divide-y divide-nivel/70 border-y border-nivel/70">
+          <div className="mt-4 divide-y divide-nivel/70 border-y border-nivel/70">
             {GRUPOS.map((g) => ({ ...g, modulos: g.modulos.filter((m) => m.ruta !== "/") })).filter((g) => g.modulos.length > 0).map((g) => (
-              <div key={g.id} className="gap-6 py-6 lg:grid lg:grid-cols-[11rem_minmax(0,1fr)]">
+              <div key={g.id} className="gap-4 py-3.5 lg:grid lg:grid-cols-[9rem_minmax(0,1fr)]">
                 <div>
                   <h3 className="text-sm font-bold uppercase tracking-widest text-marca">{g.titulo}</h3>
                   <p className="mt-1 text-sm text-tinta-tenue">{g.modulos.length === 1 ? "1 módulo" : `${g.modulos.length} módulos`}</p>
                 </div>
-                <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:mt-0 xl:grid-cols-3">
+                <ul className="mt-2 grid gap-2.5 sm:grid-cols-2 lg:mt-0 xl:grid-cols-3">
                   {g.modulos.map((m) => (
                     <li key={m.ruta}>
-                      <Link to={m.ruta} className="fila-modulo group flex h-full items-start gap-3 rounded-2xl border border-nivel bg-superficie p-4 shadow-sm">
-                        <span className="fila-modulo-icono grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-menta text-marca">
-                          <IconoNav nombre={m.icono} className="h-6 w-6" trazo={1.7} />
+                      <Link to={m.ruta} className="fila-modulo group flex h-full items-start gap-3 rounded-xl border border-nivel bg-superficie p-3 shadow-sm">
+                        <span className="fila-modulo-icono grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-menta text-marca">
+                          <IconoNav nombre={m.icono} className="h-5 w-5" trazo={1.7} />
                         </span>
                         <span className="min-w-0">
-                          <span className="flex flex-wrap items-center gap-2 text-base font-semibold leading-snug">
+                          <span className="flex flex-wrap items-center gap-2 text-[0.95rem] font-semibold leading-snug">
                             {m.nombre}
                             {m.fase && <span className="rounded-full bg-ambar-claro px-2 py-0.5 text-xs font-semibold text-ambar-texto">{m.fase}</span>}
                           </span>
@@ -589,14 +589,14 @@ export default function Inicio() {
         </section>
 
         {/* ------------------------------------------------------------------ FUENTES */}
-        <section className="mt-12 lg:mt-16" aria-labelledby="t-fuentes">
+        <section className="mt-8 lg:mt-10" aria-labelledby="t-fuentes">
           <Revelar>
-            <aside className="relative rounded-r-2xl border-l-4 border-marca bg-menta-2 px-6 py-8 sm:px-10">
+            <aside className="relative rounded-r-2xl border-l-4 border-marca bg-menta-2 px-5 py-5 sm:px-8">
               <span aria-hidden="true" className="absolute right-6 top-2 select-none text-[6rem] font-semibold leading-none text-marca/10">”</span>
               <h2 id="t-fuentes" className="text-sm font-semibold uppercase tracking-widest text-marca">
                 Fuentes y calidad
               </h2>
-              <p className="mt-3 max-w-3xl text-xl font-medium leading-relaxed text-tinta">
+              <p className="mt-2 max-w-3xl text-base font-medium leading-relaxed text-tinta">
                 Todos los datos de esta versión vienen de la Alcaldía de Medellín y del DANE. Nada está inventado: lo que todavía no se
                 sabe aparece marcado como pendiente.
               </p>
@@ -608,7 +608,7 @@ export default function Inicio() {
         </section>
       </div>
 
-      <footer className="mx-auto mt-28 max-w-[100rem] border-t border-nivel px-4 py-8 text-center text-sm text-tinta-suave lg:px-8">
+      <footer className="mx-auto mt-12 max-w-[100rem] border-t border-nivel px-4 py-8 text-center text-sm text-tinta-suave lg:px-8">
         Datos de la Alcaldía de Medellín y del DANE (Censo 2018) <span className="mx-2 text-nivel">|</span> Proyecto Territorio INN 2026 · Reto #4
       </footer>
     </div>

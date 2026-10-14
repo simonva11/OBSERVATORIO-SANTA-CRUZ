@@ -244,6 +244,56 @@ function LetraTamano({ nivel, onNivel, variante }: { nivel: number; onNivel: (n:
   );
 }
 
+/** Índice de la página: chips con las secciones (se leen del propio contenido) para saltar de una a otra. */
+function IndicePagina({ raiz }: { raiz: React.RefObject<HTMLElement> }) {
+  const { pathname } = useLocation();
+  const [items, setItems] = useState<{ id: string; t: string }[]>([]);
+  const [activo, setActivo] = useState<string | null>(null);
+  useEffect(() => {
+    setItems([]);
+    setActivo(null);
+    const leer = () => {
+      const hs = [...document.querySelectorAll<HTMLElement>("#contenido h2[id]")];
+      setItems(hs.map((h) => ({ id: h.id, t: (h.textContent ?? "").trim() })).filter((x) => x.t));
+    };
+    const a = setTimeout(leer, 600);
+    const b = setTimeout(leer, 2000);
+    return () => { clearTimeout(a); clearTimeout(b); };
+  }, [pathname]);
+  useEffect(() => {
+    if (items.length < 3 || !raiz.current) return;
+    const io = new IntersectionObserver(
+      (es) => {
+        const v = es.filter((e) => e.isIntersecting).sort((x, y) => x.boundingClientRect.top - y.boundingClientRect.top)[0];
+        if (v) setActivo(v.target.id);
+      },
+      { root: raiz.current, rootMargin: "-8% 0px -80% 0px" },
+    );
+    items.forEach((i) => { const el = document.getElementById(i.id); if (el) io.observe(el); });
+    return () => io.disconnect();
+  }, [items, raiz]);
+  if (items.length < 3 || pathname === "/") return null;
+  return (
+    <nav aria-label="En esta página" className="sticky top-0 z-20 border-b border-nivel/70 bg-papel/92 backdrop-blur">
+      <ul className="mx-auto flex max-w-[112rem] items-center gap-1.5 overflow-x-auto px-4 py-1.5 lg:px-8 2xl:px-12 [scrollbar-width:none]">
+        <li className="shrink-0 pr-1 text-xs font-medium text-tinta-tenue">En esta página</li>
+        {items.map((i) => (
+          <li key={i.id} className="shrink-0">
+            <button
+              type="button"
+              onClick={() => document.getElementById(i.id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              aria-current={activo === i.id ? "true" : undefined}
+              className={`max-w-[15rem] truncate rounded-full px-3 py-1 text-xs font-medium transition-colors ${activo === i.id ? "bg-marca text-white" : "text-tinta-suave hover:bg-acento/10 hover:text-tinta"}`}
+            >
+              {i.t}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
 /** Módulos en la barra superior (computador). Una categoría con varios módulos abre un desplegable; con uno solo es un enlace directo. */
 function BarraModulos() {
   const { pathname } = useLocation();
@@ -357,7 +407,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             className="hidden h-9 w-9 place-items-center rounded-xl text-tinta-suave transition hover:bg-menta hover:text-tinta lg:grid">
             <IconoNav nombre={noche ? "sol" : "luna"} className="h-5 w-5" trazo={2} />
           </button>
-          {esMapa && <div className="hidden whitespace-nowrap xl:block [&_button]:!h-8 [&_button]:!w-8 [&_div]:!py-0 [&_div]:!px-1 [&_span.font-semibold]:hidden"><LetraTamano nivel={nivel} onNivel={setNivel} variante="barra" /></div>}
+          <div className="hidden whitespace-nowrap lg:block [&_button]:!h-8 [&_button]:!w-8 [&_div]:!py-0 [&_div]:!px-1 [&_span.font-semibold]:hidden"><LetraTamano nivel={nivel} onNivel={setNivel} variante="barra" /></div>
           <button
             type="button"
             onClick={() => setMenuAbierto((v) => !v)}
@@ -383,12 +433,12 @@ export default function Layout({ children }: { children: ReactNode }) {
         {!esMapa && <FondoPagina />}
         {!esMapa && <div ref={barra} aria-hidden="true" className="progreso-lectura absolute inset-x-0 top-0 z-10 h-0.5 origin-left scale-x-0" />}
         <main id="contenido" ref={principal} onScroll={alDesplazar} className={`absolute inset-0 ${esMapa ? "overflow-hidden" : "overflow-y-auto"}`}>
+          {!esMapa && <IndicePagina raiz={principal} />}
           <div key={pathname} className={esMapa ? "h-full" : "animate-[entrar-suave_450ms_ease-out_backwards]"}>{children}</div>
         </main>
       </div>
 
       <Paleta abierta={buscar} onCerrar={() => setBuscar(false)} />
-      {!esMapa && <LetraTamano nivel={nivel} onNivel={setNivel} variante="flotante" />}
     </div>
   );
 }

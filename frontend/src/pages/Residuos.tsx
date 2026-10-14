@@ -119,7 +119,7 @@ function Recorrido({ paso, jugando, pasos, onIr, onJugar, onCerrar }: { paso: nu
     <div className="border-b border-nivel/60 bg-marca/10 p-3 sm:p-4" role="region" aria-label="Recorrido guiado" aria-live="polite">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-marca">Paso {paso + 1} de {pasos.length}</p>
+          <p className="text-xs font-semibold text-marca">Paso {paso + 1} de {pasos.length}</p>
           <h3 className="text-lg font-bold leading-tight">{p.titulo}</h3>
           <p className="mt-1 text-sm leading-relaxed text-tinta-suave sm:text-[0.95rem]">{p.texto}</p>
         </div>
@@ -145,11 +145,11 @@ function Palabras() {
     ["Tonelada (t)", "1.000 kilos. Las toneladas son lo que se pesa en la báscula cuando el camión descarga."],
   ];
   return (
-    <dl className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <dl className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
       {items.map(([t, x]) => (
-        <div key={t} className="vidrio rounded-2xl p-4">
-          <dt className="text-sm font-bold text-marca">{t}</dt>
-          <dd className="mt-1 text-sm leading-relaxed text-tinta-suave">{x}</dd>
+        <div key={t} className="vidrio rounded-xl px-3.5 py-2.5">
+          <dt className="text-[0.85rem] font-bold text-marca">{t}</dt>
+          <dd className="mt-0.5 text-[0.8rem] leading-snug text-tinta-suave">{x}</dd>
         </div>
       ))}
     </dl>
@@ -193,7 +193,7 @@ function Detalle({ sel, rutas, barrios }: { sel: Seleccion | null; rutas: Ruta[]
   }
   return (
     <div className="vidrio rounded-2xl p-4">
-      {sub && <p className="text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-marca">{sub}</p>}
+      {sub && <p className="text-xs font-semibold text-marca">{sub}</p>}
       <h3 className="text-lg font-bold leading-tight">{titulo}</h3>
       <dl className="mt-2 divide-y divide-nivel/50 text-sm">
         {filas.map(([k, v]) => (
@@ -475,7 +475,7 @@ function Contenido({ d }: { d: Resumen }) {
             )}
             {paso == null && (
             <div className="space-y-3 border-b border-nivel/60 p-3 sm:p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-tinta-tenue"><span className="mr-1.5 inline-grid h-5 w-5 place-items-center rounded-full bg-marca text-[0.7rem] text-white">1</span>Elige qué quieres ver</p>
+              <p className="text-xs font-semibold text-tinta-suave"><span className="mr-1.5 inline-grid h-5 w-5 place-items-center rounded-full bg-marca text-[0.7rem] text-white">1</span>Elige qué quieres ver</p>
               <div className="grid grid-cols-2 gap-2 lg:grid-cols-4" role="tablist" aria-label="Vista del mapa">
                 {MODOS.map((m) => (
                   <button key={m.id} type="button" role="tab" aria-selected={modo === m.id} onClick={() => { setModo(m.id); setSel(null); setPaso(null); setJugando(false); }}
@@ -504,7 +504,7 @@ function Contenido({ d }: { d: Resumen }) {
               <MapaResiduos modo={modo} variable={variable} verCalles={verCalles} cortes={d.cortes} barrios={d.barrios} seleccion={sel} onSeleccion={setSel} camara={camara} />
             </div>
             <div className="border-t border-nivel/60 p-3 sm:p-4">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-tinta-tenue"><span className="mr-1.5 inline-grid h-5 w-5 place-items-center rounded-full bg-marca text-[0.7rem] text-white">2</span>Así se leen los colores</p>
+              <p className="mb-2 text-xs font-semibold text-tinta-suave"><span className="mr-1.5 inline-grid h-5 w-5 place-items-center rounded-full bg-marca text-[0.7rem] text-white">2</span>Así se leen los colores</p>
               <Leyenda modo={modo} variable={variable} cortes={d.cortes} barrios={d.barrios} verCalles={verCalles} km={d.kpis} />
               {modo === "rutas" && <ExplicaCodigos />}
             </div>
@@ -512,7 +512,7 @@ function Contenido({ d }: { d: Resumen }) {
 
           <div className="space-y-4">
             <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-tinta-tenue"><span className="mr-1.5 inline-grid h-5 w-5 place-items-center rounded-full bg-marca text-[0.7rem] text-white">3</span>Toca el mapa o un barrio de la tabla</p>
+              <p className="mb-2 text-xs font-semibold text-tinta-suave"><span className="mr-1.5 inline-grid h-5 w-5 place-items-center rounded-full bg-marca text-[0.7rem] text-white">3</span>Toca el mapa o un barrio de la tabla</p>
               <Detalle sel={sel} rutas={d.rutas} barrios={d.barrios} />
             </div>
             <div>

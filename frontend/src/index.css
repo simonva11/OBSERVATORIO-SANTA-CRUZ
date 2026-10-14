@@ -30,17 +30,18 @@ html.noche,
 
 @layer base {
   html {
+    font-size: 15px;
     font-family: "Inter Variable", "Inter", system-ui, sans-serif;
     font-variation-settings: normal;
     -webkit-font-smoothing: antialiased;
   }
   body {
     @apply bg-papel text-tinta;
-    line-height: 1.6;
+    line-height: 1.5;
   }
   p,
   li {
-    line-height: 1.6;
+    line-height: 1.5;
   }
   :focus-visible {
     outline: 3px solid #1d4fa0;
@@ -433,16 +434,9 @@ input[type="range"]::-moz-range-thumb {
 
 /* ------------------------------------------------------------ diseño común de todas las páginas */
 .cabecera-panel {
-  background:
-    radial-gradient(ellipse 60% 120% at 100% 0%, rgb(var(--brillo) / 0.18), transparent 70%),
-    linear-gradient(135deg, rgb(var(--menta-2)) 0%, rgb(var(--superficie)) 60%, rgb(var(--menta)) 100%);
-  box-shadow: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 18px 40px -24px rgb(var(--acento) / 0.35);
-}
-html.noche .cabecera-panel {
-  background:
-    radial-gradient(ellipse 60% 120% at 100% 0%, rgb(var(--brillo) / 0.22), transparent 70%),
-    linear-gradient(135deg, rgb(var(--menta)) 0%, rgb(var(--superficie)) 70%);
-  box-shadow: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 20px 44px -24px rgb(0 0 0 / 0.6);
+  background: rgb(var(--superficie));
+  border-left: 4px solid var(--tono, rgb(var(--marca)));
+  box-shadow: 0 1px 2px rgb(var(--acento) / 0.05);
 }
 .cabecera-icono {
   box-shadow: 0 10px 24px -8px var(--tono), 0 0 0 4px rgb(var(--superficie) / 0.6);
@@ -482,8 +476,6 @@ html.noche .cabecera-panel {
 }
 @media (hover: hover) {
   .kpi-tarjeta:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 2px 4px rgb(var(--acento) / 0.08), 0 18px 34px -16px color-mix(in srgb, var(--glow) 55%, transparent);
     border-color: color-mix(in srgb, var(--glow) 50%, rgb(var(--nivel)));
   }
 }
@@ -499,13 +491,16 @@ html.noche .cabecera-panel {
 .pagina-rejilla {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 2.5rem 2rem;
+  gap: 1.25rem 1.25rem;
   align-content: start;
 }
 @media (min-width: 1280px) {
-  .pagina-rejilla { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.75rem 2.25rem; }
+  .pagina-rejilla { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem 1.25rem; }
   .pagina-rejilla > * { grid-column: 1 / -1; }
   .pagina-rejilla > .col-mitad { grid-column: span 1; }
   .col-mitad .grid[class*="grid-cols-3"],
   .col-mitad .grid[class*="grid-cols-4"] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
 }
+
+/* Al saltar a una sección desde el índice de la página, el título no queda tapado por la barra */
+#contenido h2[id] { scroll-margin-top: 3.25rem; }

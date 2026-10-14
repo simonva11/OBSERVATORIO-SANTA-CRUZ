@@ -123,30 +123,30 @@ function Contenido({ ind, seg, eje, andenes }: { ind: Indicadores; seg: Segurida
         texto="Ocho problemas. Cada número viene de una fuente oficial que puedes revisar, y cada uno se puede ver en el mapa." />
 
       <Seccion id="t-p-ocho" titulo="Los ocho problemas" texto="Cada número viene de una fuente oficial que puedes revisar.">
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {problemas.map((p, i) => (
           <Revelar key={p.id} retraso={(i % 2) * 100}>
-            <article className="vidrio vidrio--quieto flex h-full flex-col rounded-xl p-5">
+            <article className="vidrio vidrio--quieto flex h-full flex-col rounded-xl p-4">
               <div className="flex items-center gap-3">
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-white" style={{ background: p.color }}><IconoNav nombre={p.icono} className="h-7 w-7" trazo={1.9} /></span>
                 <h2 className="text-base font-semibold leading-snug">{p.titulo}</h2>
               </div>
-              <p className="mt-4 text-[1.9rem] font-semibold leading-none tabular-nums" style={{ color: p.color === ROJO ? "rgb(var(--peligro))" : "rgb(var(--ambar))" }}>
+              <p className="mt-3 text-[1.7rem] font-semibold leading-none tabular-nums" style={{ color: p.color === ROJO ? "rgb(var(--peligro))" : "rgb(var(--ambar))" }}>
                 <Cuenta hasta={p.numero} decimales={p.decimales ?? 0} activo />
               </p>
-              <p className="mt-1 text-base font-semibold">{p.unidad}</p>
-              <p className="mt-3 text-base leading-relaxed">{p.explica}</p>
-              <p className="mt-3 text-base text-tinta-suave">{p.donde}</p>
+              <p className="mt-1 text-[0.85rem] font-semibold leading-snug">{p.unidad}</p>
+              <p className="mt-2 text-[0.85rem] leading-snug">{p.explica}</p>
+              <p className="mt-2 text-[0.85rem] leading-snug text-tinta-suave">{p.donde}</p>
               <div className="mt-auto pt-5">
-                <p className="text-sm text-tinta-tenue">Fuente: {p.fuente}. Reto: {p.reto}.</p>
+                <p className="text-xs text-tinta-tenue">Fuente: {p.fuente}. Reto: {p.reto}.</p>
                 <div className="mt-3 flex flex-wrap gap-3">
                   {p.mapa && (
-                    <Link to={`/mapa?capas=${p.mapa}`} className="inline-flex items-center gap-2 rounded-xl bg-menta px-4 py-2 text-base font-semibold text-marca transition hover:brightness-95">
+                    <Link to={`/mapa?capas=${p.mapa}`} className="inline-flex items-center gap-2 rounded-lg bg-menta px-3 py-1.5 text-sm font-semibold text-marca transition hover:brightness-95">
                       <IconoNav nombre="mapa" className="h-5 w-5" trazo={2} /> Verlo en el mapa
                     </Link>
                   )}
                   {p.enlace && (
-                    <Link to={p.enlace.a} className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-base font-semibold text-marca underline underline-offset-4">
+                    <Link to={p.enlace.a} className="inline-flex items-center gap-2 rounded-lg px-1 py-1.5 text-sm font-semibold text-marca underline underline-offset-4">
                       {p.enlace.texto} <IconoNav nombre="flecha" className="h-5 w-5" trazo={2} />
                     </Link>
                   )}
