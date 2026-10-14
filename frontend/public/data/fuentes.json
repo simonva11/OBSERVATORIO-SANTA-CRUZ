@@ -782,5 +782,53 @@
   "fecha_descarga": "2026-10-13T03:24:29+00:00",
   "ultima_actualizacion_en_datos": null,
   "error": null
+ },
+ {
+  "tipo": "oficial",
+  "url_servicio": "",
+  "consulta": null,
+  "estado": "ok",
+  "error": null,
+  "fecha_descarga": "2026-10-14T01:46:29+00:00",
+  "licencia": "Datos entregados al proyecto por Emvarias y EPM, no son datos abiertos. Condiciones de uso por confirmar antes de redistribuir. No se publican direcciones ni placas.",
+  "id": "residuos_macrorutas",
+  "nombre": "Macrorutas y ruteo de recolección (Zona 1)",
+  "entidad": "Emvarias",
+  "formato_origen": "Geodatabase de Esri (z1, Zonas_Merge)",
+  "cobertura": "Rutas que tocan la Comuna 2",
+  "registros": 337,
+  "ultima_actualizacion_en_datos": null
+ },
+ {
+  "tipo": "oficial",
+  "url_servicio": "",
+  "consulta": null,
+  "estado": "ok",
+  "error": null,
+  "fecha_descarga": "2026-10-14T01:46:29+00:00",
+  "licencia": "Datos entregados al proyecto por Emvarias y EPM, no son datos abiertos. Condiciones de uso por confirmar antes de redistribuir. No se publican direcciones ni placas.",
+  "id": "residuos_instalaciones",
+  "nombre": "Instalaciones con ruta de recolección asignada",
+  "entidad": "EPM",
+  "formato_origen": "Geodatabase de Esri (Instalaciones)",
+  "cobertura": "Instalaciones dentro de la Comuna 2, agrupadas en celdas de 100 m",
+  "registros": 42279,
+  "ultima_actualizacion_en_datos": null
+ },
+ {
+  "tipo": "oficial",
+  "url_servicio": "",
+  "consulta": null,
+  "estado": "ok",
+  "error": null,
+  "fecha_descarga": "2026-10-14T01:46:29+00:00",
+  "licencia": "Datos entregados al proyecto por Emvarias y EPM, no son datos abiertos. Condiciones de uso por confirmar antes de redistribuir. No se publican direcciones ni placas.",
+  "id": "residuos_pesajes",
+  "nombre": "Pesajes en báscula de las rutas de la Comuna 2",
+  "entidad": "Emvarias",
+  "formato_origen": "Geodatabase de Esri (Tickets_Ruta)",
+  "cobertura": "2025-01-01 a 2026-03-09",
+  "registros": 3689,
+  "ultima_actualizacion_en_datos": "2026-03-09"
  }
 ]

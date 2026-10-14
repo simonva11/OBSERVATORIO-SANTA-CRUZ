@@ -23,6 +23,7 @@ const POR_RUTA: [string, keyof typeof ACENTOS][] = [
   ["/riesgo", "magenta"],
   ["/inmobiliario", "cielo"],
   ["/radar", "cielo"],
+  ["/residuos", "cielo"],
   ["/barrios", "orquidea"],
   ["/datos", "ultramar"],
 ];

@@ -34,6 +34,7 @@ const TRAZOS: Record<string, ReactNode> = {
       <path d="M12 15c-4 0-7-3-7-6.5S8 2 12 2s7 3 7 6.5-3 6.5-7 6.5z" />
     </>
   ),
+  residuos: <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6" />,
   alerta: <path d="M12 3 2 20h20zM12 10v4M12 17h.01" />,
   estrella: <path d="m12 3 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z" />,
   ladera: <path d="M2 20 9 8l4 6 3-4 6 10zM9 8l1.5 2.5" />,

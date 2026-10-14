@@ -49,6 +49,12 @@ export const GRUPOS: GrupoMenu[] = [
     modulos: [{ ruta: "/riesgo", nombre: "Riesgo de ladera", corto: "Riesgo", icono: "ladera", detalle: "Gente y viviendas en zonas de amenaza" }],
   },
   {
+    id: "servicios",
+    corto: "Servicios",
+    titulo: "Servicios públicos",
+    modulos: [{ ruta: "/residuos", nombre: "Aseo y residuos", corto: "Aseo", icono: "residuos", detalle: "Rutas de recolección y toneladas por barrio" }],
+  },
+  {
     id: "comunidad",
     corto: "Comunidad",
     titulo: "Comunidad",

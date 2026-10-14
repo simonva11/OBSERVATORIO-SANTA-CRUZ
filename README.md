@@ -95,6 +95,21 @@ cd frontend && node pruebas/navegador.mjs      # pruebas en navegador (requiere 
 - **Participación:** formulario con validaciones, ubicación en el mapa y detección de duplicados. En esta versión guarda solo en el navegador.
 - **Fuentes y calidad:** de dónde sale cada dato, cuándo se descargó y qué falta verificar.
 
+## Aseo y residuos (Servicios públicos)
+
+Módulo `/residuos`: macrorrutas y recorrido del camión de Emvarias, instalaciones de EPM por cuadros de 100 m, toneladas por barrio, series por día, día de la semana y hora de pesaje.
+
+- **Regenerar los datos:** `python data-pipeline/residuos.py "<ruta a Proyecto_grado.gdb>"` (necesita geopandas y pyogrio). Escribe en `frontend/public/data/residuos/` y registra las fuentes en `fuentes.json`. `--prueba` corre la autoverificación.
+- **Periodo:** 1 de enero de 2025 al 9 de marzo de 2026. Las toneladas son de rutas completas, atribuidas a la comuna por su parte de instalaciones; las de cada barrio son una estimación.
+- **Privacidad:** no se publican direcciones, placas ni números de ticket; las instalaciones salen agrupadas en cuadros de 100 m.
+- **Sin backend:** el proyecto usa FastAPI sin PostGIS, así que el módulo lee solo los archivos estáticos.
+
+### Ideas para una segunda fase (no construidas)
+
+1. Cruzar la generación de residuos con densidad de vivienda, licencias de construcción y el POT.
+2. Puntos críticos de basura: reportes ciudadanos frente a los días de recolección.
+3. Proponer rutas más eficientes que reduzcan los tramos sin recolección.
+
 ## Estructura
 
 ```

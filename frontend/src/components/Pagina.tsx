@@ -123,6 +123,7 @@ const RELACIONES: Record<string, { ruta: string; icono: string; nombre: string; 
   propuesta: { ruta: "/propuesta", icono: "corazon", nombre: "Propuesta de valor", texto: "Por qué existe y qué falta por hacer" },
   inmobiliario: { ruta: "/inmobiliario", icono: "cubo", nombre: "Mercado inmobiliario y POT", texto: "Oferta observada y norma por barrio" },
   riesgo: { ruta: "/riesgo", icono: "ladera", nombre: "Riesgo de movimiento en masa", texto: "Gente y viviendas en zonas de amenaza" },
+  residuos: { ruta: "/residuos", icono: "residuos", nombre: "Aseo y residuos", texto: "Rutas del camión y toneladas por barrio" },
   fuentes: { ruta: "/fuentes", icono: "fuentes", nombre: "Fuentes y calidad", texto: "De dónde sale cada dato" },
   identidad: { ruta: "/identidad", icono: "paleta", nombre: "Manual de identidad", texto: "Colores, letras y reglas del sitio" },
 };
