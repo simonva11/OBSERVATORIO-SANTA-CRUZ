@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ConDatos } from "../components/Estado";
 import MapaResiduos, { COLOR_FRECUENCIA, ESCALA, NOMBRE_FRECUENCIA, cortesBarrios, cortesValidos, partesRuta } from "../components/MapaResiduos";
-import type { BarrioRes, Cortes, Modo, Seleccion, Variable } from "../components/MapaResiduos";
+import type { BarrioRes, Camara, Cortes, Modo, Seleccion, Variable } from "../components/MapaResiduos";
 import { Cabecera, Kpi, Relacionados, Seccion } from "../components/Pagina";
 import { useDatos } from "../lib/datos";
 import { dec, fecha, num } from "../lib/formato";
@@ -110,6 +110,33 @@ function ExplicaCodigos() {
   );
 }
 
+interface PasoRec { titulo: string; texto: string; modo: Modo; variable?: Variable; ruta?: string }
+const RUTA_EJEMPLO = "0113901";
+
+function Recorrido({ paso, jugando, pasos, onIr, onJugar, onCerrar }: { paso: number; jugando: boolean; pasos: PasoRec[]; onIr: (n: number) => void; onJugar: (j: boolean) => void; onCerrar: () => void }) {
+  const p = pasos[paso];
+  return (
+    <div className="border-b border-nivel/60 bg-marca/10 p-3 sm:p-4" role="region" aria-label="Recorrido guiado" aria-live="polite">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-marca">Paso {paso + 1} de {pasos.length}</p>
+          <h3 className="text-lg font-bold leading-tight">{p.titulo}</h3>
+          <p className="mt-1 text-sm leading-relaxed text-tinta-suave sm:text-[0.95rem]">{p.texto}</p>
+        </div>
+        <button type="button" onClick={onCerrar} className="shrink-0 rounded-lg border border-nivel bg-superficie px-2.5 py-1 text-xs font-medium hover:bg-acento/10">Cerrar</button>
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <button type="button" onClick={() => onIr(Math.max(0, paso - 1))} disabled={paso === 0} className="rounded-lg border border-nivel bg-superficie px-3 py-1.5 text-sm font-medium disabled:opacity-40">← Anterior</button>
+        <button type="button" onClick={() => onJugar(!jugando)} className="rounded-lg bg-marca px-3 py-1.5 text-sm font-semibold text-white">{jugando ? "⏸ Pausar" : "▶ Seguir solo"}</button>
+        <button type="button" onClick={() => onIr(Math.min(pasos.length - 1, paso + 1))} disabled={paso === pasos.length - 1} className="rounded-lg border border-nivel bg-superficie px-3 py-1.5 text-sm font-medium disabled:opacity-40">Siguiente →</button>
+        <span className="ml-auto flex gap-1.5" aria-hidden>
+          {pasos.map((_, i) => <span key={i} className={`h-2 w-2 rounded-full ${i === paso ? "bg-marca" : "bg-marca/25"}`} />)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function Palabras() {
   const items: [string, string][] = [
     ["Instalación", "Un punto con servicio de aseo registrado por EPM: una vivienda, un apartamento o un local. No es una persona ni un contenedor."],
@@ -178,68 +205,104 @@ function Detalle({ sel, rutas, barrios }: { sel: Seleccion | null; rutas: Ruta[]
   );
 }
 
-/** Barras verticales simples con etiqueta abajo y valor arriba. */
-function Barras({ datos, etiquetaY, formato = (v: number) => dec(v) }: { datos: { k: string; v: number }[]; etiquetaY: string; formato?: (v: number) => string }) {
+/** Eje con números redondos: 0, 50, 100, 150... */
+function ejeY(max: number) {
+  const mag = 10 ** Math.floor(Math.log10(max / 4));
+  const paso = ([1, 2, 5, 10].map((p) => p * mag).find((p) => max / p <= 5)) ?? mag;
+  const top = Math.ceil(max / paso) * paso;
+  const ticks: number[] = [];
+  for (let v = 0; v <= top + 1e-9; v += paso) ticks.push(v);
+  return { top, ticks };
+}
+
+function Conclusion({ children }: { children: React.ReactNode }) {
+  return <p className="mb-3 text-[1.05rem] font-semibold leading-snug text-tinta">{children}</p>;
+}
+
+/** Barras con ejes, líneas de guía y las barras importantes resaltadas. */
+function BarrasV({ datos, unidad, fmt = (v: number) => num(Math.round(v)), marcar, saltoX = 1 }: { datos: { k: string; v: number }[]; unidad: string; fmt?: (v: number) => string; marcar?: (i: number) => boolean; saltoX?: number }) {
+  const W = 640, H = 260, iz = 46, de = 8, ar = 22, ab = 34;
   const max = Math.max(1, ...datos.map((d) => d.v));
-  const W = 560, H = 190, base = 150, ancho = W / datos.length;
+  const { top, ticks } = ejeY(max);
+  const bw = (W - iz - de) / datos.length;
+  const Y = (v: number) => H - ab - (v / top) * (H - ab - ar);
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={etiquetaY} className="w-full">
-      <line x1="0" x2={W} y1={base} y2={base} stroke="rgb(var(--nivel))" />
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={unidad} className="w-full">
+      <text x={2} y={12} fontSize="11" fill="currentColor" opacity="0.6">{unidad}</text>
+      {ticks.map((t) => (
+        <g key={t}>
+          <line x1={iz} x2={W - de} y1={Y(t)} y2={Y(t)} stroke="rgb(var(--nivel))" strokeDasharray={t ? "2 5" : undefined} />
+          <text x={iz - 8} y={Y(t) + 4} textAnchor="end" fontSize="11" fill="currentColor" opacity="0.65">{num(t)}</text>
+        </g>
+      ))}
       {datos.map((d, i) => {
-        const h = (d.v / max) * 120;
-        const x = i * ancho + ancho * 0.18;
+        const fuerte = marcar ? marcar(i) : false;
+        const x = iz + i * bw + bw * 0.14, w = bw * 0.72;
         return (
-          <g key={d.k}>
-            <rect x={x} y={base - h} width={ancho * 0.64} height={Math.max(1, h)} rx="3" fill="rgb(var(--marca))" opacity={d.v === max ? 1 : 0.62}>
-              <title>{`${d.k}: ${formato(d.v)}`}</title>
+          <g key={d.k + i}>
+            <rect x={x} y={Y(d.v)} width={w} height={Math.max(1.5, H - ab - Y(d.v))} rx={Math.min(5, w / 3)} fill="rgb(var(--marca))" opacity={fuerte ? 1 : 0.38}>
+              <title>{`${d.k}: ${fmt(d.v)} ${unidad}`}</title>
             </rect>
-            {(datos.length <= 12 || i % 3 === 0) && <text x={x + ancho * 0.32} y={base + 16} textAnchor="middle" fontSize="10" fill="currentColor" opacity="0.7">{d.k}</text>}
-            {datos.length <= 12 && d.v > 0 && <text x={x + ancho * 0.32} y={base - h - 5} textAnchor="middle" fontSize="10" fill="currentColor">{formato(d.v)}</text>}
+            {(fuerte || datos.length <= 8) && d.v > 0 && <text x={x + w / 2} y={Y(d.v) - 6} textAnchor="middle" fontSize="11.5" fontWeight="700" fill="currentColor">{fmt(d.v)}</text>}
+            {i % saltoX === 0 && <text x={x + w / 2} y={H - ab + 17} textAnchor="middle" fontSize="11" fill="currentColor" opacity="0.75">{d.k}</text>}
           </g>
         );
       })}
-      <text x="2" y="12" fontSize="10" fill="currentColor" opacity="0.65">{etiquetaY}</text>
     </svg>
   );
 }
 
-/** Serie diaria: línea con área; al pasar el dedo o el mouse muestra el día. */
-function SerieDiaria({ serie }: { serie: { fecha: string; t: number }[] }) {
+/** Línea suave con área: al pasar el dedo o el mouse muestra el valor de esa semana. */
+function LineaSemanal({ puntos }: { puntos: { f: string; v: number }[] }) {
   const [sel, setSel] = useState<number | null>(null);
-  const W = 720, H = 220, izq = 34, base = 190;
-  const t0 = new Date(serie[0].fecha).getTime(), t1 = new Date(serie[serie.length - 1].fecha).getTime();
-  const max = Math.max(...serie.map((s) => s.t));
-  const X = (f: string) => izq + ((new Date(f).getTime() - t0) / (t1 - t0 || 1)) * (W - izq - 8);
-  const Y = (v: number) => base - (v / max) * 160;
-  const d = serie.map((s, i) => `${i ? "L" : "M"}${X(s.fecha).toFixed(1)},${Y(s.t).toFixed(1)}`).join("");
-  const p = sel != null ? serie[sel] : null;
+  const W = 640, H = 260, iz = 46, de = 10, ar = 22, ab = 34;
+  const t0 = new Date(puntos[0].f).getTime(), t1 = new Date(puntos[puntos.length - 1].f).getTime();
+  const max = Math.max(...puntos.map((p) => p.v));
+  const { top, ticks } = ejeY(max);
+  const X = (f: string) => iz + ((new Date(f).getTime() - t0) / (t1 - t0 || 1)) * (W - iz - de);
+  const Y = (v: number) => H - ab - (v / top) * (H - ab - ar);
+  const d = puntos.map((p, i) => `${i ? "L" : "M"}${X(p.f).toFixed(1)},${Y(p.v).toFixed(1)}`).join("");
   const mover = (e: React.PointerEvent<SVGSVGElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - r.left) / r.width) * W;
     let mejor = 0, dist = Infinity;
-    serie.forEach((s, i) => { const dd = Math.abs(X(s.fecha) - x); if (dd < dist) { dist = dd; mejor = i; } });
+    puntos.forEach((p, i) => { const dd = Math.abs(X(p.f) - x); if (dd < dist) { dist = dd; mejor = i; } });
     setSel(mejor);
   };
+  const meses = puntos.filter((_, i) => i % 13 === 0);
+  const p = sel != null ? puntos[sel] : null;
   return (
     <div>
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Toneladas pesadas por día" className="w-full touch-pan-y" onPointerMove={mover} onPointerLeave={() => setSel(null)}>
-        {[0, 0.5, 1].map((f) => (
-          <g key={f}>
-            <line x1={izq} x2={W - 8} y1={Y(max * f)} y2={Y(max * f)} stroke="rgb(var(--nivel))" strokeDasharray={f ? "3 4" : undefined} />
-            <text x={izq - 4} y={Y(max * f) + 3} textAnchor="end" fontSize="10" fill="currentColor" opacity="0.65">{num(Math.round(max * f))}</text>
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Toneladas pesadas por semana" className="w-full touch-pan-y" onPointerMove={mover} onPointerLeave={() => setSel(null)}>
+        <text x={2} y={12} fontSize="11" fill="currentColor" opacity="0.6">toneladas</text>
+        {ticks.map((t) => (
+          <g key={t}>
+            <line x1={iz} x2={W - de} y1={Y(t)} y2={Y(t)} stroke="rgb(var(--nivel))" strokeDasharray={t ? "2 5" : undefined} />
+            <text x={iz - 8} y={Y(t) + 4} textAnchor="end" fontSize="11" fill="currentColor" opacity="0.65">{num(t)}</text>
           </g>
         ))}
-        <path d={`${d}L${X(serie[serie.length - 1].fecha)},${base}L${X(serie[0].fecha)},${base}Z`} fill="rgb(var(--marca))" opacity="0.14" />
-        <path d={d} fill="none" stroke="rgb(var(--marca))" strokeWidth="1.4" strokeLinejoin="round" />
-        {p && <circle cx={X(p.fecha)} cy={Y(p.t)} r="4" fill="rgb(var(--marca))" stroke="#fff" strokeWidth="1.5" />}
-        <text x={izq} y={H - 4} fontSize="10" fill="currentColor" opacity="0.65">{fecha(serie[0].fecha)}</text>
-        <text x={W - 8} y={H - 4} textAnchor="end" fontSize="10" fill="currentColor" opacity="0.65">{fecha(serie[serie.length - 1].fecha)}</text>
+        <path d={`${d}L${X(puntos[puntos.length - 1].f)},${Y(0)}L${X(puntos[0].f)},${Y(0)}Z`} fill="rgb(var(--marca))" opacity="0.16" />
+        <path d={d} fill="none" stroke="rgb(var(--marca))" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" />
+        {meses.map((m) => <text key={m.f} x={X(m.f)} y={H - ab + 17} textAnchor="middle" fontSize="11" fill="currentColor" opacity="0.75">{new Date(m.f).toLocaleDateString("es-CO", { month: "short", year: "2-digit" })}</text>)}
+        {p && <><line x1={X(p.f)} x2={X(p.f)} y1={ar} y2={Y(0)} stroke="rgb(var(--marca))" opacity="0.4" /><circle cx={X(p.f)} cy={Y(p.v)} r="5" fill="rgb(var(--marca))" stroke="#fff" strokeWidth="2" /></>}
       </svg>
       <p className="mt-1 min-h-5 text-sm tabular-nums text-tinta-suave" aria-live="polite">
-        {p ? <><b className="text-tinta">{dec(p.t)} t</b> el {fecha(p.fecha)}</> : "Pasa el dedo o el mouse por la línea para ver un día."}
+        {p ? <>Semana del {fecha(p.f)}: <b className="text-tinta">{dec(p.v)} t</b></> : "Pasa el dedo o el mouse por la línea para ver cada semana."}
       </p>
     </div>
   );
+}
+
+/** Suma el pesaje diario por semana (de lunes a domingo). */
+function porSemana(serie: { fecha: string; t: number }[]) {
+  const m = new Map<string, number>();
+  for (const s of serie) {
+    const dt = new Date(`${s.fecha}T12:00:00`);
+    dt.setDate(dt.getDate() - ((dt.getDay() + 6) % 7));
+    const k = dt.toISOString().slice(0, 10);
+    m.set(k, (m.get(k) ?? 0) + s.t);
+  }
+  return [...m.entries()].sort().map(([f, v]) => ({ f, v }));
 }
 
 type Orden<K extends string> = { col: K; asc: boolean };
@@ -343,11 +406,47 @@ function Contenido({ d }: { d: Resumen }) {
   const [variable, setVariable] = useState<Variable>("t_mes");
   const [verCalles, setVerCalles] = useState(false);
   const [sel, setSel] = useState<Seleccion | null>(null);
-  const modoActual = MODOS.find((m) => m.id === modo)!;
   const k = d.kpis;
+  const modoActual = MODOS.find((m) => m.id === modo)!;
+  const [paso, setPaso] = useState<number | null>(null);
+  const [jugando, setJugando] = useState(false);
+  const [camara, setCamara] = useState<Camara | null>(null);
+  const ej = d.rutas.find((r) => r.cod_ruta === RUTA_EJEMPLO);
+  const pasos: PasoRec[] = [
+    { titulo: "Esta es la Comuna 2", texto: `Emvarias recoge la basura de todo Medellín. Aquí se ve solo nuestra comuna, con sus 11 barrios y ${num(k.instalaciones)} instalaciones (viviendas, apartamentos y locales con servicio de aseo).`, modo: "barrios" },
+    { titulo: "Se divide en rutas", texto: `Emvarias reparte el territorio en ${k.rutas} rutas. Cada una es un recorrido de camión con días y horario fijos. Cada color es un grupo de días: miércoles y sábado, lunes y jueves, o martes y viernes.`, modo: "rutas", variable: "frecuencia" },
+    { titulo: "Miremos una: la Ruta 39", texto: ej ? `Pasa los ${ej.dias.toLowerCase()}, de ${horarioLindo(ej.horario)} Atiende ${num(ej.instalaciones_ruta)} instalaciones. Todo lo demás se apaga para que veas solo su zona.` : "Veamos una ruta.", modo: "rutas", variable: "frecuencia", ruta: RUTA_EJEMPLO },
+    { titulo: "Por dónde pasa el camión", texto: "Estas son las calles de la Ruta 39. En naranja el camión recoge la basura; en gris punteado solo pasa para llegar a otra calle.", modo: "calles", ruta: RUTA_EJEMPLO },
+    { titulo: "A quién atiende", texto: "Cada cuadrito es de 100 m por 100 m. Más oscuro, más instalaciones: ahí vive y trabaja más gente, así que sale más basura.", modo: "densidad", ruta: RUTA_EJEMPLO },
+    { titulo: "Del camión a la báscula", texto: ej ? `Cuando el camión se llena, va a descargar y lo pesan. La Ruta 39 mueve unas ${dec(ej.t_mes)} toneladas al mes, con ${num(ej.kg_viaje)} kilos por viaje y ${num(ej.vehiculos)} camiones distintos.` : "El camión descarga y lo pesan.", modo: "rutas", variable: "t_mes", ruta: RUTA_EJEMPLO },
+    { titulo: "Sumando todo", texto: `Las ${k.rutas} rutas juntas dejan unas ${num(k.t_mes_comuna)} toneladas al mes que le tocan a la comuna. Para cada barrio es una estimación según cuántas instalaciones tiene.`, modo: "barrios" },
+  ];
+  const irA = (n: number) => {
+    const st = pasos[n];
+    setPaso(n); setModo(st.modo); if (st.variable) setVariable(st.variable);
+    setSel(st.ruta ? { capa: "macrorutas", props: { COD_RUTA: st.ruta, DENO_RUTA: ej?.denominacion } } : null);
+    setCamara({ ruta: st.ruta, n: Date.now() });
+  };
+  useEffect(() => {
+    if (!jugando || paso == null) return;
+    const t = setTimeout(() => { if (paso >= pasos.length - 1) setJugando(false); else irA(paso + 1); }, 8000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jugando, paso]);
+  const MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
   const dias = d.por_dia_semana.map((x) => ({ k: x.dia.slice(0, 3), v: x.t_promedio }));
-  const horas = d.por_hora.map((x) => ({ k: String(x.hora), v: x.t }));
-  const meses = d.mensual.map((x) => ({ k: x.mes.slice(2).replace("-", "/"), v: x.t }));
+  const horas = d.por_hora.map((x) => ({ k: hora12(x.hora).replace(" a. m.", " am").replace(" p. m.", " pm"), v: x.t }));
+  const meses = d.mensual.map((x) => ({ k: `${MES[Number(x.mes.slice(5)) - 1]} ${x.mes.slice(2, 4)}`, v: x.t }));
+  const semanas = useMemo(() => porSemana(d.serie_diaria), [d.serie_diaria]);
+  const semCompletas = semanas.slice(1, -1);
+  const semMedia = semCompletas.reduce((a, x) => a + x.v, 0) / Math.max(1, semCompletas.length);
+  const mesesCompletos = d.mensual.slice(0, -1);
+  const mesMedia = mesesCompletos.reduce((a, x) => a + x.t, 0) / Math.max(1, mesesCompletos.length);
+  const mesMax = d.mensual.reduce((im, x, i, arr) => (x.t > arr[im].t ? i : im), 0);
+  const totDia = d.por_dia_semana.reduce((a, x) => a + x.t_total, 0);
+  const pctMS = (100 * d.por_dia_semana.filter((x) => x.dia === "Miércoles" || x.dia === "Sábado").reduce((a, x) => a + x.t_total, 0)) / Math.max(1, totDia);
+  const totHora = d.por_hora.reduce((a, x) => a + x.t, 0);
+  const pctNoche = (100 * d.por_hora.filter((x) => x.hora >= 22 || x.hora <= 3).reduce((a, x) => a + x.t, 0)) / Math.max(1, totHora);
   return (
     <>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
@@ -366,11 +465,20 @@ function Contenido({ d }: { d: Resumen }) {
       <Seccion id="mapa-res" titulo="Mapa de la recolección" texto="Tres pasos: elige qué quieres ver, mira los colores y toca el mapa para ver el detalle.">
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
           <div className="vidrio overflow-hidden rounded-2xl">
+            {paso == null ? (
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-nivel/60 bg-marca/10 p-3 sm:p-4">
+                <p className="text-sm"><b>¿No sabes cómo leerlo?</b> Mira un recorrido de un minuto que explica cómo funcionan las rutas.</p>
+                <button type="button" onClick={() => { setJugando(true); irA(0); document.getElementById("mapa-res")?.scrollIntoView({ behavior: "smooth" }); }} className="rounded-lg bg-marca px-4 py-2 text-sm font-semibold text-white shadow hover:brightness-110">▶ Ver cómo funciona</button>
+              </div>
+            ) : (
+              <Recorrido paso={paso} jugando={jugando} pasos={pasos} onIr={(n) => { setJugando(false); irA(n); }} onJugar={setJugando} onCerrar={() => { setPaso(null); setJugando(false); setCamara({ n: Date.now() }); setSel(null); }} />
+            )}
+            {paso == null && (
             <div className="space-y-3 border-b border-nivel/60 p-3 sm:p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-tinta-tenue"><span className="mr-1.5 inline-grid h-5 w-5 place-items-center rounded-full bg-marca text-[0.7rem] text-white">1</span>Elige qué quieres ver</p>
               <div className="grid grid-cols-2 gap-2 lg:grid-cols-4" role="tablist" aria-label="Vista del mapa">
                 {MODOS.map((m) => (
-                  <button key={m.id} type="button" role="tab" aria-selected={modo === m.id} onClick={() => { setModo(m.id); setSel(null); }}
+                  <button key={m.id} type="button" role="tab" aria-selected={modo === m.id} onClick={() => { setModo(m.id); setSel(null); setPaso(null); setJugando(false); }}
                     className={`rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition-colors ${modo === m.id ? "border-marca bg-marca text-white shadow" : "border-nivel bg-superficie hover:bg-acento/10"}`}>
                     {m.nombre}
                   </button>
@@ -391,8 +499,9 @@ function Contenido({ d }: { d: Resumen }) {
                 )}
               </div>
             </div>
+            )}
             <div className="h-[64vh] min-h-[24rem]">
-              <MapaResiduos modo={modo} variable={variable} verCalles={verCalles} cortes={d.cortes} barrios={d.barrios} seleccion={sel} onSeleccion={setSel} />
+              <MapaResiduos modo={modo} variable={variable} verCalles={verCalles} cortes={d.cortes} barrios={d.barrios} seleccion={sel} onSeleccion={setSel} camara={camara} />
             </div>
             <div className="border-t border-nivel/60 p-3 sm:p-4">
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-tinta-tenue"><span className="mr-1.5 inline-grid h-5 w-5 place-items-center rounded-full bg-marca text-[0.7rem] text-white">2</span>Así se leen los colores</p>
@@ -415,18 +524,30 @@ function Contenido({ d }: { d: Resumen }) {
         </div>
       </Seccion>
 
-      <Seccion mitad id="serie-res" titulo="Toneladas pesadas por día" texto={`Pesajes de todas las rutas completas, del ${fecha(d.periodo.desde)} al ${fecha(d.periodo.hasta)}.`}>
-        <div className="vidrio rounded-2xl p-4"><SerieDiaria serie={d.serie_diaria} /></div>
+      <Seccion mitad id="serie-res" titulo="¿Cuánto se pesa cada semana?" texto={`Pesajes de todas las rutas completas, del ${fecha(d.periodo.desde)} al ${fecha(d.periodo.hasta)}.`}>
+        <div className="vidrio rounded-2xl p-4 sm:p-5">
+          <Conclusion>Cada semana llegan a la báscula cerca de {num(Math.round(semMedia))} toneladas, y casi no cambia durante el año.</Conclusion>
+          <LineaSemanal puntos={semCompletas} />
+          <p className="mt-1 text-xs text-tinta-tenue">No se muestran la primera ni la última semana porque están incompletas.</p>
+        </div>
       </Seccion>
-      <Seccion mitad id="mes-res" titulo="Toneladas por mes" texto="Total pesado cada mes (el primero y el último pueden estar incompletos).">
-        <div className="vidrio rounded-2xl p-4"><Barras datos={meses} etiquetaY="Toneladas" formato={(v) => num(Math.round(v))} /></div>
+      <Seccion mitad id="mes-res" titulo="¿Y cada mes?" texto="Total pesado cada mes (el último mes está incompleto).">
+        <div className="vidrio rounded-2xl p-4 sm:p-5">
+          <Conclusion>Un mes normal pesa unas {num(Math.round(mesMedia))} toneladas. El más alto fue {meses[mesMax].k} ({num(Math.round(meses[mesMax].v))} t).</Conclusion>
+          <BarrasV datos={meses} unidad="toneladas" marcar={(i) => i === mesMax} saltoX={2} />
+        </div>
       </Seccion>
-      <Seccion mitad id="dia-res" titulo="Toneladas por día de la semana" texto="Promedio de lo pesado en los días que sí hubo pesaje.">
-        <div className="vidrio rounded-2xl p-4"><Barras datos={dias} etiquetaY="Toneladas por día" /></div>
+      <Seccion mitad id="dia-res" titulo="¿Qué días se pesa más?" texto="Promedio de toneladas pesadas en cada día de la semana.">
+        <div className="vidrio rounded-2xl p-4 sm:p-5">
+          <Conclusion>El {dec(pctMS)} % de lo que se pesa llega los miércoles y los sábados, que son los días de las rutas grandes.</Conclusion>
+          <BarrasV datos={dias} unidad="toneladas por día" fmt={(v) => dec(v)} marcar={(i) => d.por_dia_semana[i].dia === "Miércoles" || d.por_dia_semana[i].dia === "Sábado"} />
+        </div>
       </Seccion>
-      <Seccion mitad id="hora-res" titulo="Pesajes por hora" texto="Es la hora en que el camión pasó por la báscula, no la hora en que recogió en la calle.">
-        <div className="vidrio rounded-2xl p-4"><Barras datos={horas} etiquetaY="Toneladas pesadas" formato={(v) => num(Math.round(v))} /></div>
-        <p className="mt-2 text-xs text-tinta-tenue">Pico: {hora12(d.por_hora.reduce((a, b) => (b.t > a.t ? b : a)).hora)} (medianoche).</p>
+      <Seccion mitad id="hora-res" titulo="¿A qué hora llega el camión a la báscula?" texto="Es la hora del pesaje (cuando el camión descarga), no la hora en que recogió en la calle.">
+        <div className="vidrio rounded-2xl p-4 sm:p-5">
+          <Conclusion>El {dec(pctNoche)} % se pesa entre las 10 p. m. y las 3 a. m.: los camiones salen por la tarde y descargan de madrugada.</Conclusion>
+          <BarrasV datos={horas} unidad="toneladas" marcar={(i) => d.por_hora[i].hora >= 22 || d.por_hora[i].hora <= 3} saltoX={3} />
+        </div>
       </Seccion>
 
       <Seccion id="rutas-res" titulo="Las 30 rutas" texto="Ordena por la columna que quieras. La última columna es un dato de planeación de Emvarias; no se compara con las toneladas reales.">

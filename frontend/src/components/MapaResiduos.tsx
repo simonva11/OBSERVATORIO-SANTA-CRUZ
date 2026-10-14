@@ -8,6 +8,7 @@ import { useNocheActiva } from "./Layout";
 export type Variable = "frecuencia" | "t_mes" | "kg_inst_mes" | "vehiculos";
 export type Modo = "rutas" | "calles" | "barrios" | "densidad";
 export type CapaSel = "macrorutas" | "ruteo" | "celdas" | "barrios";
+export interface Camara { ruta?: string; n: number }
 export interface Seleccion { capa: CapaSel; props: Record<string, unknown> }
 
 export interface BarrioRes {
@@ -96,15 +97,17 @@ interface Props {
   barrios: BarrioRes[];
   seleccion: Seleccion | null;
   onSeleccion: (s: Seleccion | null) => void;
+  camara?: Camara | null;
 }
 
 /** Mapa de la recolección con cuatro vistas: por ruta, calle por calle, por barrio y por densidad de instalaciones. */
-export default function MapaResiduos({ modo, variable, verCalles, cortes, barrios, seleccion, onSeleccion }: Props) {
+export default function MapaResiduos({ modo, variable, verCalles, cortes, barrios, seleccion, onSeleccion, camara }: Props) {
   const caja = useRef<HTMLDivElement>(null);
   const mapa = useRef<MapaML | null>(null);
   const [listo, setListo] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
   const noche = useNocheActiva();
+  const macroDatos = useRef<FeatureCollection | null>(null);
   const ultimo = useRef({ modo, variable, verCalles, cortes, barrios, seleccion, onSeleccion });
   ultimo.current = { modo, variable, verCalles, cortes, barrios, seleccion, onSeleccion };
 
@@ -120,6 +123,10 @@ export default function MapaResiduos({ modo, variable, verCalles, cortes, barrio
     if (m.getLayer("res-sel-macro")) m.setFilter("res-sel-macro", ["==", ["get", "COD_RUTA"], cod]);
     if (m.getLayer("res-sel-ruteo")) m.setFilter("res-sel-ruteo", ["==", ["get", "COD_RUTA"], cod]);
     if (m.getLayer("res-sel-barrio")) m.setFilter("res-sel-barrio", ["==", ["get", "nombre"], bar]);
+    // Con una ruta elegida, lo demás se apaga para que se vea solo esa ruta
+    const mia: ExpressionSpecification = ["==", ["get", "COD_RUTA"], cod];
+    const atenuar = (id: string, normal: number) => m.getLayer(id) && m.setPaintProperty(id, id.startsWith("res-ruteo") || id === "res-macro" ? (id === "res-macro" ? "fill-opacity" : "line-opacity") : "fill-opacity", cod ? (["case", mia, normal, normal * 0.28] as unknown as ExpressionSpecification) : normal);
+    atenuar("res-macro", 0.72); atenuar("res-ruteo", 1); atenuar("res-ruteo-vacio", 1); atenuar("res-ruteo-casing", 0.85);
   };
 
   // Dibuja las capas de datos (se repite cuando el estilo base cambia, por ejemplo al pasar a modo noche)
@@ -143,7 +150,9 @@ export default function MapaResiduos({ modo, variable, verCalles, cortes, barrio
       const src = (id: string, data: FeatureCollection) => {
         if (!m.getSource(id)) m.addSource(id, { type: "geojson", data });
       };
-      src("res-comuna", comuna); src("res-macro", { ...macro, features: macro.features.map((f) => ({ ...f, properties: { ...f.properties, etiqueta: etiquetaRuta(f.properties?.DENO_RUTA) } })) }); src("res-ruteo", ruteo); src("res-celdas", celdas); src("res-barrios", poligonos);
+      const macroEt: FeatureCollection = { ...macro, features: macro.features.map((f) => ({ ...f, properties: { ...f.properties, etiqueta: etiquetaRuta(f.properties?.DENO_RUTA) } })) };
+      macroDatos.current = macroEt;
+      src("res-comuna", comuna); src("res-macro", macroEt); src("res-ruteo", ruteo); src("res-celdas", celdas); src("res-barrios", poligonos);
       const add = (l: Parameters<MapaML["addLayer"]>[0]) => {
         if (!m.getLayer(l.id)) m.addLayer(l);
       };
@@ -162,7 +171,7 @@ export default function MapaResiduos({ modo, variable, verCalles, cortes, barrio
       add({ id: "res-comuna-borde", type: "line", source: "res-comuna", paint: { "line-color": tinta, "line-width": 2.4, "line-opacity": 0.9, "line-dasharray": [3, 1.5] } });
       const ancho: ExpressionSpecification = ["interpolate", ["linear"], ["zoom"], 12, 1.2, 14, 2.4, 17, 5];
       const anchoCasing: ExpressionSpecification = ["interpolate", ["linear"], ["zoom"], 12, 2.4, 14, 4, 17, 7.5];
-      add({ id: "res-sel-ruteo", type: "line", source: "res-ruteo", filter: ["==", ["get", "COD_RUTA"], ""], layout: { "line-cap": "round" }, paint: { "line-color": tinta, "line-width": ["interpolate", ["linear"], ["zoom"], 12, 5, 14, 9, 17, 15] as ExpressionSpecification } });
+      add({ id: "res-sel-ruteo", type: "line", source: "res-ruteo", filter: ["==", ["get", "COD_RUTA"], ""], layout: { "line-cap": "round" }, paint: { "line-color": tinta, "line-width": ["interpolate", ["linear"], ["zoom"], 12, 3.6, 14, 5.6, 17, 9.5] as ExpressionSpecification } });
       add({ id: "res-ruteo-casing", type: "line", source: "res-ruteo", layout: { "line-cap": "round" }, paint: { "line-color": "#ffffff", "line-width": anchoCasing, "line-opacity": 0.85 } });
       add({ id: "res-ruteo-vacio", type: "line", source: "res-ruteo", filter: ["==", ["get", "RECOLEC"], "NORECOLECCION"], paint: { "line-color": COLOR_VACIO, "line-width": ancho, "line-dasharray": [1.6, 1.6] } });
       add({ id: "res-ruteo", type: "line", source: "res-ruteo", filter: ["==", ["get", "RECOLEC"], "RECOLECCION"], layout: { "line-cap": "round" }, paint: { "line-color": COLOR_RECOLECCION, "line-width": ancho } });
@@ -244,6 +253,24 @@ export default function MapaResiduos({ modo, variable, verCalles, cortes, barrio
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seleccion, listo]);
+
+  // Cámara guiada (recorrido): a la comuna o a una ruta
+  useEffect(() => {
+    const m = mapa.current;
+    if (!m || !listo || !camara) return;
+    if (camara.ruta && macroDatos.current) {
+      const fs = macroDatos.current.features.filter((f) => f.properties?.COD_RUTA === camara.ruta);
+      let x0 = 180, y0 = 90, x1 = -180, y1 = -90;
+      const rec = (c: unknown): void => {
+        if (Array.isArray(c) && typeof c[0] === "number") { const [x, y] = c as number[]; x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+        else if (Array.isArray(c)) c.forEach(rec);
+      };
+      fs.forEach((f) => rec((f.geometry as { coordinates: unknown }).coordinates));
+      if (x1 > x0) { m.fitBounds([[x0, y0], [x1, y1]], { padding: 50, duration: 1400, maxZoom: 16 }); return; }
+    }
+    m.flyTo({ center: [-75.5535, 6.2955], zoom: 14.2, duration: 1400 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [camara, listo]);
 
   return (
     <div className="relative h-full w-full overflow-hidden">
