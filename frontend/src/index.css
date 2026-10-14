@@ -5,7 +5,7 @@
 /* ---------------------------------------------------------------- tokens de color (ver /identidad) */
 /* Marca: gamas de azul. Los colores de semáforo (verde, ámbar, rojo) solo se usan para datos, nunca para decorar. */
 :root {
-  --papel: 255 255 255; --papel-hondo: 243 247 253; --superficie: 255 255 255; --nivel: 222 232 247;
+  --papel: 244 248 255; --papel-hondo: 227 237 255; --superficie: 255 255 255; --nivel: 222 232 247;
   --tinta: 12 29 58; --tinta-suave: 44 66 104; --tinta-tenue: 70 92 130;
   --acento: 30 64 175; --acento-hondo: 15 36 90;
   --marca: 30 64 175; --menta: 226 238 254; --menta-2: 238 245 254;
@@ -31,7 +31,7 @@ html.noche,
 @layer base {
   html {
     font-size: 16px;
-    font-family: "Inter Variable", "Inter", system-ui, sans-serif;
+    font-family: "DM Sans", "Inter Variable", system-ui, sans-serif;
     font-variation-settings: normal;
     -webkit-font-smoothing: antialiased;
   }
@@ -567,3 +567,17 @@ html:not(.noche) #contenido :is(.rounded-2xl,.rounded-xl)[class*="border"][class
   border-color: transparent; background-color: rgb(var(--papel-hondo)); box-shadow: none;
 }
 html:not(.noche) .cabecera-panel > div > span { display: none !important; }
+
+/* ------------------------------------------------------------ rediseño: tipografía de titulares y tarjetas blancas */
+.fuente-titulo, #contenido h1, #contenido h2 { font-family: "Bricolage Grotesque", "DM Sans", system-ui, sans-serif; }
+.kpi-tarjeta p.tabular-nums { font-family: "Bricolage Grotesque", "DM Sans", system-ui, sans-serif; }
+html:not(.noche) .vidrio { background: rgb(var(--superficie)); }
+html:not(.noche) .vidrio:hover { background: rgb(var(--superficie)); box-shadow: 0 12px 30px -18px rgb(30 64 175 / 0.35); }
+html:not(.noche) #contenido :is(.rounded-2xl,.rounded-xl)[class*="border"][class*="border-nivel"]:not(.vidrio):not(.cabecera-panel):not(input):not(button):not(a) {
+  background-color: rgb(var(--superficie)); border-radius: 1.5rem;
+}
+html:not(.noche) .kpi-tarjeta { border-radius: 1.5rem; padding: 1.25rem 1.4rem; }
+html:not(.noche) .kpi-tarjeta p.tabular-nums { font-size: 2.9rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; }
+html:not(.noche) .cabecera-panel h1 { font-size: clamp(2.4rem, 4.4vw, 3.8rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1; }
+html:not(.noche) #contenido h2[id] { font-size: clamp(1.7rem, 2.6vw, 2.3rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; }
+html:not(.noche) .pagina-rejilla { gap: 3.5rem 1.5rem; padding-top: 2.5rem; }
