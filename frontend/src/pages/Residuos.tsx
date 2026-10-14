@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { ConDatos } from "../components/Estado";
-import MapaResiduos, { COLOR_FRECUENCIA, ESCALA, NOMBRE_FRECUENCIA, cortesBarrios, cortesValidos } from "../components/MapaResiduos";
+import MapaResiduos, { COLOR_FRECUENCIA, ESCALA, NOMBRE_FRECUENCIA, cortesBarrios, cortesValidos, partesRuta } from "../components/MapaResiduos";
 import type { BarrioRes, Cortes, Modo, Seleccion, Variable } from "../components/MapaResiduos";
 import { Cabecera, Kpi, Relacionados, Seccion } from "../components/Pagina";
 import { useDatos } from "../lib/datos";
@@ -34,10 +34,10 @@ const VARIABLES: { id: Variable; nombre: string }[] = [
   { id: "vehiculos", nombre: "Vehículos distintos" },
 ];
 const MODOS: { id: Modo; nombre: string; texto: string }[] = [
-  { id: "rutas", nombre: "Por ruta", texto: "Cada zona es una ruta de Emvarias. Mientras más oscuro, más toneladas (o lo que elijas abajo)." },
-  { id: "calles", nombre: "Calle por calle", texto: "Las calles por donde pasa el camión, tramo por tramo: en naranja recoge basura y en gris punteado solo pasa." },
+  { id: "rutas", nombre: "Por ruta", texto: "Cada zona es el área que cubre una ruta del camión de Emvarias. Mientras más oscuro, más toneladas al mes (o lo que elijas abajo). En el mapa cada zona dice \"Ruta\" y su número, y los días en que pasa." },
+  { id: "calles", nombre: "Calle por calle", texto: "Las calles por donde pasa el camión, tramo por tramo. Naranja: ahí recoge la basura. Gris punteado: ahí solo pasa para llegar a otra calle. Los nombres claros son los barrios, para ubicarte." },
   { id: "barrios", nombre: "Por barrio", texto: "Cada barrio pintado según las toneladas al mes que se estiman para él (más oscuro, más basura)." },
-  { id: "densidad", nombre: "Instalaciones", texto: "Cuántas instalaciones (casas, apartamentos y locales) hay en cada cuadro de 100 m. Más oscuro, más instalaciones." },
+  { id: "densidad", nombre: "Instalaciones", texto: "Una instalación es un punto con servicio de aseo (vivienda, apartamento o local). Aquí se cuentan en cuadros de 100 m por 100 m: más oscuro, más instalaciones en ese cuadro, o sea más gente a la que atender." },
 ];
 const UNIDAD: Record<string, string> = { t_mes: "t/mes", kg_inst_mes: "kg/inst./mes", vehiculos: "vehículos" };
 
@@ -74,11 +74,11 @@ function rangosDe(c: number[], unidad = ""): string[] {
   });
 }
 
-function Leyenda({ modo, variable, cortes, barrios, verCalles }: { modo: Modo; variable: Variable; cortes: Cortes; barrios: BarrioRes[]; verCalles: boolean }) {
+function Leyenda({ modo, variable, cortes, barrios, verCalles, km }: { modo: Modo; variable: Variable; cortes: Cortes; barrios: BarrioRes[]; verCalles: boolean; km: Resumen["kpis"] }) {
   const calles = (modo === "calles" || verCalles) && (
     <ul className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-      <li className="flex items-center gap-1.5"><span aria-hidden className="h-1 w-7 rounded bg-[#f08c1a]" />Calle donde el camión recoge</li>
-      <li className="flex items-center gap-1.5"><span aria-hidden className="w-7 border-t-[3px] border-dashed border-[#64748b]" />Calle donde solo pasa</li>
+      <li className="flex items-center gap-1.5"><span aria-hidden className="h-1 w-7 rounded bg-[#f08c1a]" />Calle donde el camión recoge ({dec(km.km_recoleccion)} km)</li>
+      <li className="flex items-center gap-1.5"><span aria-hidden className="w-7 border-t-[3px] border-dashed border-[#64748b]" />Calle donde solo pasa ({dec(km.km_sin_recoleccion)} km)</li>
     </ul>
   );
   let principal: React.ReactNode = null;
@@ -97,8 +97,36 @@ function Leyenda({ modo, variable, cortes, barrios, verCalles }: { modo: Modo; v
     const c = cortesValidos(cortes[variable as "t_mes"]);
     principal = <Escala titulo={`${VARIABLES.find((v) => v.id === variable)?.nombre} (${UNIDAD[variable]})`} rangos={rangosDe(c)} />;
   } else if (modo === "barrios") principal = <Escala titulo="Toneladas al mes estimadas por barrio" rangos={rangosDe(cortesBarrios(barrios))} />;
-  else if (modo === "densidad") principal = <Escala titulo="Instalaciones por cuadro de 100 m" rangos={["Menos de 5", "5 a 19", "20 a 59", "60 a 149", "150 o más"]} />;
+  else if (modo === "densidad") principal = <Escala titulo="Instalaciones por cuadro de 100 m" rangos={["Menos de 90", "90 a 149", "150 a 199", "200 a 249", "250 o más"]} />;
   return <div className="space-y-2">{principal}{calles}<p className="flex items-center gap-1.5 text-xs text-tinta-suave"><span aria-hidden className="w-7 border-t-2 border-dashed border-tinta" />Línea punteada oscura: límite de la Comuna 2</p></div>;
+}
+
+function ExplicaCodigos() {
+  return (
+    <div className="mt-3 rounded-lg border border-nivel/70 p-3 text-xs leading-relaxed text-tinta-suave">
+      <p className="font-semibold text-tinta">¿Qué significa "Z1R39WS"?</p>
+      <p className="mt-1">Es el código que Emvarias le pone a cada ruta. <b>Z1</b> es la zona 1, <b>R39</b> es la ruta número 39, y <b>WS</b> son los días: <b>WS</b> miércoles y sábado, <b>LJ</b> lunes y jueves, <b>MV</b> martes y viernes. Si el código termina en <b>_A</b>, es otra parte de esa misma ruta. En el mapa lo mostramos como "Ruta 39 · Mié y sáb".</p>
+    </div>
+  );
+}
+
+function Palabras() {
+  const items: [string, string][] = [
+    ["Instalación", "Un punto con servicio de aseo registrado por EPM: una vivienda, un apartamento o un local. No es una persona ni un contenedor."],
+    ["Ruta", "El recorrido que hace un camión de Emvarias en días y horas fijos. En la comuna pasan 30 rutas distintas."],
+    ["Tramo de calle", "Un pedazo del recorrido del camión. Puede ser un tramo donde recoge o uno donde solo pasa."],
+    ["Tonelada (t)", "1.000 kilos. Las toneladas son lo que se pesa en la báscula cuando el camión descarga."],
+  ];
+  return (
+    <dl className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      {items.map(([t, x]) => (
+        <div key={t} className="vidrio rounded-2xl p-4">
+          <dt className="text-sm font-bold text-marca">{t}</dt>
+          <dd className="mt-1 text-sm leading-relaxed text-tinta-suave">{x}</dd>
+        </div>
+      ))}
+    </dl>
+  );
 }
 
 function Detalle({ sel, rutas, barrios }: { sel: Seleccion | null; rutas: Ruta[]; barrios: BarrioFila[] }) {
@@ -115,7 +143,9 @@ function Detalle({ sel, rutas, barrios }: { sel: Seleccion | null; rutas: Ruta[]
   const n = (v: unknown, f = dec, suf = "") => (typeof v === "number" ? f(v) + suf : "Sin dato");
   if (sel.capa === "macrorutas" || sel.capa === "ruteo") {
     const r = rutas.find((x) => x.cod_ruta === p.COD_RUTA);
-    titulo = `Ruta ${r?.denominacion ?? p.COD_RUTA}`;
+    const pr = partesRuta(r?.denominacion ?? p.DENO_RUTA);
+    titulo = pr ? `Ruta ${pr.numero}${pr.adicional ? " (otra parte)" : ""}` : `Ruta ${r?.denominacion ?? p.COD_RUTA}`;
+    filas.push(["Código de Emvarias", String(r?.denominacion ?? p.DENO_RUTA ?? p.COD_RUTA)]);
     if (sel.capa === "ruteo") {
       sub = p.RECOLEC === "RECOLECCION" ? "Tramo donde el camión recoge" : "Tramo donde el camión solo pasa";
       filas.push(["Largo del tramo", n(p.long_m, num, " m")]);
@@ -329,6 +359,10 @@ function Contenido({ d }: { d: Resumen }) {
         <Kpi tono="ambar" valor={`${dec(k.km_sin_recoleccion)} km`} texto="De calles sin recolección" nota="Tramos de paso, sin recoger" />
       </div>
 
+      <Seccion id="palabras-res" titulo="Antes de mirar: palabras que se usan aquí">
+        <Palabras />
+      </Seccion>
+
       <Seccion id="mapa-res" titulo="Mapa de la recolección" texto="Tres pasos: elige qué quieres ver, mira los colores y toca el mapa para ver el detalle.">
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
           <div className="vidrio overflow-hidden rounded-2xl">
@@ -362,7 +396,8 @@ function Contenido({ d }: { d: Resumen }) {
             </div>
             <div className="border-t border-nivel/60 p-3 sm:p-4">
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-tinta-tenue"><span className="mr-1.5 inline-grid h-5 w-5 place-items-center rounded-full bg-marca text-[0.7rem] text-white">2</span>Así se leen los colores</p>
-              <Leyenda modo={modo} variable={variable} cortes={d.cortes} barrios={d.barrios} verCalles={verCalles} />
+              <Leyenda modo={modo} variable={variable} cortes={d.cortes} barrios={d.barrios} verCalles={verCalles} km={d.kpis} />
+              {modo === "rutas" && <ExplicaCodigos />}
             </div>
           </div>
 

@@ -20,6 +20,16 @@ export interface Cortes { t_mes: number[]; kg_inst_mes: number[]; vehiculos: num
 export const ESCALA = ["#dbeafe", "#93c5fd", "#4f8ff0", "#1d4ed8", "#1e3a8a"];
 export const COLOR_FRECUENCIA: Record<string, string> = { WS: "#1e40af", LJ: "#38bdf8", MV: "#818cf8", APOYO: "#94a3b8" };
 export const NOMBRE_FRECUENCIA: Record<string, string> = { WS: "Miércoles y sábado", LJ: "Lunes y jueves", MV: "Martes y viernes", APOYO: "Ruta de refuerzo" };
+/** "Z1R39WS" → número de ruta, días y un nombre corto para el mapa. */
+const DIAS_CORTO: Record<string, string> = { WS: "Mié y sáb", LJ: "Lun y jue", MV: "Mar y vie" };
+export function partesRuta(deno: unknown): { numero: string; bloque: string; adicional: boolean } | null {
+  const m = /^Z\d+R(\d+)(WS|LJ|MV)?(_?A)?$/i.exec(String(deno ?? ""));
+  return m ? { numero: m[1], bloque: (m[2] ?? "").toUpperCase(), adicional: !!m[3] } : null;
+}
+function etiquetaRuta(deno: unknown): string {
+  const p = partesRuta(deno);
+  return p ? `Ruta ${p.numero}${p.adicional ? " (otra parte)" : ""}\n${DIAS_CORTO[p.bloque] ?? "Refuerzo"}` : String(deno ?? "");
+}
 const SIN_DATO = "#cbd5e1";
 const COLOR_RECOLECCION = "#f08c1a";
 const COLOR_VACIO = "#64748b";
@@ -70,9 +80,9 @@ function escalaPor(expr: unknown[], cortes: number[]): ExpressionSpecification {
 
 const CAPAS_MODO: Record<Modo, string[]> = {
   rutas: ["res-macro", "res-macro-borde", "res-macro-nombre"],
-  calles: ["res-macro-suave", "res-ruteo-casing", "res-ruteo-vacio", "res-ruteo"],
+  calles: ["res-macro-suave", "res-barrios-linea", "res-barrios-etiqueta", "res-ruteo-casing", "res-ruteo-vacio", "res-ruteo"],
   barrios: ["res-barrios", "res-barrios-borde", "res-barrios-nombre"],
-  densidad: ["res-celdas", "res-barrios-borde"],
+  densidad: ["res-celdas", "res-barrios-linea", "res-barrios-etiqueta"],
 };
 const CAPAS_CALLES_EXTRA = ["res-ruteo-casing", "res-ruteo-vacio", "res-ruteo"];
 const TODAS = [...new Set([...Object.values(CAPAS_MODO).flat(), "res-sel-macro", "res-sel-ruteo", "res-sel-barrio"])];
@@ -133,14 +143,14 @@ export default function MapaResiduos({ modo, variable, verCalles, cortes, barrio
       const src = (id: string, data: FeatureCollection) => {
         if (!m.getSource(id)) m.addSource(id, { type: "geojson", data });
       };
-      src("res-comuna", comuna); src("res-macro", macro); src("res-ruteo", ruteo); src("res-celdas", celdas); src("res-barrios", poligonos);
+      src("res-comuna", comuna); src("res-macro", { ...macro, features: macro.features.map((f) => ({ ...f, properties: { ...f.properties, etiqueta: etiquetaRuta(f.properties?.DENO_RUTA) } })) }); src("res-ruteo", ruteo); src("res-celdas", celdas); src("res-barrios", poligonos);
       const add = (l: Parameters<MapaML["addLayer"]>[0]) => {
         if (!m.getLayer(l.id)) m.addLayer(l);
       };
       const tinta = noche ? "#e8f0ff" : "#0c1d3a";
       const halo = noche ? "#0b1530" : "#ffffff";
-      const pasosCelda = [1, 5, 20, 60, 150];
-      add({ id: "res-celdas", type: "fill", source: "res-celdas", paint: { "fill-color": escalaPor(["coalesce", ["get", "n"], 0], pasosCelda.slice(1)), "fill-opacity": 0.82, "fill-outline-color": "rgba(255,255,255,0.4)" } });
+      const pasosCelda = [90, 150, 200, 250];
+      add({ id: "res-celdas", type: "fill", source: "res-celdas", paint: { "fill-color": escalaPor(["coalesce", ["get", "n"], 0], pasosCelda), "fill-opacity": 0.82, "fill-outline-color": "rgba(255,255,255,0.4)" } });
       add({ id: "res-barrios", type: "fill", source: "res-barrios", paint: { "fill-color": ["case", ["==", ["typeof", ["get", "t"]], "number"], escalaPor(["get", "t"], cortesBarrios(o.barrios)), SIN_DATO] as unknown as ExpressionSpecification, "fill-opacity": 0.82 } });
       add({ id: "res-macro", type: "fill", source: "res-macro", paint: { "fill-color": colorPor(o.variable, o.cortes), "fill-opacity": 0.72 } });
       add({ id: "res-macro-suave", type: "fill", source: "res-macro", paint: { "fill-color": "#93c5fd", "fill-opacity": 0.14 } });
@@ -148,15 +158,17 @@ export default function MapaResiduos({ modo, variable, verCalles, cortes, barrio
       add({ id: "res-barrios-borde", type: "line", source: "res-barrios", paint: { "line-color": "#ffffff", "line-width": 1.6, "line-opacity": 0.9 } });
       add({ id: "res-sel-macro", type: "line", source: "res-macro", filter: ["==", ["get", "COD_RUTA"], ""], paint: { "line-color": tinta, "line-width": 3.4 } });
       add({ id: "res-sel-barrio", type: "line", source: "res-barrios", filter: ["==", ["get", "nombre"], ""], paint: { "line-color": tinta, "line-width": 3.4 } });
+      add({ id: "res-barrios-linea", type: "line", source: "res-barrios", paint: { "line-color": noche ? "#4a6fb5" : "#6f8fc9", "line-width": 1.2, "line-dasharray": [2, 2] } });
       add({ id: "res-comuna-borde", type: "line", source: "res-comuna", paint: { "line-color": tinta, "line-width": 2.4, "line-opacity": 0.9, "line-dasharray": [3, 1.5] } });
-      const ancho: ExpressionSpecification = ["interpolate", ["linear"], ["zoom"], 12, 1.8, 14, 3.4, 17, 7];
-      const anchoCasing: ExpressionSpecification = ["interpolate", ["linear"], ["zoom"], 12, 3.6, 14, 6, 17, 11];
+      const ancho: ExpressionSpecification = ["interpolate", ["linear"], ["zoom"], 12, 1.2, 14, 2.4, 17, 5];
+      const anchoCasing: ExpressionSpecification = ["interpolate", ["linear"], ["zoom"], 12, 2.4, 14, 4, 17, 7.5];
       add({ id: "res-sel-ruteo", type: "line", source: "res-ruteo", filter: ["==", ["get", "COD_RUTA"], ""], layout: { "line-cap": "round" }, paint: { "line-color": tinta, "line-width": ["interpolate", ["linear"], ["zoom"], 12, 5, 14, 9, 17, 15] as ExpressionSpecification } });
       add({ id: "res-ruteo-casing", type: "line", source: "res-ruteo", layout: { "line-cap": "round" }, paint: { "line-color": "#ffffff", "line-width": anchoCasing, "line-opacity": 0.85 } });
       add({ id: "res-ruteo-vacio", type: "line", source: "res-ruteo", filter: ["==", ["get", "RECOLEC"], "NORECOLECCION"], paint: { "line-color": COLOR_VACIO, "line-width": ancho, "line-dasharray": [1.6, 1.6] } });
       add({ id: "res-ruteo", type: "line", source: "res-ruteo", filter: ["==", ["get", "RECOLEC"], "RECOLECCION"], layout: { "line-cap": "round" }, paint: { "line-color": COLOR_RECOLECCION, "line-width": ancho } });
+      add({ id: "res-barrios-etiqueta", type: "symbol", source: "res-barrios", layout: { "text-field": ["get", "nombre"], "text-font": ["Noto Sans Bold"], "text-size": 12.5 }, paint: { "text-color": noche ? "#9fb6e6" : "#3a5a99", "text-halo-color": noche ? "#0b1530" : "#ffffff", "text-halo-width": 2.4 } });
       add({
-        id: "res-macro-nombre", type: "symbol", source: "res-macro", layout: { "text-field": ["get", "DENO_RUTA"], "text-font": ["Noto Sans Bold"], "text-size": 11 },
+        id: "res-macro-nombre", type: "symbol", source: "res-macro", layout: { "text-field": ["get", "etiqueta"], "text-font": ["Noto Sans Bold"], "text-size": 11 },
         paint: { "text-color": tinta, "text-halo-color": halo, "text-halo-width": 1.8 },
       });
       add({
