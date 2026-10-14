@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { ConDatos } from "../components/Estado";
-import MapaResiduos, { COLOR_FRECUENCIA, ESCALA, NOMBRE_FRECUENCIA, cortesValidos } from "../components/MapaResiduos";
-import type { BarrioRes, CapaId, Cortes, Variable } from "../components/MapaResiduos";
+import MapaResiduos, { COLOR_FRECUENCIA, ESCALA, NOMBRE_FRECUENCIA, cortesBarrios, cortesValidos } from "../components/MapaResiduos";
+import type { BarrioRes, Cortes, Modo, Seleccion, Variable } from "../components/MapaResiduos";
 import { Cabecera, Kpi, Relacionados, Seccion } from "../components/Pagina";
 import { useDatos } from "../lib/datos";
 import { dec, fecha, num } from "../lib/formato";
@@ -33,11 +33,11 @@ const VARIABLES: { id: Variable; nombre: string }[] = [
   { id: "kg_inst_mes", nombre: "Kilos por instalación" },
   { id: "vehiculos", nombre: "Vehículos distintos" },
 ];
-const CAPAS: { id: CapaId; nombre: string }[] = [
-  { id: "macrorutas", nombre: "Macrorrutas" },
-  { id: "ruteo", nombre: "Recorrido del camión" },
-  { id: "celdas", nombre: "Instalaciones (cuadros de 100 m)" },
-  { id: "barrios", nombre: "Toneladas por barrio" },
+const MODOS: { id: Modo; nombre: string; texto: string }[] = [
+  { id: "rutas", nombre: "Por ruta", texto: "Cada zona es una ruta de Emvarias. Mientras más oscuro, más toneladas (o lo que elijas abajo)." },
+  { id: "calles", nombre: "Calle por calle", texto: "Las calles por donde pasa el camión, tramo por tramo: en naranja recoge basura y en gris punteado solo pasa." },
+  { id: "barrios", nombre: "Por barrio", texto: "Cada barrio pintado según las toneladas al mes que se estiman para él (más oscuro, más basura)." },
+  { id: "densidad", nombre: "Instalaciones", texto: "Cuántas instalaciones (casas, apartamentos y locales) hay en cada cuadro de 100 m. Más oscuro, más instalaciones." },
 ];
 const UNIDAD: Record<string, string> = { t_mes: "t/mes", kg_inst_mes: "kg/inst./mes", vehiculos: "vehículos" };
 
@@ -50,51 +50,101 @@ function horarioLindo(h: string | null | undefined) {
   return h.replace(/(\d{1,2}):(\d{2})(AM|PM)/g, (_, a, b, c) => `${Number(a)}${b === "00" ? "" : ":" + b} ${c === "AM" ? "a. m." : "p. m."}`);
 }
 
-function Leyenda({ variable, cortes }: { variable: Variable; cortes: Cortes }) {
-  if (variable === "frecuencia")
-    return (
-      <ul className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-        {Object.keys(COLOR_FRECUENCIA).map((k) => (
-          <li key={k} className="flex items-center gap-1.5">
-            <span aria-hidden className="h-3 w-3 rounded-sm" style={{ background: COLOR_FRECUENCIA[k] }} />
-            {NOMBRE_FRECUENCIA[k]}
-          </li>
-        ))}
-      </ul>
-    );
-  const c = cortesValidos(cortes[variable]);
-  const rangos = ESCALA.map((_, i) => {
-    const a = i === 0 ? null : c[i - 1];
-    const b = i < c.length ? c[i] : null;
-    if (a == null && b != null) return `Hasta ${dec(b)}`;
-    if (b == null && a != null) return `Más de ${dec(a)}`;
-    return `${dec(a)} a ${dec(b)}`;
-  });
+function Escala({ titulo, rangos }: { titulo: string; rangos: string[] }) {
   return (
     <div className="text-xs">
-      <p className="mb-1 font-semibold">{VARIABLES.find((v) => v.id === variable)?.nombre} ({UNIDAD[variable]}) · cinco grupos con igual número de rutas</p>
+      <p className="mb-1.5 font-semibold">{titulo}</p>
       <ul className="flex flex-wrap gap-x-3 gap-y-1.5">
-        {ESCALA.slice(0, Math.min(ESCALA.length, c.length + 1)).map((col, i) => (
-          <li key={col} className="flex items-center gap-1.5">
-            <span aria-hidden className="h-3 w-5 rounded-sm" style={{ background: col }} />
-            {rangos[i]}
+        {rangos.map((r, i) => (
+          <li key={r} className="flex items-center gap-1.5">
+            <span aria-hidden className="h-3.5 w-6 rounded-sm border border-black/10" style={{ background: ESCALA[i] }} />
+            {r}
           </li>
         ))}
       </ul>
     </div>
   );
 }
+function rangosDe(c: number[], unidad = ""): string[] {
+  return [...c, null].map((b, i) => {
+    const a = i === 0 ? null : c[i - 1];
+    if (a == null) return `Hasta ${dec(b)}${unidad}`;
+    if (b == null) return `Más de ${dec(a)}${unidad}`;
+    return `${dec(a)} a ${dec(b)}${unidad}`;
+  });
+}
 
-function Chip({ activo, onClick, children }: { activo: boolean; onClick: () => void; children: React.ReactNode }) {
+function Leyenda({ modo, variable, cortes, barrios, verCalles }: { modo: Modo; variable: Variable; cortes: Cortes; barrios: BarrioRes[]; verCalles: boolean }) {
+  const calles = (modo === "calles" || verCalles) && (
+    <ul className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
+      <li className="flex items-center gap-1.5"><span aria-hidden className="h-1 w-7 rounded bg-[#f08c1a]" />Calle donde el camión recoge</li>
+      <li className="flex items-center gap-1.5"><span aria-hidden className="w-7 border-t-[3px] border-dashed border-[#64748b]" />Calle donde solo pasa</li>
+    </ul>
+  );
+  let principal: React.ReactNode = null;
+  if (modo === "rutas" && variable === "frecuencia")
+    principal = (
+      <ul className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
+        {Object.keys(COLOR_FRECUENCIA).map((k) => (
+          <li key={k} className="flex items-center gap-1.5">
+            <span aria-hidden className="h-3.5 w-6 rounded-sm border border-black/10" style={{ background: COLOR_FRECUENCIA[k] }} />
+            {NOMBRE_FRECUENCIA[k]}
+          </li>
+        ))}
+      </ul>
+    );
+  else if (modo === "rutas") {
+    const c = cortesValidos(cortes[variable as "t_mes"]);
+    principal = <Escala titulo={`${VARIABLES.find((v) => v.id === variable)?.nombre} (${UNIDAD[variable]})`} rangos={rangosDe(c)} />;
+  } else if (modo === "barrios") principal = <Escala titulo="Toneladas al mes estimadas por barrio" rangos={rangosDe(cortesBarrios(barrios))} />;
+  else if (modo === "densidad") principal = <Escala titulo="Instalaciones por cuadro de 100 m" rangos={["Menos de 5", "5 a 19", "20 a 59", "60 a 149", "150 o más"]} />;
+  return <div className="space-y-2">{principal}{calles}<p className="flex items-center gap-1.5 text-xs text-tinta-suave"><span aria-hidden className="w-7 border-t-2 border-dashed border-tinta" />Línea punteada oscura: límite de la Comuna 2</p></div>;
+}
+
+function Detalle({ sel, rutas, barrios }: { sel: Seleccion | null; rutas: Ruta[]; barrios: BarrioFila[] }) {
+  if (!sel)
+    return (
+      <div className="rounded-2xl border border-dashed border-nivel p-4 text-sm text-tinta-suave">
+        <p className="font-semibold text-tinta">Toca el mapa</p>
+        <p className="mt-1">Toca una ruta, una calle, un barrio o un cuadro y aquí aparece su detalle.</p>
+      </div>
+    );
+  const p = sel.props;
+  const filas: [string, string][] = [];
+  let titulo = "", sub = "", nota = "";
+  const n = (v: unknown, f = dec, suf = "") => (typeof v === "number" ? f(v) + suf : "Sin dato");
+  if (sel.capa === "macrorutas" || sel.capa === "ruteo") {
+    const r = rutas.find((x) => x.cod_ruta === p.COD_RUTA);
+    titulo = `Ruta ${r?.denominacion ?? p.COD_RUTA}`;
+    if (sel.capa === "ruteo") {
+      sub = p.RECOLEC === "RECOLECCION" ? "Tramo donde el camión recoge" : "Tramo donde el camión solo pasa";
+      filas.push(["Largo del tramo", n(p.long_m, num, " m")]);
+    }
+    if (r) {
+      filas.push(["Días", r.dias], ["Horario", horarioLindo(r.horario)], ["Toneladas al mes", n(r.t_mes)], ["Kilos por viaje", n(r.kg_viaje, num)],
+        ["Kilos por instalación al mes", n(r.kg_inst_mes)], ["Vehículos distintos", n(r.vehiculos, num)], ["Instalaciones de la ruta", n(r.instalaciones_ruta, num)], ["Parte dentro de la comuna", n(r.pct_ruta_en_comuna2, dec, " %")]);
+    } else nota = "Esta zona es de refuerzo: no tiene pesajes propios.";
+  } else if (sel.capa === "barrios") {
+    const b = barrios.find((x) => x.nombre === p.nombre);
+    titulo = String(p.nombre ?? "Barrio");
+    sub = "Barrio";
+    filas.push(["Instalaciones", n(b?.instalaciones, num)], ["Estrato promedio", n(b?.estrato_prom)], ["Toneladas al mes (estimadas)", n(b?.t_mes_estimadas)], ["Ruta principal", b?.ruta_principal ?? "Sin dato"]);
+    nota = "Las toneladas del barrio son una estimación, no un pesaje.";
+  } else {
+    titulo = "Cuadro de 100 × 100 m";
+    filas.push(["Instalaciones", n(p.n, num)], ["Estrato promedio", n(p.estrato_prom)], ["Toneladas al mes (estimadas)", n(p.t_mes_est)]);
+  }
   return (
-    <button
-      type="button"
-      aria-pressed={activo}
-      onClick={onClick}
-      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${activo ? "border-marca bg-marca text-white" : "border-nivel bg-superficie text-tinta-suave hover:bg-acento/10"}`}
-    >
-      {children}
-    </button>
+    <div className="vidrio rounded-2xl p-4">
+      {sub && <p className="text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-marca">{sub}</p>}
+      <h3 className="text-lg font-bold leading-tight">{titulo}</h3>
+      <dl className="mt-2 divide-y divide-nivel/50 text-sm">
+        {filas.map(([k, v]) => (
+          <div key={k} className="flex justify-between gap-4 py-1.5"><dt className="text-tinta-suave">{k}</dt><dd className="text-right font-semibold tabular-nums">{v}</dd></div>
+        ))}
+      </dl>
+      {nota && <p className="mt-2 text-xs text-tinta-tenue">{nota}</p>}
+    </div>
   );
 }
 
@@ -175,7 +225,7 @@ function Th<K extends string>({ col, orden, set, children, der = true }: { col: 
   );
 }
 
-function TablaBarrios({ barrios, sel, onSel }: { barrios: BarrioFila[]; sel: string | null; onSel: (c: string) => void }) {
+function TablaBarrios({ barrios, sel, onSel }: { barrios: BarrioFila[]; sel: string | null; onSel: (b: BarrioFila) => void }) {
   const [o, setO] = useState<Orden<"nombre" | "instalaciones" | "estrato_prom" | "t_mes_estimadas" | "ruta_principal">>({ col: "t_mes_estimadas", asc: false });
   const filas = useMemo(() => {
     const f = [...barrios];
@@ -201,9 +251,9 @@ function TablaBarrios({ barrios, sel, onSel }: { barrios: BarrioFila[]; sel: str
         </thead>
         <tbody>
           {filas.map((b) => (
-            <tr key={b.cod_barrio_epm} className={`cursor-pointer border-t border-nivel/50 hover:bg-acento/10 ${sel === b.cod_barrio_epm ? "bg-acento/15" : ""}`} onClick={() => onSel(b.cod_barrio_epm)}>
+            <tr key={b.cod_barrio_epm} className={`cursor-pointer border-t border-nivel/50 hover:bg-acento/10 ${sel === b.nombre ? "bg-acento/15" : ""}`} onClick={() => onSel(b)}>
               <td className="px-2 py-1.5">
-                <button type="button" className="text-left font-medium hover:text-marca" onClick={() => onSel(b.cod_barrio_epm)}>{b.nombre ?? "Sin nombre en la capa oficial"}</button>
+                <button type="button" className="text-left font-medium hover:text-marca" onClick={() => onSel(b)}>{b.nombre ?? "Sin nombre en la capa oficial"}</button>
                 <span className="block text-[0.68rem] text-tinta-tenue">Código EPM …{b.cod_barrio_epm.slice(-3)}</span>
               </td>
               <td className="px-2 py-1.5 text-right tabular-nums">{num(b.instalaciones)}</td>
@@ -259,9 +309,11 @@ function TablaRutas({ rutas }: { rutas: Ruta[] }) {
 }
 
 function Contenido({ d }: { d: Resumen }) {
-  const [variable, setVariable] = useState<Variable>("frecuencia");
-  const [capas, setCapas] = useState<Record<CapaId, boolean>>({ macrorutas: true, ruteo: true, celdas: false, barrios: true });
-  const [selBarrio, setSelBarrio] = useState<string | null>(null);
+  const [modo, setModo] = useState<Modo>("barrios");
+  const [variable, setVariable] = useState<Variable>("t_mes");
+  const [verCalles, setVerCalles] = useState(false);
+  const [sel, setSel] = useState<Seleccion | null>(null);
+  const modoActual = MODOS.find((m) => m.id === modo)!;
   const k = d.kpis;
   const dias = d.por_dia_semana.map((x) => ({ k: x.dia.slice(0, 3), v: x.t_promedio }));
   const horas = d.por_hora.map((x) => ({ k: String(x.hora), v: x.t }));
@@ -277,42 +329,51 @@ function Contenido({ d }: { d: Resumen }) {
         <Kpi tono="ambar" valor={`${dec(k.km_sin_recoleccion)} km`} texto="De calles sin recolección" nota="Tramos de paso, sin recoger" />
       </div>
 
-      <Seccion id="mapa-res" titulo="Mapa de la recolección" texto="Prende y apaga las capas. Toca una ruta, un barrio o un cuadro para ver su detalle.">
+      <Seccion id="mapa-res" titulo="Mapa de la recolección" texto="Tres pasos: elige qué quieres ver, mira los colores y toca el mapa para ver el detalle.">
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
           <div className="vidrio overflow-hidden rounded-2xl">
-            <div className="space-y-3 border-b border-nivel/60 p-3">
-              <div className="flex flex-wrap gap-2" role="group" aria-label="Capas del mapa">
-                {CAPAS.map((c) => <Chip key={c.id} activo={capas[c.id]} onClick={() => setCapas({ ...capas, [c.id]: !capas[c.id] })}>{c.nombre}</Chip>)}
+            <div className="space-y-3 border-b border-nivel/60 p-3 sm:p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-tinta-tenue"><span className="mr-1.5 inline-grid h-5 w-5 place-items-center rounded-full bg-marca text-[0.7rem] text-white">1</span>Elige qué quieres ver</p>
+              <div className="grid grid-cols-2 gap-2 lg:grid-cols-4" role="tablist" aria-label="Vista del mapa">
+                {MODOS.map((m) => (
+                  <button key={m.id} type="button" role="tab" aria-selected={modo === m.id} onClick={() => { setModo(m.id); setSel(null); }}
+                    className={`rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition-colors ${modo === m.id ? "border-marca bg-marca text-white shadow" : "border-nivel bg-superficie hover:bg-acento/10"}`}>
+                    {m.nombre}
+                  </button>
+                ))}
               </div>
-              <label className="flex flex-wrap items-center gap-2 text-sm">
-                <span className="font-medium">Colorear las macrorrutas por</span>
-                <select value={variable} onChange={(e) => setVariable(e.target.value as Variable)} className="rounded-lg border border-nivel bg-superficie px-2 py-1.5 text-sm">
-                  {VARIABLES.map((v) => <option key={v.id} value={v.id}>{v.nombre}</option>)}
-                </select>
-              </label>
-            </div>
-            <div className="h-[62vh] min-h-[22rem]">
-              <MapaResiduos variable={variable} capas={capas} cortes={d.cortes} barrios={d.barrios} seleccionBarrio={selBarrio} />
-            </div>
-            <div className="space-y-2 border-t border-nivel/60 p-3 text-xs">
-              {capas.macrorutas && <Leyenda variable={variable} cortes={d.cortes} />}
-              <ul className="flex flex-wrap gap-x-4 gap-y-1.5">
-                {capas.ruteo && (
-                  <>
-                    <li className="flex items-center gap-1.5"><span aria-hidden className="h-0.5 w-6 rounded bg-[#f08c1a]" />Calle con recolección</li>
-                    <li className="flex items-center gap-1.5"><span aria-hidden className="w-6 border-t-2 border-dashed border-[#64748b]" />Calle sin recolección</li>
-                  </>
+              <p className="rounded-lg bg-acento/10 px-3 py-2 text-sm">{modoActual.texto}</p>
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+                {modo === "rutas" && (
+                  <label className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium">Pintar las rutas según</span>
+                    <select value={variable} onChange={(e) => setVariable(e.target.value as Variable)} className="rounded-lg border border-nivel bg-superficie px-2 py-1.5 text-sm">
+                      {VARIABLES.map((v) => <option key={v.id} value={v.id}>{v.nombre}</option>)}
+                    </select>
+                  </label>
                 )}
-                {capas.barrios && <li className="flex items-center gap-1.5"><span aria-hidden className="h-3 w-3 rounded-full border border-marca bg-marca/30" />Círculo más grande = más toneladas estimadas</li>}
-                {capas.celdas && <li className="flex items-center gap-1.5"><span aria-hidden className="h-3 w-3 rounded-sm bg-[#4f8ff0]" />Más oscuro = más instalaciones en el cuadro</li>}
-              </ul>
+                {modo !== "calles" && (
+                  <label className="flex items-center gap-2"><input type="checkbox" checked={verCalles} onChange={(e) => setVerCalles(e.target.checked)} className="h-4 w-4 accent-[rgb(var(--marca))]" />Mostrar también las calles del camión</label>
+                )}
+              </div>
+            </div>
+            <div className="h-[64vh] min-h-[24rem]">
+              <MapaResiduos modo={modo} variable={variable} verCalles={verCalles} cortes={d.cortes} barrios={d.barrios} seleccion={sel} onSeleccion={setSel} />
+            </div>
+            <div className="border-t border-nivel/60 p-3 sm:p-4">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-tinta-tenue"><span className="mr-1.5 inline-grid h-5 w-5 place-items-center rounded-full bg-marca text-[0.7rem] text-white">2</span>Así se leen los colores</p>
+              <Leyenda modo={modo} variable={variable} cortes={d.cortes} barrios={d.barrios} verCalles={verCalles} />
             </div>
           </div>
 
           <div className="space-y-4">
             <div>
-              <h3 className="mb-2 text-sm font-semibold">Barrios (toca uno para ir a él en el mapa)</h3>
-              <TablaBarrios barrios={d.barrios} sel={selBarrio} onSel={setSelBarrio} />
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-tinta-tenue"><span className="mr-1.5 inline-grid h-5 w-5 place-items-center rounded-full bg-marca text-[0.7rem] text-white">3</span>Toca el mapa o un barrio de la tabla</p>
+              <Detalle sel={sel} rutas={d.rutas} barrios={d.barrios} />
+            </div>
+            <div>
+              <h3 className="mb-2 text-sm font-semibold">Barrios de la comuna</h3>
+              <TablaBarrios barrios={d.barrios} sel={sel?.capa === "barrios" ? String(sel.props.nombre) : null} onSel={(b) => { setModo("barrios"); setSel({ capa: "barrios", props: { nombre: b.nombre } }); }} />
               <p className="mt-2 text-xs text-tinta-tenue">Las toneladas por barrio son una estimación: instalaciones del barrio por los kilos que mueve cada instalación de su ruta.</p>
             </div>
           </div>
