@@ -86,7 +86,7 @@ function MapaEje({ tipo }: { tipo: string }) {
     <div className="relative">
       <svg viewBox={`0 0 ${ANCHO} ${ALTO}`} className="h-auto w-full rounded-2xl bg-menta-2" role="img" aria-label="Mapa de la comuna con la Carrera 49 y los minutos extra de ir por ella">
         {proy.items.map((b) => (
-          <path key={b.codigo} d={b.d} fill="#ffffff" stroke="#c3c4e6" strokeWidth="1" strokeLinejoin="round" />
+          <path key={b.codigo} d={b.d} fill="rgb(var(--menta))" stroke="rgb(var(--nivel))" strokeWidth="1" strokeLinejoin="round" />
         ))}
         {dibujo.tramos.map((t, i) => (
           <g key={i}>

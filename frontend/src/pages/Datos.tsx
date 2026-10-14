@@ -60,7 +60,7 @@ function MapaMuestra({ col }: { col: FeatureCollection | null }) {
   if (!proy) return <div className="aspect-square w-full animate-[suave_2.6s_ease-in-out_infinite] rounded-2xl bg-papel-hondo" />;
   return (
     <svg viewBox={`0 0 ${ANCHO} ${ALTO}`} className="h-auto w-full rounded-2xl bg-menta-2" role="img" aria-label="Mapa de la comuna con tus datos encima">
-      {proy.items.map((b) => <path key={b.codigo} d={b.d} fill="#ffffff" stroke="#c3c4e6" strokeWidth="1" strokeLinejoin="round" />)}
+      {proy.items.map((b) => <path key={b.codigo} d={b.d} fill="rgb(var(--menta))" stroke="rgb(var(--nivel))" strokeWidth="1" strokeLinejoin="round" />)}
       {dibujo}
     </svg>
   );

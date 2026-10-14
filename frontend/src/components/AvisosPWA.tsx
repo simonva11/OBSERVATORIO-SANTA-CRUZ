@@ -54,7 +54,7 @@ export default function AvisosPWA() {
   const caja = "pointer-events-auto flex items-center gap-3 rounded-xl border border-nivel bg-superficie px-4 py-2.5 text-sm text-tinta shadow-sm";
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-4 z-[3000] flex flex-col items-center gap-2 px-4">
+    <div className="pointer-events-none fixed bottom-3 left-3 z-[3000] flex max-w-[22rem] flex-col items-start gap-2">
       {!enLinea && (
         <p role="status" className={caja}>
           <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full bg-ambar" />

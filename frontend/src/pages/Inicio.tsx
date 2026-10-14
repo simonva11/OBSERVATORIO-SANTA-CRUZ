@@ -46,9 +46,9 @@ const CONTORNOS: string[] = (() => {
 
 function FondoHero() {
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10" style={{ background: "rgb(var(--papel))" }}>
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10" >
       <div className="absolute inset-x-0 top-0 h-[900px]" style={{ background: "radial-gradient(ellipse 62% 70% at 76% 34%, rgb(var(--menta)) 0%, rgb(var(--menta) / 0.5) 42%, transparent 75%)" }} />
-      <svg viewBox="0 0 1200 3600" preserveAspectRatio="xMidYMin slice" className="absolute inset-0 h-full w-full" style={{ opacity: 0.09 }}>
+      <svg viewBox="0 0 1200 3600" preserveAspectRatio="xMidYMin slice" className="absolute inset-0 h-full w-full" style={{ opacity: 0.05 }}>
         {CONTORNOS.map((d, i) => (
           <path key={i} d={d} fill="none" stroke={VERDE} strokeWidth="2" />
         ))}
@@ -307,8 +307,8 @@ function PulsoComuna() {
       <Revelar>
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 id="t-pulso" className="text-2xl font-semibold tracking-tight">El pulso de la comuna</h2>
-            <p className="mt-2 max-w-2xl text-base text-tinta-suave">Una cifra de cada módulo. Toca una y te lleva a ver cómo se calculó.</p>
+            <h2 id="t-pulso" className="text-xl font-semibold tracking-tight">El pulso de la comuna</h2>
+            <p className="mt-1 max-w-2xl text-sm text-tinta-suave">Una cifra de cada módulo. Toca una y te lleva a ver cómo se calculó.</p>
           </div>
           <span className="inline-flex items-center gap-2 rounded-full bg-superficie px-3 py-1.5 text-xs font-semibold text-tinta-suave ring-1 ring-nivel" title={r.origen === "api" ? "Los datos llegaron de la API" : "La API no está encendida, se leyó el archivo inicio.json"}>
             <span className={`h-2 w-2 rounded-full ${r.origen === "api" ? "bg-[#2d9a5a]" : "bg-[#e0a526]"}`} aria-hidden="true" />
@@ -316,13 +316,13 @@ function PulsoComuna() {
           </span>
         </div>
       </Revelar>
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         {r.datos.pulso.map((p, i) => (
           <Revelar key={p.clave} retraso={(i % 3) * 70}>
-            <Link to={p.ruta} className="vidrio group flex h-full flex-col rounded-2xl p-5" style={{ ["--glow" as string]: acentoDeRuta(p.ruta).vivo }}>
+            <Link to={p.ruta} className="vidrio group flex h-full flex-col rounded-xl p-4" style={{ ["--glow" as string]: acentoDeRuta(p.ruta).vivo }}>
               <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-tinta-suave"><span className="h-2.5 w-2.5 rounded-full" style={{ background: acentoDeRuta(p.ruta).vivo }} />{p.modulo}</span>
-              <span className="mt-2 text-3xl font-semibold tabular-nums text-marca">{p.valor == null ? "—" : String(p.valor).replace(".", ",")}</span>
-              <span className="mt-2 text-base leading-snug text-tinta-suave">{p.texto}</span>
+              <span className="mt-1.5 text-[2rem] font-semibold leading-none tabular-nums text-tinta" style={{ textShadow: "0 0 22px rgb(56 189 248 / 0.4)" }}>{p.valor == null ? "—" : String(p.valor).replace(".", ",")}</span>
+              <span className="mt-1.5 text-sm leading-snug text-tinta-suave">{p.texto}</span>
               {p.nota && <span className="mt-1 text-xs text-tinta-tenue">{p.nota}</span>}
               <span className="mt-auto pt-3 text-sm font-semibold text-marca opacity-70 transition group-hover:opacity-100">Ver más →</span>
             </Link>
@@ -353,7 +353,7 @@ export default function Inicio() {
       <FondoHero />
       {/* ------------------------------------------------------------------ HERO */}
       <div className="relative">
-        <section className="relative mx-auto grid max-w-[100rem] items-center gap-8 px-4 pb-6 pt-4 lg:grid-cols-[1.1fr_1fr] lg:gap-8 lg:px-8 lg:pt-6 2xl:px-12">
+        <section className="relative mx-auto grid max-w-[100rem] items-center gap-8 px-4 pb-6 pt-4 lg:grid-cols-[1fr_1fr] lg:gap-10 lg:px-8 lg:pt-6 2xl:px-12">
           <div>
             <Revelar>
               <p className="inline-flex items-center gap-2 rounded-full bg-superficie/80 px-4 py-1.5 text-sm font-semibold text-marca shadow-sm ring-1 ring-marca/15">
@@ -405,7 +405,7 @@ export default function Inicio() {
             </Revelar>
           </div>
           <Revelar retraso={200}>
-            <figure className="mx-auto w-full max-w-[34rem] rounded-2xl bg-superficie/70 p-3 lg:ml-auto shadow-sm ring-1 ring-black/5 backdrop-blur">
+            <figure className="vidrio vidrio--quieto mx-auto w-full max-w-[40rem] p-3 lg:ml-auto">
               <DibujoComuna stats={stats} />
               <figcaption className="px-2 pb-1 pt-3 text-sm text-tinta-suave">
                 <strong className="text-tinta">Pase el mouse o toque un barrio.</strong> Las líneas que se mueven son el Metrocable y los

@@ -17,14 +17,14 @@
 }
 html.noche,
 .mapa-noche {
-  --papel: 5 12 30; --papel-hondo: 11 24 54; --superficie: 10 20 44; --nivel: 30 52 98;
+  --papel: 3 9 22; --papel-hondo: 8 18 42; --superficie: 8 19 42; --nivel: 28 54 100;
   --tinta: 232 240 255; --tinta-suave: 160 182 222; --tinta-tenue: 130 156 204;
   --acento: 52 110 230; --acento-hondo: 14 38 100;
-  --marca: 130 180 255; --menta: 16 34 76; --menta-2: 12 26 60;
+  --marca: 110 175 255; --menta: 14 34 78; --menta-2: 12 26 60;
   --aviso-fondo: 56 46 18; --aviso-borde: 98 80 34; --peligro: 255 140 114;
   --ladera: 120 170 255; --ladera-hondo: 170 205 255; --ladera-claro: 16 34 76; --cable: 90 190 255; --cable-claro: 12 40 80;
   --ladrillo: 236 146 118; --ladrillo-claro: 66 32 24; --ambar: 236 184 84; --ambar-claro: 62 46 16; --ambar-texto: 240 202 124;
-  --brillo: 96 165 250; --brillo-2: 56 189 248;
+  --brillo: 96 165 250; --brillo-2: 34 211 238;
   color-scheme: dark;
 }
 
@@ -504,3 +504,42 @@ input[type="range"]::-moz-range-thumb {
 
 /* Al saltar a una sección desde el índice de la página, el título no queda tapado por la barra */
 #contenido h2[id] { scroll-margin-top: 3.25rem; }
+
+/* ------------------------------------------------------------ centro de control (modo oscuro, el principal) */
+html.noche body {
+  background:
+    radial-gradient(60rem 28rem at 85% -8%, rgb(37 99 235 / 0.22), transparent 70%),
+    radial-gradient(48rem 26rem at -5% 30%, rgb(14 165 233 / 0.10), transparent 70%),
+    rgb(var(--papel));
+}
+html.noche #contenido {
+  background-image:
+    linear-gradient(rgb(96 165 250 / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(96 165 250 / 0.045) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+html.noche .cabecera-panel {
+  background:
+    radial-gradient(34rem 12rem at 100% 0%, rgb(34 211 238 / 0.16), transparent 70%),
+    linear-gradient(135deg, rgb(20 46 100 / 0.85), rgb(8 19 42 / 0.9));
+  border-color: rgb(96 165 250 / 0.28);
+  border-left-color: var(--tono, rgb(var(--marca)));
+  box-shadow: 0 0 0 1px rgb(34 211 238 / 0.05), 0 18px 40px -24px rgb(37 99 235 / 0.6);
+}
+html.noche .cabecera-panel h1 { color: #fff; }
+html.noche .vidrio {
+  background: linear-gradient(165deg, rgb(24 52 112 / 0.55), rgb(8 19 42 / 0.85));
+  border-color: rgb(96 165 250 / 0.2);
+  box-shadow: inset 0 1px 0 rgb(147 197 253 / 0.12), 0 14px 30px -22px rgb(0 0 0 / 0.8);
+}
+html.noche .vidrio:hover { border-color: rgb(34 211 238 / 0.5); }
+html.noche .kpi-tarjeta p.tabular-nums { color: #fff; text-shadow: 0 0 22px rgb(56 189 248 / 0.45); }
+html.noche h2[id] { color: #e6f0ff; }
+html.noche section[aria-labelledby] > div:first-child { border-color: rgb(96 165 250 / 0.22); }
+html.noche #contenido h2[id]::before {
+  content: ""; display: inline-block; width: 0.5rem; height: 0.5rem; margin-right: 0.55rem; border-radius: 2px;
+  background: rgb(34 211 238); box-shadow: 0 0 10px rgb(34 211 238 / 0.9); vertical-align: 0.1em;
+}
+html.noche header[data-cromo="cabecera"] { background: rgb(4 11 28 / 0.92); border-color: rgb(96 165 250 / 0.2); backdrop-filter: blur(10px); }
+html.noche .progreso-lectura { box-shadow: 0 0 12px rgb(34 211 238 / 0.8); }
+html.noche .noche-oculto { display: none; }

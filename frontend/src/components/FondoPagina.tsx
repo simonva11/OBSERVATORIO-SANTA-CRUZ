@@ -29,7 +29,7 @@ export default function FondoPagina() {
     [],
   );
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden noche-oculto">
       <svg viewBox="0 0 1200 1000" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full">
         <g fill="none" stroke="rgb(var(--marca))" strokeWidth="1.6" opacity="0.05">
           {rutas.map((d, i) => (
