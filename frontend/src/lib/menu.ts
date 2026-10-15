@@ -13,7 +13,7 @@ export const GRUPOS: GrupoMenu[] = [
     corto: "Panorama",
     titulo: "Panorama",
     modulos: [
-      { ruta: "/", nombre: "Inicio", corto: "Inicio", icono: "inicio", detalle: "Qué es OTEA y por dónde empezar" },
+      { ruta: "/tecnico", nombre: "Inicio técnico", corto: "Inicio", icono: "inicio", detalle: "Qué es OTEA y por dónde empezar, para analistas y entidades" },
       { ruta: "/propuesta", nombre: "Propuesta de valor", corto: "Propuesta", icono: "corazon", detalle: "Para quién sirve, qué hace hoy y qué falta" },
     ],
   },

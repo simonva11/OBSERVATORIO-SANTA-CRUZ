@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import IconoNav from "./IconosNav";
 import { Cuenta, Revelar, useVisto } from "./Animacion";
 import { acentoDeRuta } from "../lib/marca";
+import { esCiudadana } from "../lib/experiencia";
 import { GRUPOS } from "../lib/menu";
 import { useDatos } from "../lib/datos";
 import { fecha } from "../lib/formato";
@@ -30,7 +31,7 @@ export function Cabecera({
   return (
     <header className={`cabecera ${className}`} style={{ ["--tono" as string]: a.medio }}>
       <nav aria-label="Ruta" className="migas">
-        <Link to="/">Inicio</Link>
+        {esCiudadana(pathname) ? <Link to="/">Inicio</Link> : <Link to="/tecnico">OTEA Técnico</Link>}
         {u && u.grupo.modulos.length > 1 && (
           <>
             <span aria-hidden="true">/</span>
@@ -267,6 +268,10 @@ const RELACIONES: Record<string, { ruta: string; icono: string; nombre: string; 
   identidad: { ruta: "/identidad", icono: "paleta", nombre: "Manual de identidad", texto: "Colores, letras, voz y reglas del sitio" },
   barrio: { ruta: "/barrios", icono: "personas", nombre: "Mi barrio", texto: "Todo lo que se sabe de un barrio, en una ficha" },
   lideres: { ruta: "/lideres", icono: "estrella", nombre: "Kit para líderes", texto: "Cartas, plazos y a quién acudir" },
+  "hist-mayores": { ruta: "/historias/movilidad-mayores", icono: "personas", nombre: "Versión para vecinos", texto: "Esta cifra contada en sencillo: personas mayores y el Metro" },
+  "hist-basuras": { ruta: "/historias/basuras", icono: "residuos", nombre: "Versión para vecinos", texto: "Las toneladas de residuos contadas en sencillo" },
+  "hist-huecos": { ruta: "/historias/huecos", icono: "alerta", nombre: "Versión para vecinos", texto: "Los huecos reportados contados en sencillo" },
+  "hist-espacio": { ruta: "/historias/espacio-publico", icono: "indicadores", nombre: "Versión para vecinos", texto: "El espacio público por persona contado en sencillo" },
   participacion: { ruta: "/participacion", icono: "participacion", nombre: "Participación", texto: "Reportar un problema en tu cuadra" },
 };
 

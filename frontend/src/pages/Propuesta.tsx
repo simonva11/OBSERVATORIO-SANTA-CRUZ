@@ -12,6 +12,7 @@ const Chip = ({ e }: { e: Estado }) => <span className={`clase ${CLASE[e]}`}>{e}
 
 /** Lo que OTEA hace hoy y lo que viene, sin mezclar. */
 const CAPACIDADES: { que: string; detalle: string; estado: Estado; to?: string }[] = [
+  { que: "Vista ciudadana «Así vivimos Santa Cruz»", detalle: "Cuatro historias con cifras en lenguaje sencillo, mapa simple y compartir por WhatsApp. Las fotos reales de Santa Cruz aún no están: mientras tanto se muestran ilustraciones con datos, rotuladas como tales.", estado: "Prototipo", to: "/" },
   { que: "Mapa con las capas del territorio", detalle: "Más de 40 capas oficiales de movilidad, servicios, POT, riesgo y seguridad, con ficha de cada elemento.", estado: "Funciona hoy", to: "/mapa" },
   { que: "Ficha por barrio", detalle: "Síntesis, índice de entorno, comparación con la comuna y con otro barrio, imprimible.", estado: "Funciona hoy", to: "/barrios" },
   { que: "Minutos caminando por la red real", detalle: "Calles, andenes, escaleras y puentes con la pendiente de la ladera, para cada manzana.", estado: "Funciona hoy", to: "/accesibilidad" },
@@ -75,6 +76,33 @@ function Contenido({ ind }: { ind: Indicadores }) {
         <BotonCabecera to="/mapa">Explorar el mapa</BotonCabecera>
         <a href="#t-p-implementar" className="boton boton-2" onClick={(e) => { e.preventDefault(); document.getElementById("t-p-implementar")?.scrollIntoView({ behavior: "smooth" }); }}>Cómo implementarlo</a>
       </Cabecera>
+
+      <Seccion id="t-p-dos" pregunta="¿Cómo está organizado?" titulo="Una plataforma, dos experiencias" texto="Los mismos datos y las mismas fuentes, contados de dos maneras según quién los mira. Ninguna cifra cambia de una experiencia a la otra.">
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-2xl border border-nivel bg-superficie p-6">
+            <p className="mono text-[0.72rem] uppercase tracking-[0.06em] text-marca">OTEA Ciudadano · Mi barrio, mi voz</p>
+            <h3 className="fuente-titulo mt-2 text-xl font-bold">Para vecinos</h3>
+            <p className="mt-2 text-tinta-suave">Cuatro problemas que se viven a diario, explicados con palabras de todos los días, un mapa simple y una forma fácil de compartirlos. Cada historia lleva a su análisis técnico.</p>
+            <Link to="/" className="siguiente-a mt-3">Abrir la vista ciudadana →</Link>
+          </div>
+          <div className="rounded-2xl border border-nivel bg-superficie p-6">
+            <p className="mono text-[0.72rem] uppercase tracking-[0.06em] text-marca">OTEA Técnico · Analizar el territorio</p>
+            <h3 className="fuente-titulo mt-2 text-xl font-bold">Para JAC, JAL, entidades y analistas</h3>
+            <p className="mt-2 text-tinta-suave">Todos los módulos: mapa con más de 40 capas, indicadores, prioridad de obras, fuentes con su ficha y herramientas para preparar solicitudes.</p>
+            <Link to="/tecnico" className="siguiente-a mt-3">Abrir OTEA Técnico →</Link>
+          </div>
+        </div>
+        <h3 className="fuente-titulo mt-8 text-lg font-bold">Qué le ofrece a cada quien</h3>
+        <p className="text-sm text-tinta-suave">Son hipótesis de valor por validar con entrevistas; no hay precios, contratos ni clientes.</p>
+        <ul className="mt-3 grid gap-x-8 gap-y-4 md:grid-cols-2 xl:grid-cols-4">
+          {[
+            ["A la comunidad", "Entender qué pasa en su barrio sin leer informes técnicos, y tener una cifra clara para conversar con los vecinos."],
+            ["A líderes comunales", "Cifras con su fuente y una carta de derecho de petición para llevar a la JAC, la JAL o la Alcaldía."],
+            ["A analistas y administradores", "Datos cruzados, métodos escritos y descargas para trabajar sin repetir el trabajo de reunir y limpiar."],
+            ["A entidades y compradores", "Una lectura del territorio con trazabilidad: qué se sabe, de dónde sale y qué falta validar, antes de decidir una inversión."],
+          ].map(([t, x]) => <li key={t} className="border-t-2 border-tinta pt-3"><p className="font-semibold">{t}</p><p className="mt-1 text-sm text-tinta-suave">{x}</p></li>)}
+        </ul>
+      </Seccion>
 
       <Seccion id="t-p-problema" pregunta="¿Qué problema hay?" titulo="Lo que muestran los datos de Santa Cruz" texto="Seis problemas que ya se pueden medir con datos públicos. Las cifras salen de los mismos datos que usa el resto del sitio.">
         <div className="grid gap-x-8 gap-y-5 md:grid-cols-2 xl:grid-cols-3">

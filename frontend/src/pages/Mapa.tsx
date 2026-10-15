@@ -429,6 +429,7 @@ export default function Mapa() {
 
   return (
     <div className="relative flex h-full bg-papel">
+      <h1 className="sr-only">Mapa territorial de Santa Cruz</h1>
       <div className={`relative min-w-0 flex-1 ${noche ? "mapa-noche" : ""}`}>
         <MapaVivo
           modo={modo}

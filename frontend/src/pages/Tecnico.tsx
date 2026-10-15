@@ -194,7 +194,7 @@ const PARA_QUIEN = [
   },
 ];
 
-export default function Inicio() {
+export default function Tecnico() {
   const ind = useDatos<Indicadores>("indicadores.json");
   const d = ind.estado === "listo" ? ind.datos : null;
   const r = useResumen();
@@ -220,7 +220,7 @@ export default function Inicio() {
       {/* ---------------------------------------------------------------- portada */}
       <section className="grid items-center gap-10 pb-12 pt-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:pt-12">
         <div className="min-w-0">
-          <p className="mono text-[0.75rem] uppercase tracking-[0.07em] text-marca">Observatorio territorial · Comuna 2 Santa Cruz, Medellín</p>
+          <p className="mono text-[0.75rem] uppercase tracking-[0.07em] text-marca">OTEA Técnico · para JAC, JAL, entidades y analistas · Comuna 2 Santa Cruz</p>
           <h1 className="fuente-titulo mt-5 text-[clamp(2.5rem,5.4vw,4.4rem)] font-extrabold leading-[0.98] tracking-[-0.035em] [text-wrap:balance]">
             Los datos de la comuna, por fin en un solo lugar.
           </h1>
@@ -234,6 +234,9 @@ export default function Inicio() {
             </Link>
             <Link to="/propuesta" className="boton boton-2 !px-6 !py-3 !text-base">Qué hace OTEA</Link>
           </div>
+          <p className="mt-5 max-w-md rounded-xl bg-papel-hondo px-4 py-3 text-[0.95rem] text-tinta-suave">
+            ¿Buscas la versión para vecinos, con los problemas explicados en sencillo? <Link to="/" className="font-semibold text-marca underline">Ir a la vista ciudadana</Link>.
+          </p>
           <form
             className="mt-8 max-w-md"
             onSubmit={(e) => e.preventDefault()}

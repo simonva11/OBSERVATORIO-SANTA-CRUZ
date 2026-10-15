@@ -3,7 +3,8 @@ import { HashRouter, Link, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import { Cargando } from "./components/Estado";
 import AvisosPWA from "./components/AvisosPWA";
-import Inicio from "./pages/Inicio";
+import Ciudadano from "./pages/Ciudadano";
+import Tecnico from "./pages/Tecnico";
 
 // Las páginas pesadas (mapa y gráficas) se cargan solo cuando se visitan.
 const Mapa = lazy(() => import("./pages/Mapa"));
@@ -24,6 +25,8 @@ const Lideres = lazy(() => import("./pages/Lideres"));
 const Riesgo = lazy(() => import("./pages/Riesgo"));
 const Reclamos = lazy(() => import("./pages/Reclamos"));
 const Residuos = lazy(() => import("./pages/Residuos"));
+const Historias = lazy(() => import("./pages/Historias"));
+const Historia = lazy(() => import("./pages/Historia"));
 
 function NoEncontrada() {
   return (
@@ -49,7 +52,10 @@ export default function App() {
       <Layout>
         <Suspense fallback={<Cargando texto="Cargando módulo" />}>
           <Routes>
-            <Route path="/" element={<Inicio />} />
+            <Route path="/" element={<Ciudadano />} />
+            <Route path="/historias" element={<Historias />} />
+            <Route path="/historias/:id" element={<Historia />} />
+            <Route path="/tecnico" element={<Tecnico />} />
             <Route path="/mapa" element={<Mapa />} />
             <Route path="/indicadores" element={<Indicadores />} />
             <Route path="/accesibilidad" element={<Accesibilidad />} />

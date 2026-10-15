@@ -3,6 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import IconoNav from "./IconosNav";
 import Paleta from "./Paleta";
 import { acentoDeRuta } from "../lib/marca";
+import { esCiudadana, esHistoria, NAV_CIUDADANA } from "../lib/experiencia";
 import { GRUPOS, grupoDeRuta, type ModuloMenu } from "../lib/menu";
 
 export function Logo({ className = "" }: { className?: string }) {
@@ -241,6 +242,17 @@ function LetraTamano({ nivel, onNivel, variante }: { nivel: number; onNivel: (n:
   );
 }
 
+/** A− y A+ siempre a la vista en la cabecera ciudadana: muchas personas necesitan letra más grande. */
+function LetraCompacta({ nivel, onNivel }: { nivel: number; onNivel: (n: number) => void }) {
+  const base = "grid h-10 w-10 place-items-center rounded-lg border border-nivel bg-superficie font-bold transition hover:bg-menta disabled:opacity-35 disabled:hover:bg-superficie";
+  return (
+    <div role="group" aria-label="Tamaño de la letra" className="flex items-center gap-1">
+      <button type="button" aria-label="Hacer la letra más pequeña" title="Letra más pequeña" disabled={nivel === 0} onClick={() => onNivel(nivel - 1)} className={`${base} text-sm`}><span aria-hidden="true">A−</span></button>
+      <button type="button" aria-label="Hacer la letra más grande" title="Letra más grande" disabled={nivel === NIVELES.length - 1} onClick={() => onNivel(nivel + 1)} className={`${base} text-lg`}><span aria-hidden="true">A+</span></button>
+    </div>
+  );
+}
+
 /** Índice de la página: chips con las secciones (se leen del propio contenido) para saltar de una a otra. */
 function IndicePagina({ raiz }: { raiz: React.RefObject<HTMLElement> }) {
   const { pathname } = useLocation();
@@ -269,7 +281,7 @@ function IndicePagina({ raiz }: { raiz: React.RefObject<HTMLElement> }) {
     items.forEach((i) => { const el = document.getElementById(i.id); if (el) io.observe(el); });
     return () => io.disconnect();
   }, [items, raiz]);
-  if (items.length < 3 || pathname === "/") return null;
+  if (items.length < 3 || esHistoria(pathname) || pathname === "/tecnico") return null;
   return (
     <nav aria-label="En esta página" className="barra-sup sticky top-0 z-20">
       <ul className="mx-auto flex max-w-[112rem] items-center gap-1.5 overflow-x-auto px-4 py-1.5 lg:px-8 2xl:px-12 [scrollbar-width:none]">
@@ -374,6 +386,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", f);
   }, []);
   const esMapa = pathname === "/mapa";
+  const ciu = esCiudadana(pathname);
   const principal = useRef<HTMLElement>(null);
   const barra = useRef<HTMLDivElement>(null);
   const alDesplazar = () => {
@@ -390,41 +403,64 @@ export default function Layout({ children }: { children: ReactNode }) {
         Saltar al contenido
       </a>
 
-      {/* Barra superior: en computador lleva los módulos agrupados en desplegables; en celular, un botón de menú */}
+      {/* Barra superior. Vista ciudadana: tres enlaces claros y letra grande a un toque. Vista técnica: módulos agrupados. */}
       <header data-cromo="cabecera" className="barra-sup relative z-[1100] flex items-center gap-3 px-4 py-2.5 lg:px-6">
         <NavLink to="/" className="flex shrink-0 items-center gap-2.5" aria-label="OTEA, ir al inicio">
           <Logo className="h-8 w-8" />
-          <p className="leading-none"><span className="fuente-titulo text-[1.15rem] font-extrabold tracking-[0.04em]">OTEA</span><span className="mono hidden pl-2 text-[0.7rem] uppercase tracking-[0.06em] text-tinta-tenue 2xl:inline">Santa Cruz · Comuna 2</span></p>
+          <p className="leading-none"><span className="fuente-titulo text-[1.15rem] font-extrabold tracking-[0.04em]">OTEA</span>{ciu ? <span className="hidden pl-2 text-[0.82rem] font-medium text-tinta-suave sm:inline">Santa Cruz</span> : <span className="mono hidden pl-2 text-[0.7rem] uppercase tracking-[0.06em] text-tinta-tenue 2xl:inline">Técnico · Comuna 2</span>}</p>
         </NavLink>
-        <BarraModulos />
+        {ciu ? (
+          <nav aria-label="Principal" className="ml-3 hidden items-center gap-1 md:flex">
+            {NAV_CIUDADANA.map((n) => (
+              <NavLink key={n.ruta} to={n.ruta} className={({ isActive }) => `rounded-lg px-3 py-2 text-[1rem] transition-colors ${isActive ? "bg-tinta font-semibold text-papel" : "font-medium text-tinta hover:bg-papel-hondo"}`}>{n.texto}</NavLink>
+            ))}
+          </nav>
+        ) : (
+          <BarraModulos />
+        )}
         <div className="ml-auto flex items-center gap-1.5">
-          <button type="button" onClick={() => setBuscar(true)} title="Buscar (Ctrl + K)" aria-label="Buscar un módulo o barrio"
-            className="hidden items-center gap-2 whitespace-nowrap rounded-lg border border-nivel bg-superficie px-3 py-1.5 text-sm text-tinta-suave transition hover:border-tinta/60 hover:text-tinta xl:flex">
+          <button type="button" onClick={() => setBuscar(true)} title="Buscar (Ctrl + K)" aria-label="Buscar un tema o barrio"
+            className={`${ciu ? "flex" : "hidden xl:flex"} items-center gap-2 whitespace-nowrap rounded-lg border border-nivel bg-superficie px-3 py-1.5 text-sm text-tinta-suave transition hover:border-tinta/60 hover:text-tinta ${ciu ? "h-10" : ""}`}>
             <IconoNav nombre="lupa" className="h-4 w-4" trazo={2} />
-            <span className="hidden 2xl:inline">Buscar barrio, tema o módulo</span>
-            <kbd className="mono hidden rounded border border-nivel px-1.5 py-0.5 text-[0.66rem] 2xl:inline">Ctrl K</kbd>
+            <span className={ciu ? "hidden lg:inline" : "hidden 2xl:inline"}>Buscar barrio o tema</span>
+            {!ciu && <kbd className="mono hidden rounded border border-nivel px-1.5 py-0.5 text-[0.66rem] 2xl:inline">Ctrl K</kbd>}
           </button>
+          {ciu && <div className="hidden sm:block"><LetraCompacta nivel={nivel} onNivel={setNivel} /></div>}
           <button type="button" onClick={() => setNoche((v) => !v)} aria-pressed={noche} title={noche ? "Modo día" : "Modo noche"} aria-label={noche ? "Cambiar a modo día" : "Cambiar a modo noche"}
-            className="hidden h-9 w-9 place-items-center rounded-lg text-tinta-suave transition hover:bg-papel-hondo hover:text-tinta xl:grid">
+            className={`${ciu ? "hidden h-10 w-10 md:grid" : "hidden h-9 w-9 xl:grid"} place-items-center rounded-lg text-tinta-suave transition hover:bg-papel-hondo hover:text-tinta`}>
             <IconoNav nombre={noche ? "sol" : "luna"} className="h-5 w-5" trazo={2} />
           </button>
-          <div className="hidden whitespace-nowrap 2xl:block [&_button]:!h-8 [&_button]:!w-8 [&_div]:!py-0 [&_div]:!px-1 [&_span.font-semibold]:hidden"><LetraTamano nivel={nivel} onNivel={setNivel} variante="barra" /></div>
-          <button type="button" onClick={() => setBuscar(true)} aria-label="Buscar" className="grid h-9 w-9 place-items-center rounded-lg border border-nivel bg-superficie xl:hidden">
-            <IconoNav nombre="lupa" className="h-4 w-4" trazo={2} />
-          </button>
+          {!ciu && <div className="hidden whitespace-nowrap 2xl:block [&_button]:!h-8 [&_button]:!w-8 [&_div]:!py-0 [&_div]:!px-1 [&_span.font-semibold]:hidden"><LetraTamano nivel={nivel} onNivel={setNivel} variante="barra" /></div>}
+          {ciu ? (
+            <NavLink to="/tecnico" className="hidden whitespace-nowrap rounded-lg border border-nivel px-3 py-2 text-[0.82rem] font-medium text-tinta-suave transition hover:border-tinta/60 hover:text-tinta md:inline-block" title="Cifras, métodos y fuentes para JAC, JAL, entidades y analistas">OTEA Técnico</NavLink>
+          ) : (
+            <NavLink to="/" className="hidden whitespace-nowrap rounded-lg bg-tinta px-3 py-2 text-[0.85rem] font-semibold text-papel transition hover:opacity-90 xl:inline-block">Vista ciudadana</NavLink>
+          )}
           <button
             type="button"
             onClick={() => setMenuAbierto((v) => !v)}
             aria-expanded={menuAbierto}
             aria-controls="menu-movil"
-            className="rounded-lg border border-nivel bg-superficie px-3 py-1.5 text-sm font-semibold xl:hidden"
+            className={`${ciu ? "h-10 md:hidden" : "xl:hidden"} rounded-lg border border-nivel bg-superficie px-3 py-1.5 text-sm font-semibold`}
           >
             {menuAbierto ? "Cerrar" : "Menú"}
           </button>
         </div>
         {menuAbierto && (
-          <div id="menu-movil" className="absolute inset-x-0 top-full max-h-[85dvh] overflow-y-auto border-b border-nivel bg-papel p-3 shadow-[0_18px_40px_-16px_rgb(16_23_41/0.35)] xl:hidden">
-            <Navegacion onNavegar={() => setMenuAbierto(false)} />
+          <div id="menu-movil" className={`absolute inset-x-0 top-full max-h-[85dvh] overflow-y-auto border-b border-nivel bg-papel p-3 shadow-[0_18px_40px_-16px_rgb(16_23_41/0.35)] ${ciu ? "md:hidden" : "xl:hidden"}`}>
+            {ciu ? (
+              <nav aria-label="Principal" className="flex flex-col gap-1">
+                {[{ ruta: "/", texto: "Inicio" }, ...NAV_CIUDADANA].map((n) => (
+                  <NavLink key={n.ruta} to={n.ruta} end={n.ruta === "/"} onClick={() => setMenuAbierto(false)} className={({ isActive }) => `rounded-xl px-4 py-3 text-[1.05rem] ${isActive ? "bg-tinta font-semibold text-papel" : "font-medium hover:bg-papel-hondo"}`}>{n.texto}</NavLink>
+                ))}
+                <NavLink to="/tecnico" onClick={() => setMenuAbierto(false)} className="mt-1 rounded-xl border border-nivel px-4 py-3 text-[0.95rem] text-tinta-suave">OTEA Técnico <span className="block text-[0.8rem]">Cifras, métodos y fuentes para JAC, JAL, entidades y analistas</span></NavLink>
+              </nav>
+            ) : (
+              <>
+                <NavLink to="/" onClick={() => setMenuAbierto(false)} className="mb-2 block rounded-xl bg-tinta px-4 py-3 text-center font-semibold text-papel">Vista ciudadana</NavLink>
+                <Navegacion onNavegar={() => setMenuAbierto(false)} />
+              </>
+            )}
             <div className="mt-3 space-y-2">
               <BotonTema noche={noche} onCambiar={() => setNoche((v) => !v)} />
               <LetraTamano nivel={nivel} onNivel={setNivel} variante="barra" />

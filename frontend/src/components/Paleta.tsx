@@ -4,6 +4,7 @@ import { cargar } from "../lib/datos";
 import type { Indicadores } from "../lib/tipos";
 import IconoNav from "./IconosNav";
 import { GRUPOS } from "../lib/menu";
+import { HISTORIAS } from "../lib/ciudadano";
 
 type Opcion = { id: string; nombre: string; detalle: string; icono: string; ruta: string; grupo?: string };
 
@@ -12,11 +13,18 @@ const ATAJOS: Opcion[] = [
   { id: "m-49", nombre: "Mapa: eje de la Carrera 49", detalle: "Atajo a la capa del eje", icono: "mapa", ruta: "/mapa?capas=eje49", grupo: "Territorio" },
 ];
 
+/** Vista ciudadana: la portada y las cuatro historias, primero porque es lo que busca la mayoría. */
+const CIUDADANAS: Opcion[] = [
+  { id: "/", nombre: "Así vivimos Santa Cruz (vista ciudadana)", detalle: "La portada para vecinos", icono: "inicio", ruta: "/", grupo: "Para vecinos" },
+  ...HISTORIAS.map((h) => ({ id: `h-${h.id}`, nombre: h.titulo, detalle: h.pregunta, icono: "alerta", ruta: `/historias/${h.id}`, grupo: "Para vecinos" })),
+];
+
 /** Los módulos salen del menú, en el mismo orden y con las mismas categorías. Los atajos van con el Mapa. */
 const FIJAS: Opcion[] = GRUPOS.flatMap((g) => {
   const ops: Opcion[] = g.modulos.map((m) => ({ id: m.ruta, nombre: m.nombre, detalle: m.detalle, icono: m.icono, ruta: m.ruta, grupo: g.titulo }));
   return g.id === "territorio" ? [ops[0], ...ATAJOS, ...ops.slice(1)] : ops;
 });
+const TODAS_FIJAS = [...CIUDADANAS, ...FIJAS];
 
 /** Conceptos que la gente busca por su nombre: llevan a la página donde se explican con datos. */
 const CONCEPTOS: Opcion[] = [
@@ -32,6 +40,10 @@ const CONCEPTOS: Opcion[] = [
   ["Andenes angostos", "Tramos de andén de menos de 1,2 m", "accesibilidad", "/accesibilidad"],
   ["Siniestros viales", "Choques y atropellos registrados en la comuna", "corredor", "/corredor-49"],
   ["Calidad de vida (IMCV)", "Índice de la Encuesta de Calidad de Vida por año", "indicadores", "/indicadores"],
+  ["Personas mayores y el Metro", "Cuántas personas de 60 años o más viven lejos de una estación", "accesibilidad", "/historias/movilidad-mayores"],
+  ["Basuras en el barrio", "Cuántas toneladas de residuos se estima que genera cada barrio", "residuos", "/historias/basuras"],
+  ["Huecos en las calles", "Qué se ha reportado y qué tan rápido se arregla", "alerta", "/historias/huecos"],
+  ["Parques y espacio público", "Cuánto espacio le toca a cada persona", "indicadores", "/historias/espacio-publico"],
   ["Licencia de los datos", "Condiciones de uso de cada fuente", "fuentes", "/fuentes"],
 ].map(([n, d, i, r]) => ({ id: `c-${n}`, nombre: n, detalle: d, icono: i, ruta: r, grupo: "Conceptos" }));
 
@@ -57,9 +69,9 @@ export default function Paleta({ abierta, onCerrar }: { abierta: boolean; onCerr
 
   const lista = useMemo(() => {
     const t = sin(q.trim());
-    const todas = [...FIJAS, ...barrios, ...CONCEPTOS];
+    const todas = [...TODAS_FIJAS, ...barrios, ...CONCEPTOS];
     // Sin texto se ve el menú completo, agrupado; al escribir, los resultados quedan agrupados igual.
-    return t ? todas.filter((o) => sin(`${o.nombre} ${o.detalle} ${o.grupo ?? ""}`).includes(t)) : FIJAS;
+    return t ? todas.filter((o) => sin(`${o.nombre} ${o.detalle} ${o.grupo ?? ""}`).includes(t)) : TODAS_FIJAS;
   }, [q, barrios]);
 
   if (!abierta) return null;

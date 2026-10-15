@@ -280,7 +280,7 @@ export default function Residuos() {
         pregunta="¿Cuánto residuo genera cada barrio, qué explica la diferencia y qué falta saber?"
       />
       <ConDatos estado={res}>{(r) => <Contenido r={r} pob={pob} />}</ConDatos>
-      <Relacionados ids={["indicadores", "riesgo", "fuentes"]} />
+      <Relacionados ids={["hist-basuras", "indicadores", "fuentes"]} />
     </div>
   );
 }

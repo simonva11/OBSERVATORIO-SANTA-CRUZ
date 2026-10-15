@@ -244,6 +244,22 @@ export default function Identidad() {
         </ul>
       </Seccion>
 
+      <Seccion id="t-i-ciu" titulo="Vista ciudadana" pregunta="¿Cómo se arma «Así vivimos Santa Cruz»?" texto="Misma paleta y tipografías; más letra, más aire y una imagen por tema. Cada tema tiene su color, que se repite en la etiqueta, la cifra y el mapa.">
+        <div className="grid gap-x-10 gap-y-6 md:grid-cols-2">
+          {[
+            ["Tarjeta de problema", "Imagen, número y título del tema, frase que lo resume y la cifra principal con su unidad en palabras."],
+            ["Cifra con equivalencia", "Un número grande y debajo qué significa: «unas 8 de cada 10», «una botella de agua». Solo equivalencias que se pueden verificar."],
+            ["Mapa ciudadano", "Un tema a la vez, un solo color en cinco tonos, leyenda con palabras, ficha corta del barrio elegido y la lista de barrios como alternativa al color."],
+            ["Compartir", "Mensaje corto con cifra, fuente y enlace, visible antes de enviarlo. Aclara que compartir no es presentar una solicitud."],
+            ["Imagen del tema", "Si existe una foto real en src/assets/fotos/ con el nombre del tema, se usa con su pie de foto. Si no, aparece una ilustración con datos rotulada como ilustración."],
+            ["Lo que todavía no sabemos", "Cada historia termina sus datos diciendo qué no se puede concluir. La fuente queda a un toque, sin ocupar la pantalla."],
+          ].map(([t, x]) => (
+            <div key={t} className="border-t border-nivel pt-3"><h3 className="font-semibold">{t}</h3><p className="mt-1 text-sm text-tinta-suave">{x}</p></div>
+          ))}
+        </div>
+        <p className="mt-4 text-sm text-tinta-suave">Las fotos deben ser de Santa Cruz, sin rostros identificables, placas ni direcciones. La guía con los nombres de archivo está en <code className="mono">frontend/src/assets/fotos/LEEME.md</code>.</p>
+      </Seccion>
+
       <Seccion id="t-i-acc" titulo="Accesibilidad y confianza" pregunta="¿Qué se cumple siempre?">
         <div className="grid gap-x-10 gap-y-6 md:grid-cols-2">
           {[

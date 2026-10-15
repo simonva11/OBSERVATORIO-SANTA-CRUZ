@@ -212,7 +212,7 @@ function Contenido({ r, puntos }: { r: Reclamos; puntos: PuntoHueco[] }) {
         </ul>
       </Seccion>
       <Aviso tono="info" titulo="¿Ves un hueco que no está?">Lo más efectivo es reportarlo en ReportesMED, la aplicación de la Alcaldía. Si lleva mucho tiempo sin respuesta, el Kit para líderes tiene una carta de derecho de petición.</Aviso>
-      <Relacionados ids={["lideres", "mapa", "prioridades"]} />
+      <Relacionados ids={["hist-huecos", "lideres", "mapa"]} />
     </div>
   );
 }

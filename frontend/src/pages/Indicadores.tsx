@@ -322,7 +322,7 @@ function Contenido({ d }: { d: Ind }) {
         </ul>
         </div>
       </section>
-      <Relacionados ids={["problematicas", "accesibilidad", "prioridades"]} />
+      <Relacionados ids={["hist-espacio", "accesibilidad", "prioridades"]} />
     </div>
   );
 }

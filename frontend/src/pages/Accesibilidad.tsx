@@ -297,7 +297,7 @@ function Contenido({ d }: { d: Indicadores }) {
       </div>
       </Seccion>
 
-      <Relacionados ids={["corredor", "prioridades", "problematicas"]} />
+      <Relacionados ids={["hist-mayores", "corredor", "prioridades"]} />
     </div>
   );
 }
