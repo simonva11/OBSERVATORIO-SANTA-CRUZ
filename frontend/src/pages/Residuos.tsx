@@ -83,6 +83,9 @@ function Contenido({ r, pob }: { r: Residuos; pob: Record<string, number> }) {
   const menor = [...filas].sort((a, b) => a.t - b.t)[0];
   const maxKg = [...filas].filter((f) => f.kg != null).sort((a, b) => (b.kg ?? 0) - (a.kg ?? 0))[0];
   const tMax = mayor.t;
+  const kgs = filas.map((x) => x.kg).filter((v): v is number => v != null);
+  const minKg = Math.min(...kgs);
+  const maxKgNum = Math.max(...kgs);
   const f = filas.find((x) => x.nombre === sel) ?? null;
 
   return (
@@ -175,6 +178,35 @@ function Contenido({ r, pob }: { r: Residuos; pob: Record<string, number> }) {
             </tbody>
           </table>
         </div>
+      </Seccion>
+
+      <Seccion id="r-por-que" titulo="¿Por qué cambian las toneladas de un barrio a otro?" texto="Antes de sacar conclusiones, esto es lo que dicen y lo que no dicen estos datos.">
+        <div className="grid gap-4 lg:grid-cols-3">
+          <div className="rounded-3xl bg-superficie p-6">
+            <p className="fuente-titulo text-xl font-bold">Sobre todo, por el tamaño</p>
+            <p className="mt-2 text-tinta-suave">
+              La cifra de cada barrio sale de contar cuántas viviendas y locales atiende el servicio de aseo y multiplicar por lo que pesa en promedio cada uno en su ruta.
+              Por eso los barrios con más gente (como {mayor.nombre}) salen con más toneladas.
+              Por persona la diferencia se achica: va de {num(Math.round(minKg))} a {num(Math.round(maxKgNum))} kg al mes, una brecha pequeña que puede venir del método y no de que un barrio genere más de verdad.
+            </p>
+          </div>
+          <div className="rounded-3xl bg-superficie p-6">
+            <p className="fuente-titulo text-xl font-bold">No sabemos de qué es la basura</p>
+            <p className="mt-2 text-tinta-suave">
+              Los pesajes solo registran el peso total. No dicen si es orgánico, reciclable, escombros o residuo de comercio, ni separan lo que sale de viviendas de lo que sale de locales.
+            </p>
+          </div>
+          <div className="rounded-3xl bg-superficie p-6">
+            <p className="fuente-titulo text-xl font-bold">No podemos señalar zonas de sobreproducción</p>
+            <p className="mt-2 text-tinta-suave">
+              Para decir dónde hay que intervenir faltan tres datos: el peso medido por barrio (hoy es una estimación), la categoría del residuo y si es residencial o comercial.
+              Lo que sí se ve en otra página es dónde la gente reporta basuras o escombros en las quebradas, ver <a href="#/riesgo" className="font-semibold text-marca underline">Riesgo</a>.
+            </p>
+          </div>
+        </div>
+        <p className="mt-4 max-w-3xl text-tinta-suave">
+          <strong className="text-tinta">Qué pediríamos a Emvarias:</strong> toneladas medidas por barrio, desagregadas por tipo de residuo y por uso (vivienda o comercio). Con eso sí se podría hablar de dónde tratar primero.
+        </p>
       </Seccion>
 
       <Seccion id="r-metodo" titulo="Nota de método">
