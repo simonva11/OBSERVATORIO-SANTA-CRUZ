@@ -204,9 +204,38 @@ function Contenido({ r, pob }: { r: Residuos; pob: Record<string, number> }) {
             </p>
           </div>
         </div>
-        <p className="mt-4 max-w-3xl text-tinta-suave">
-          <strong className="text-tinta">Qué pediríamos a Emvarias:</strong> toneladas medidas por barrio, desagregadas por tipo de residuo y por uso (vivienda o comercio). Con eso sí se podría hablar de dónde tratar primero.
-        </p>
+      </Seccion>
+
+      <Seccion id="r-pedimos" titulo="Lo que necesitamos de Emvarias" texto="Con estos datos dejaríamos de estimar y podríamos proponer mejoras reales en la recolección.">
+        <div className="rounded-[2rem] bg-[#0A1A3F] p-8 text-white lg:p-10">
+          <div className="grid gap-8 lg:grid-cols-[1fr_1.4fr]">
+            <div>
+              <p className="fuente-titulo text-3xl font-extrabold leading-tight tracking-tight lg:text-4xl">Menos tanteo, más datos reales.</p>
+              <p className="mt-4 text-lg text-[#B7CBF2]">
+                Hoy solo podemos mostrar toneladas estimadas por barrio. Para optimizar las rutas y decidir dónde intervenir primero, en vez de probar a ciegas, necesitamos que Emvarias comparta y autorice lo siguiente.
+              </p>
+            </div>
+            <ol className="grid gap-3 sm:grid-cols-2">
+              {[
+                ["Autorización de uso", "Permiso por escrito para usar las rutas, recorridos, frecuencias y horarios, y qué se puede publicar."],
+                ["Toneladas medidas por barrio", "El peso real, no una estimación a partir de promedios."],
+                ["Tipo de residuo", "Orgánico, aprovechable, ordinario y escombros, por separado."],
+                ["Vivienda o comercio", "Para saber quién genera cada tonelada."],
+                ["Puntos de acumulación", "Sectores donde la basura se acumula de forma repetida y cada cuánto pasa el camión."],
+                ["Kilómetros y tiempos por ruta", "Para encontrar recorridos en vacío y ajustar frecuencias."],
+              ].map(([t, d], k) => (
+                <li key={t} className="rounded-2xl bg-[#12295C] p-5">
+                  <p className="text-sm font-bold text-[#7FB0FF]">{String(k + 1).padStart(2, "0")}</p>
+                  <p className="fuente-titulo mt-1 text-lg font-bold leading-snug">{t}</p>
+                  <p className="mt-1 text-sm text-[#A9BEE8]">{d}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <p className="mt-8 border-t border-[#2A427F] pt-5 text-[#A9BEE8]">
+            Nos comprometemos a no publicar direcciones, placas ni datos personales, a citar a Emvarias como fuente y a mostrarles el análisis antes de publicarlo.
+          </p>
+        </div>
       </Seccion>
 
       <Seccion id="r-metodo" titulo="Nota de método">
