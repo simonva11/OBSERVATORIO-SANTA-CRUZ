@@ -4,7 +4,7 @@ import { ConDatos } from "../components/Estado";
 import { useProyeccion } from "../lib/proyeccion";
 import { dec, num } from "../lib/formato";
 import type { Indicadores } from "../lib/tipos";
-import { Cabecera, Kpi, Relacionados, Seccion } from "../components/Pagina";
+import { Cabecera, Fuente, Kpi, Relacionados, Seccion } from "../components/Pagina";
 
 type Residuos = {
   generado: string;
@@ -20,8 +20,8 @@ const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCa
 /** Mezcla de azul claro a azul oscuro según qué tan alto es el valor dentro del rango. */
 function colorEscala(v: number, min: number, max: number) {
   const t = max > min ? (v - min) / (max - min) : 0.5;
-  const a = [219, 234, 254];
-  const b = [30, 58, 138];
+  const a = [214, 236, 235];
+  const b = [12, 58, 64];
   return `rgb(${a.map((x, i) => Math.round(x + (b[i] - x) * t)).join(",")})`;
 }
 
@@ -53,11 +53,19 @@ function MapaBarrios({ filas, sel, onSel }: { filas: Fila[]; sel: string | null;
               onClick={() => onSel(f ? (activo ? null : f.nombre) : null)}
               onKeyDown={(e) => e.key === "Enter" && f && onSel(activo ? null : f.nombre)}
             />
-            <text x={b.centro[0]} y={b.centro[1]} textAnchor="middle" fontSize="13" fontWeight="700" className="pointer-events-none" fill={f && (f.t - min) / (max - min || 1) > 0.45 ? "#fff" : "#0A1A3F"}>
+          </g>
+        );
+      })}
+      {/* Las etiquetas van después de todos los polígonos para que ningún barrio tape el nombre de otro. */}
+      {proy.items.map((b) => {
+        const f = por.get(norm(b.nombre));
+        return (
+          <g key={`t-${b.codigo}`}>
+            <text x={b.centro[0]} y={b.centro[1]} textAnchor="middle" fontSize="13" fontWeight="700" className="pointer-events-none" fill={f && (f.t - min) / (max - min || 1) > 0.45 ? "#fff" : "#101729"}>
               {b.nombre.replace("Playón de Los Comuneros", "Playón")}
             </text>
             {f && (
-              <text x={b.centro[0]} y={b.centro[1] + 16} textAnchor="middle" fontSize="12" className="pointer-events-none" fill={(f.t - min) / (max - min || 1) > 0.45 ? "#DCE8FF" : "#3A4D7A"}>
+              <text x={b.centro[0]} y={b.centro[1] + 16} textAnchor="middle" fontSize="12" className="pointer-events-none" fill={(f.t - min) / (max - min || 1) > 0.45 ? "#e3f1f2" : "#3e465a"}>
                 {num(Math.round(f.t))} t
               </text>
             )}
@@ -97,23 +105,23 @@ function Contenido({ r, pob }: { r: Residuos; pob: Record<string, number> }) {
         {maxKg && <Kpi valor={`${num(Math.round(maxKg.kg ?? 0))} kg`} texto="Más residuos por persona al mes" nota={maxKg.nombre} />}
       </div>
 
-      <Seccion id="r-mapa" titulo="Toneladas por barrio" texto="Cuanto más oscuro el azul, más toneladas al mes. Toca un barrio para ver su detalle.">
+      <Seccion id="r-mapa" pregunta="¿Cuánto genera cada barrio?" titulo="Toneladas por barrio" texto="Cuanto más oscuro el color, más toneladas al mes. Toca un barrio para ver su detalle. Son estimaciones mensuales, no pesajes por barrio." fuente={<Fuente ids={["residuos_toneladas_barrio"]} calculo="toneladas por barrio estimadas por OTEA" />}>
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
-          <div className="rounded-3xl bg-papel-hondo p-4">
+          <div className="rounded-xl bg-papel-hondo p-4">
             <MapaBarrios filas={filas} sel={sel} onSel={setSel} />
             <div className="mt-3 flex items-center gap-3 text-sm text-tinta-suave">
               <span>Menos</span>
-              <span className="h-3 flex-1 rounded-full" style={{ background: "linear-gradient(90deg, #dbeafe, #1e3a8a)" }} />
+              <span className="h-3 flex-1 rounded-full" style={{ background: "linear-gradient(90deg, #d6eceb, #0c3a40)" }} />
               <span>Más</span>
             </div>
           </div>
           <div className="space-y-4">
-            <div className="rounded-3xl bg-superficie p-6">
+            <div className="border-t-2 border-tinta pt-3">
               {f ? (
                 <>
                   <p className="text-sm font-bold uppercase tracking-wider text-marca">Barrio elegido</p>
                   <p className="fuente-titulo mt-1 text-3xl font-extrabold tracking-tight">{f.nombre}</p>
-                  <p className="mt-3 text-5xl font-extrabold tabular-nums text-acento fuente-titulo">{num(Math.round(f.t))} <span className="text-xl">t al mes</span></p>
+                  <p className="mt-3 text-5xl font-extrabold tabular-nums text-[#156a73] fuente-titulo">{num(Math.round(f.t))} <span className="text-xl">t al mes</span></p>
                   <p className="mt-3 text-tinta-suave">
                     Es el {dec(f.pct)} % de lo que se estima para toda la comuna
                     {f.kg != null && <> y equivale a unos {num(Math.round(f.kg))} kg por persona al mes ({num(f.personas ?? 0)} personas, Censo 2018)</>}.
@@ -126,12 +134,12 @@ function Contenido({ r, pob }: { r: Residuos; pob: Record<string, number> }) {
                 </>
               )}
             </div>
-            <div className="rounded-3xl bg-superficie p-6">
+            <div className="border-t-2 border-tinta pt-3">
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <p className="font-bold">Ranking de barrios</p>
                 <div className="flex gap-1.5 text-sm" role="group" aria-label="Ordenar por">
                   {([["t", "Toneladas"], ["kg", "Por persona"], ["nombre", "A–Z"]] as const).map(([k, t]) => (
-                    <button key={k} type="button" aria-pressed={orden === k} onClick={() => setOrden(k)} className={`rounded-full px-3 py-1 font-medium ${orden === k ? "bg-acento text-white" : "bg-papel-hondo text-tinta"}`}>{t}</button>
+                    <button key={k} type="button" aria-pressed={orden === k} onClick={() => setOrden(k)} className="chip !py-1 !text-sm">{t}</button>
                   ))}
                 </div>
               </div>
@@ -141,7 +149,7 @@ function Contenido({ r, pob }: { r: Residuos; pob: Record<string, number> }) {
                     <button type="button" onClick={() => setSel(sel === x.nombre ? null : x.nombre)} className={`grid w-full grid-cols-[8.5rem_1fr_4.5rem] items-center gap-3 rounded-xl px-2 py-1.5 text-left ${sel === x.nombre ? "bg-papel-hondo" : "hover:bg-papel-hondo/60"}`}>
                       <span className="truncate text-sm font-medium">{x.nombre}</span>
                       <span className="h-3 overflow-hidden rounded-full bg-papel-hondo">
-                        <span className="block h-full rounded-full bg-acento" style={{ width: `${(orden === "kg" && x.kg != null ? (x.kg / (maxKg?.kg ?? 1)) : x.t / tMax) * 100}%` }} />
+                        <span className="block h-full rounded-full bg-[#156a73]" style={{ width: `${(orden === "kg" && x.kg != null ? (x.kg / (maxKg?.kg ?? 1)) : x.t / tMax) * 100}%` }} />
                       </span>
                       <span className="text-right text-sm font-bold tabular-nums">{orden === "kg" && x.kg != null ? `${num(Math.round(x.kg))} kg` : `${num(Math.round(x.t))} t`}</span>
                     </button>
@@ -153,11 +161,11 @@ function Contenido({ r, pob }: { r: Residuos; pob: Record<string, number> }) {
         </div>
       </Seccion>
 
-      <Seccion id="r-tabla" titulo="Los números, barrio por barrio">
-        <div className="overflow-x-auto rounded-3xl bg-superficie p-2">
-          <table className="w-full min-w-[34rem] text-sm">
+      <Seccion id="r-tabla" pregunta="¿Las cifras exactas?" titulo="Los números, barrio por barrio" fuente={<Fuente ids={["residuos_toneladas_barrio", "manzanas_censo"]} calculo="kg por persona calculados por OTEA" />}>
+        <div className="overflow-x-auto">
+          <table className="tabla min-w-[34rem]">
             <thead>
-              <tr className="text-left text-tinta-tenue">
+              <tr>
                 <th className="p-3 font-semibold">Barrio</th>
                 <th className="p-3 text-right font-semibold">Toneladas al mes</th>
                 <th className="p-3 text-right font-semibold">% de la comuna</th>
@@ -167,7 +175,7 @@ function Contenido({ r, pob }: { r: Residuos; pob: Record<string, number> }) {
             </thead>
             <tbody>
               {ordenadas.map((x) => (
-                <tr key={x.nombre} className="border-t border-nivel/50">
+                <tr key={x.nombre}>
                   <td className="p-3 font-medium">{x.nombre}</td>
                   <td className="p-3 text-right tabular-nums">{dec(x.t)}</td>
                   <td className="p-3 text-right tabular-nums">{dec(x.pct)} %</td>
@@ -180,9 +188,9 @@ function Contenido({ r, pob }: { r: Residuos; pob: Record<string, number> }) {
         </div>
       </Seccion>
 
-      <Seccion id="r-por-que" titulo="¿Por qué cambian las toneladas de un barrio a otro?" texto="Antes de sacar conclusiones, esto es lo que dicen y lo que no dicen estos datos.">
+      <Seccion id="r-por-que" pregunta="¿Qué significa la diferencia?" titulo="¿Por qué cambian las toneladas de un barrio a otro?" texto="Antes de sacar conclusiones, esto es lo que dicen y lo que no dicen estos datos.">
         <div className="grid gap-4 lg:grid-cols-3">
-          <div className="rounded-3xl bg-superficie p-6">
+          <div className="border-t-2 border-tinta pt-3">
             <p className="fuente-titulo text-xl font-bold">Sobre todo, por el tamaño</p>
             <p className="mt-2 text-tinta-suave">
               La cifra de cada barrio sale de contar cuántas viviendas y locales atiende el servicio de aseo y multiplicar por lo que pesa en promedio cada uno en su ruta.
@@ -190,13 +198,13 @@ function Contenido({ r, pob }: { r: Residuos; pob: Record<string, number> }) {
               Por persona la diferencia se achica: va de {num(Math.round(minKg))} a {num(Math.round(maxKgNum))} kg al mes, una brecha pequeña que puede venir del método y no de que un barrio genere más de verdad.
             </p>
           </div>
-          <div className="rounded-3xl bg-superficie p-6">
+          <div className="border-t-2 border-tinta pt-3">
             <p className="fuente-titulo text-xl font-bold">No sabemos de qué es la basura</p>
             <p className="mt-2 text-tinta-suave">
               Los pesajes solo registran el peso total. No dicen si es orgánico, reciclable, escombros o residuo de comercio, ni separan lo que sale de viviendas de lo que sale de locales.
             </p>
           </div>
-          <div className="rounded-3xl bg-superficie p-6">
+          <div className="border-t-2 border-tinta pt-3">
             <p className="fuente-titulo text-xl font-bold">No podemos señalar zonas de sobreproducción</p>
             <p className="mt-2 text-tinta-suave">
               Para decir dónde hay que intervenir faltan tres datos: el peso medido por barrio (hoy es una estimación), la categoría del residuo y si es residencial o comercial.
@@ -206,12 +214,12 @@ function Contenido({ r, pob }: { r: Residuos; pob: Record<string, number> }) {
         </div>
       </Seccion>
 
-      <Seccion id="r-pedimos" titulo="Lo que necesitamos de Emvarias" texto="Con estos datos dejaríamos de estimar y podríamos proponer mejoras reales en la recolección.">
-        <div className="rounded-[2rem] bg-[#0A1A3F] p-8 text-white lg:p-10">
+      <Seccion id="r-pedimos" pregunta="¿Qué falta para decidir?" titulo="Lo que necesitamos de Emvarias" texto="Con estos datos dejaríamos de estimar y podríamos proponer mejoras reales en la recolección.">
+        <div className="rounded-2xl bg-[rgb(var(--noche))] p-8 text-[#E9ECF4] lg:p-10">
           <div className="grid gap-8 lg:grid-cols-[1fr_1.4fr]">
             <div>
               <p className="fuente-titulo text-3xl font-extrabold leading-tight tracking-tight lg:text-4xl">Menos tanteo, más datos reales.</p>
-              <p className="mt-4 text-lg text-[#B7CBF2]">
+              <p className="mt-4 text-lg text-[#C2CBE0]">
                 Hoy solo podemos mostrar toneladas estimadas por barrio. Para optimizar las rutas y decidir dónde intervenir primero, en vez de probar a ciegas, necesitamos que Emvarias comparta y autorice lo siguiente.
               </p>
             </div>
@@ -224,22 +232,22 @@ function Contenido({ r, pob }: { r: Residuos; pob: Record<string, number> }) {
                 ["Puntos de acumulación", "Sectores donde la basura se acumula de forma repetida y cada cuánto pasa el camión."],
                 ["Kilómetros y tiempos por ruta", "Para encontrar recorridos en vacío y ajustar frecuencias."],
               ].map(([t, d], k) => (
-                <li key={t} className="rounded-2xl bg-[#12295C] p-5">
-                  <p className="text-sm font-bold text-[#7FB0FF]">{String(k + 1).padStart(2, "0")}</p>
+                <li key={t} className="rounded-2xl bg-white/[0.06] p-5">
+                  <p className="text-sm font-bold text-[#9FB0D8]">{String(k + 1).padStart(2, "0")}</p>
                   <p className="fuente-titulo mt-1 text-lg font-bold leading-snug">{t}</p>
-                  <p className="mt-1 text-sm text-[#A9BEE8]">{d}</p>
+                  <p className="mt-1 text-sm text-[#B4BFD8]">{d}</p>
                 </li>
               ))}
             </ol>
           </div>
-          <p className="mt-8 border-t border-[#2A427F] pt-5 text-[#A9BEE8]">
+          <p className="mt-8 border-t border-white/15 pt-5 text-[#B4BFD8]">
             Nos comprometemos a no publicar direcciones, placas ni datos personales, a citar a Emvarias como fuente y a mostrarles el análisis antes de publicarlo.
           </p>
         </div>
       </Seccion>
 
-      <Seccion id="r-metodo" titulo="Nota de método">
-        <div className="max-w-3xl space-y-3 rounded-3xl bg-superficie p-6 text-tinta-suave">
+      <Seccion id="r-metodo" pregunta="¿Cómo se calculó?" titulo="Nota de método">
+        <div className="max-w-3xl space-y-3 text-tinta-suave">
           <p>
             Las toneladas son una <strong className="text-tinta">estimación mensual por barrio</strong> a partir de datos de Emvarias y EPM entre {r.periodo.desde} y {r.periodo.hasta} (unos {num(Math.round(r.periodo.meses))} meses).
             Por la forma de calcularlo, la suma de barrios ({num(Math.round(r.t_mes_comuna))} t) puede diferir un poco de otros totales.
@@ -268,7 +276,8 @@ export default function Residuos() {
         etiqueta="Servicios públicos · Aseo y residuos"
         titulo="Residuos por barrio"
         icono="residuos"
-        texto="Cuántas toneladas de residuos se estima que genera cada barrio de la Comuna 2 al mes, y cuánto pesa eso por persona."
+        texto="Cuántas toneladas de residuos se estima que genera cada barrio de la Comuna 2 al mes, y cuánto pesa eso por persona. Con los datos disponibles solo se publican toneladas agregadas por barrio."
+        pregunta="¿Cuánto residuo genera cada barrio, qué explica la diferencia y qué falta saber?"
       />
       <ConDatos estado={res}>{(r) => <Contenido r={r} pob={pob} />}</ConDatos>
       <Relacionados ids={["indicadores", "riesgo", "fuentes"]} />

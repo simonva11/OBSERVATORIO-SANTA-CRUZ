@@ -4,7 +4,7 @@ import { useDatos } from "../lib/datos";
 import { dec, num, pct } from "../lib/formato";
 import type { Indicadores } from "../lib/tipos";
 import { ConDatos } from "../components/Estado";
-import { BotonCabecera, Cabecera, Kpi, Relacionados, Seccion } from "../components/Pagina";
+import { Aviso, BotonCabecera, Cabecera, Fuente, Kpi, Relacionados, Seccion } from "../components/Pagina";
 import { Revelar } from "../components/Animacion";
 import MiniMapaBarrios from "../components/MiniMapaBarrios";
 
@@ -19,7 +19,7 @@ const cop = (v: number) => `$${Math.round(v).toLocaleString("es-CO")}`;
 const lista = <P,>(e: { estado: string; datos?: Capa<P> }): P[] => (e.estado === "listo" && e.datos ? e.datos.features.map((f) => f.properties) : []);
 
 // Una gama para los tratamientos del POT; el nombre completo va siempre en la leyenda, nunca solo el color.
-const GAMA = ["#3d2fa8", "#7a5be0", "#1d4fa0", "#16917f", "#b7791f", "#a8452b"];
+const GAMA = ["#5144a3", "#8f86d6", "#1d5aa8", "#156a73", "#c98a1b", "#a2472a"];
 
 function Contenido({ ind }: { ind: Indicadores }) {
   const ofertas = lista<Oferta>(useDatos("oferta_inmobiliaria.geojson")).filter((o) => o.en_comuna);
@@ -66,13 +66,14 @@ function Contenido({ ind }: { ind: Indicadores }) {
         etiqueta="Inmobiliario y norma"
         icono="cubo"
         titulo="Mercado inmobiliario y POT"
-        texto={<>La oferta de vivienda y locales que se publicó para la comuna y la norma del POT que aplica en cada barrio. Solo se usa lo que dicen las fuentes oficiales: no se inventan precios.</>}
+        texto={<>La oferta de vivienda y locales que se publicó en internet para la comuna y la norma del POT que aplica en cada barrio. Sirve para entender una zona antes de estudiarla a fondo; no reemplaza un avalúo ni una consulta de norma predio a predio.</>}
+        pregunta="¿Qué se ofrece en cada barrio, a qué precio publicado y qué permite el POT?"
       >
         <BotonCabecera to="/mapa?capas=oferta_inmobiliaria">Ver las ofertas en el mapa</BotonCabecera>
         <BotonCabecera to="/mapa?capas=tratamientos,instrumentos,pot_centralidades" claro>Ver el plan de la ciudad</BotonCabecera>
       </Cabecera>
 
-      <Seccion id="t-i-oferta" titulo="La oferta observada" texto={`Ofertas publicadas en portales de internet${anio ? ` en ${anio}` : ""} y recogidas por el Observatorio Inmobiliario de Medellín (OIME).`}>
+      <Seccion id="t-i-oferta" pregunta="¿Cuánto se ofrece?" titulo="La oferta observada" texto={`Ofertas publicadas en portales de internet${anio ? ` en ${anio}` : ""} y recogidas por el Observatorio Inmobiliario de Medellín (OIME). Muestra total: ${num(ofertas.length)} ofertas dentro de la comuna.`} fuente={<Fuente ids={["oferta_inmobiliaria"]} />}>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {[
             <Kpi key="t" valor={num(ofertas.length)} texto="ofertas observadas en la comuna" />,
@@ -81,22 +82,20 @@ function Contenido({ ind }: { ind: Indicadores }) {
             <Kpi key="p" valor={tipos[0] ? tipos[0][0] : "Sin dato"} texto="el tipo de inmueble más ofrecido" nota={tipos.map(([t, n]) => `${t}: ${n}`).join(" · ")} />,
           ].map((k, i) => <Revelar key={i} retraso={i * 50} className="h-full">{k}</Revelar>)}
         </div>
-        <p className="mt-3 rounded-xl bg-ambar-claro px-4 py-3 text-sm text-tinta">
-          <strong>Cómo leerlo:</strong> son ofertas publicadas, no ventas cerradas ni avalúos. Son pocas por barrio, así que el precio por metro cuadrado solo se muestra donde hay al menos tres ofertas de venta de vivienda; donde no, se muestra la cantidad de ofertas y nada más.
-        </p>
+        <div className="mt-4"><Aviso tono="ojo" titulo="Precio publicado no es precio de venta">Son ofertas publicadas, no ventas cerradas ni avalúos: el precio real de una transacción suele ser distinto y no hay una fuente pública que lo registre. Como son pocas por barrio, el precio por m² solo se calcula donde hay al menos tres ofertas de venta de vivienda.</Aviso></div>
       </Seccion>
 
-      <Seccion id="t-i-barrio" titulo={`Ficha de ${b.nombre}`} texto="Cuánta oferta hay y qué norma aplica. Elige un barrio en el mapa o con los botones.">
+      <Seccion id="t-i-barrio" pregunta="¿Y en un barrio en particular?" titulo={`${b.nombre}: oferta y norma`} texto="Cuánta oferta hay y qué tratamiento del POT aplica. Elige un barrio en el mapa o con los botones." fuente={<Fuente ids={["oferta_inmobiliaria", "tratamientos"]} calculo="mediana y porcentajes calculados por OTEA" />} siguiente={[{ to: `/barrios/${b.codigo}`, texto: `Ficha completa de ${b.nombre}` }]}>
         <nav aria-label="Elegir barrio" className="mb-3 flex flex-wrap gap-2">
           {barrios.map((x) => (
             <button key={x.codigo} type="button" onClick={() => setSel(x.nombre)} aria-pressed={x.nombre === sel}
-              className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${x.nombre === sel ? "bg-acento text-white" : "bg-superficie text-tinta ring-1 ring-nivel hover:bg-menta"}`}>
+              className="chip !py-1 !text-[0.85rem]">
               {x.nombre}
             </button>
           ))}
         </nav>
         <div className="grid items-start gap-6 lg:grid-cols-[1fr_1.2fr]">
-          <div className="vidrio vidrio--quieto rounded-xl p-3">
+          <div className="rounded-xl bg-papel-hondo p-3">
             <MiniMapaBarrios valores={valores} unidad="ofertas" seleccionado={sel} onElegir={setSel} formato={num} />
           </div>
           <div className="space-y-3">
@@ -108,7 +107,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
                 nota={b.mediana_precio_m2_venta == null ? `Hay ${num(b.ofertas_venta_vivienda)} oferta(s) de venta de vivienda: muy pocas para calcularlo` : `Calculada con ${num(b.ofertas_venta_vivienda)} ofertas publicadas`}
               />
             </div>
-            <div className="vidrio vidrio--quieto rounded-xl p-4">
+            <div className="border-t-2 border-tinta pt-3">
               <h3 className="text-base font-semibold">Norma del POT que aplica</h3>
               <p className="mt-0.5 text-sm text-tinta-tenue">Tratamiento urbanístico: parte del territorio del barrio que cubre cada uno.</p>
               <ul className="mt-3 space-y-2.5">
@@ -127,24 +126,24 @@ function Contenido({ ind }: { ind: Indicadores }) {
         </div>
       </Seccion>
 
-      <Seccion id="t-i-tabla" titulo="Todos los barrios" texto="Oferta observada y norma dominante, lado a lado.">
-        <div className="vidrio vidrio--quieto overflow-x-auto rounded-xl p-3">
-          <table className="w-full min-w-[720px] text-sm">
+      <Seccion id="t-i-tabla" pregunta="¿Cómo se comparan?" titulo="Todos los barrios" texto="Oferta observada y norma dominante, lado a lado." fuente={<Fuente ids={["oferta_inmobiliaria", "tratamientos"]} />}>
+        <div className="overflow-x-auto">
+          <table className="tabla min-w-[720px]">
             <thead>
-              <tr className="border-b border-nivel text-left text-tinta-suave">
-                <th className="py-2 pr-3 font-semibold">Barrio</th>
-                <th className="py-2 pr-3 text-right font-semibold">Ofertas</th>
-                <th className="py-2 pr-3 text-right font-semibold">Venta</th>
-                <th className="py-2 pr-3 text-right font-semibold">Arriendo</th>
-                <th className="py-2 pr-3 text-right font-semibold">Mediana por m² (venta)</th>
-                <th className="py-2 font-semibold">Tratamiento que más área cubre</th>
+              <tr>
+                <th>Barrio</th>
+                <th className="text-right">Ofertas</th>
+                <th className="text-right">Venta</th>
+                <th className="text-right">Arriendo</th>
+                <th className="text-right">Mediana por m² (venta)</th>
+                <th>Tratamiento que más área cubre</th>
               </tr>
             </thead>
             <tbody>
               {barrios.map((x) => {
                 const principal = tratBarrio(x)[0];
                 return (
-                  <tr key={x.codigo} className={`border-b border-nivel/70 ${x.nombre === sel ? "bg-menta" : ""}`}>
+                  <tr key={x.codigo} className={x.nombre === sel ? "bg-papel-hondo" : ""}>
                     <td className="py-1.5 pr-3"><button type="button" onClick={() => setSel(x.nombre)} className="font-medium text-marca underline-offset-2 hover:underline">{x.nombre}</button></td>
                     <td className="py-1.5 pr-3 text-right font-semibold tabular-nums">{num(total(x.nombre))}</td>
                     <td className="py-1.5 pr-3 text-right tabular-nums">{num(porBarrio[x.nombre]?.venta ?? 0)}</td>
@@ -160,8 +159,8 @@ function Contenido({ ind }: { ind: Indicadores }) {
         <p className="mt-2 text-xs text-tinta-tenue">«—» significa que no hay al menos tres ofertas de venta de vivienda: no se calcula precio por m².</p>
       </Seccion>
 
-      <Seccion mitad id="t-i-norma" titulo="La norma del POT en toda la comuna" texto="Cómo se reparte cada tratamiento urbanístico en el territorio de cada barrio.">
-        <div className="vidrio vidrio--quieto rounded-xl p-4">
+      <Seccion mitad id="t-i-norma" pregunta="¿Qué espera el POT de cada barrio?" titulo="La norma del POT en toda la comuna" texto="Cómo se reparte cada tratamiento urbanístico en el territorio de cada barrio. El tratamiento dice si la zona se consolida, se mejora o se renueva." fuente={<Fuente ids={["tratamientos"]} />}>
+        <div>
           <ul className="space-y-2">
             {barrios.map((x) => (
               <li key={x.codigo} className="grid grid-cols-[8.5rem_1fr] items-center gap-3 text-sm">
@@ -180,9 +179,9 @@ function Contenido({ ind }: { ind: Indicadores }) {
         </div>
       </Seccion>
 
-      <Seccion mitad id="t-i-pot" titulo="Instrumentos, centralidades y corredores" texto="Lo que el POT planifica dentro de la comuna.">
+      <Seccion mitad id="t-i-pot" pregunta="¿Qué está planificado?" titulo="Instrumentos, centralidades y corredores" texto="Lo que el POT planifica dentro de la comuna. Estar en el plan no significa tener obra ni presupuesto." fuente={<Fuente ids={["instrumentos", "pot_centralidades", "pot_corredores_transporte", "pot_intervencion_estrategica"]} />}>
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="vidrio vidrio--quieto rounded-xl p-4">
+          <div className="border-t-2 border-tinta pt-3">
             <h3 className="text-base font-semibold">Instrumentos de planificación ({instrumentos.length})</h3>
             <ul className="mt-2 space-y-1 text-sm text-tinta-suave">
               {Object.entries(instrumentos.reduce<Record<string, number>>((a, i) => ({ ...a, [i.instrumento]: (a[i.instrumento] ?? 0) + 1 }), {})).map(([n, c]) => (
@@ -191,7 +190,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
             </ul>
             <p className="mt-2 text-xs text-tinta-tenue">{instrumentos[0]?.nivel}.</p>
           </div>
-          <div className="vidrio vidrio--quieto rounded-xl p-4">
+          <div className="border-t-2 border-tinta pt-3">
             <h3 className="text-base font-semibold">Centralidades ({centralidades.length})</h3>
             <ul className="mt-2 space-y-1.5 text-sm text-tinta-suave">
               {centralidades.map((c) => (
@@ -203,7 +202,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
               {intervenciones.map((c) => <li key={c.nombre}><strong className="text-tinta">{c.nombre}</strong> · {c.clasificacion}</li>)}
             </ul>
           </div>
-          <div className="vidrio vidrio--quieto rounded-xl p-4 md:col-span-2">
+          <div className="border-t-2 border-tinta pt-3 md:col-span-2">
             <h3 className="text-base font-semibold">Corredores de transporte de pasajeros ({corredoresUnicos.length})</h3>
             <ul className="mt-2 grid gap-x-6 gap-y-1 text-sm text-tinta-suave sm:grid-cols-2">
               {corredoresUnicos.map((c) => <li key={c.tramo}>{c.tramo}{c.linea !== "Sin definir" ? ` · ${c.linea}` : ""}</li>)}
@@ -212,11 +211,12 @@ function Contenido({ ind }: { ind: Indicadores }) {
         </div>
       </Seccion>
 
-      <Seccion id="t-i-limites" titulo="Qué dicen y qué no dicen las fuentes">
-        <div className="vidrio vidrio--quieto rounded-xl p-4">
+      <Seccion id="t-i-limites" pregunta="¿Qué no se puede concluir?" titulo="Qué dicen y qué no dicen las fuentes">
+        <div>
           <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-tinta-suave">
             <li><strong className="text-tinta">Oferta, no mercado cerrado.</strong> No hay una fuente pública de precios de venta efectivos. La plataforma muestra lo publicado y su cantidad.</li>
             <li><strong className="text-tinta">Pocos datos por barrio.</strong> Con tres ofertas o menos no se calcula precio por m²: sería inventar una cifra.</li>
+            <li><strong className="text-tinta">No hay relación de causa demostrada.</strong> Que un barrio tenga más oferta o un tratamiento distinto no prueba que una cosa cause la otra.</li>
             <li><strong className="text-tinta">La norma no dice qué se puede construir en un predio concreto.</strong> Los tratamientos son del territorio del barrio; para un lote hay que consultar la Alcaldía.</li>
             <li>Fuentes: OIME y Departamento Administrativo de Planeación de Medellín (POT, Acuerdo 48 de 2014). Más en <Link className="font-semibold text-marca underline underline-offset-2" to="/fuentes">Fuentes y calidad</Link>.</li>
           </ul>

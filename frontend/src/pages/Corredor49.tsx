@@ -8,10 +8,10 @@ import { Cuenta, Revelar, useVisto } from "../components/Animacion";
 import { ConDatos } from "../components/Estado";
 import IconoNav from "../components/IconosNav";
 import type { Coleccion } from "../lib/tipos";
-import { BotonCabecera, Cabecera, Relacionados, Seccion } from "../components/Pagina";
+import { BotonCabecera, Cabecera, Fuente, Relacionados, Seccion } from "../components/Pagina";
 
-const VERDE = "#1e40af";
-const AMBAR = "#6ab7ff";
+const VERDE = "#1f40cc";
+const AMBAR = "#c98a1b";
 
 interface PorBarrio { barrio: string; personas: number; minutos_ruta_rapida: number; minutos_por_la_49: number; pct_49_en_el_camino: number }
 interface Destino {
@@ -41,10 +41,10 @@ const ORDEN: { id: string; corto: string; icono: string }[] = [
 
 // Escala de "minutos extra por ir por la 49"
 const ESCALA = [
-  { hasta: 1, color: "#2f8f5b", texto: "La 49 le queda de camino (hasta 1 min más)" },
-  { hasta: 4, color: "#e3b93a", texto: "1 a 4 min más" },
-  { hasta: 8, color: "#e07b39", texto: "4 a 8 min más" },
-  { hasta: Infinity, color: "#b3321f", texto: "Más de 8 min más" },
+  { hasta: 1, color: "#2e7d4f", texto: "La 49 le queda de camino (hasta 1 min más)" },
+  { hasta: 4, color: "#d6a62a", texto: "1 a 4 min más" },
+  { hasta: 8, color: "#d4743a", texto: "4 a 8 min más" },
+  { hasta: Infinity, color: "#a83a24", texto: "Más de 8 min más" },
 ];
 const colorExtra = (m: number) => ESCALA.find((e) => m <= e.hasta)!.color;
 
@@ -84,9 +84,9 @@ function MapaEje({ tipo }: { tipo: string }) {
 
   return (
     <div className="relative">
-      <svg viewBox={`0 0 ${ANCHO} ${ALTO}`} className="h-auto w-full rounded-2xl bg-menta-2" role="img" aria-label="Mapa de la comuna con la Carrera 49 y los minutos extra de ir por ella">
+      <svg viewBox={`0 0 ${ANCHO} ${ALTO}`} className="h-auto w-full rounded-xl bg-papel-hondo" role="img" aria-label="Mapa de la comuna con la Carrera 49 y los minutos extra de ir por ella">
         {proy.items.map((b) => (
-          <path key={b.codigo} d={b.d} fill="rgb(var(--menta))" stroke="rgb(var(--nivel))" strokeWidth="1" strokeLinejoin="round" />
+          <path key={b.codigo} d={b.d} fill="rgb(var(--superficie))" stroke="rgb(var(--nivel))" strokeWidth="1" strokeLinejoin="round" />
         ))}
         {dibujo.tramos.map((t, i) => (
           <g key={i}>
@@ -108,12 +108,12 @@ function MapaEje({ tipo }: { tipo: string }) {
         })}
         {dibujo.estaciones.map((e) => (
           <g key={e.nombre}>
-            <circle cx={e.p[0]} cy={e.p[1]} r="6" fill="#1d4fa0" stroke="#fff" strokeWidth="2" />
+            <circle cx={e.p[0]} cy={e.p[1]} r="6" fill="#101729" stroke="#fff" strokeWidth="2" />
           </g>
         ))}
       </svg>
       {tip && (
-        <div className="pointer-events-none absolute z-10 max-w-[14rem] -translate-x-1/2 -translate-y-full rounded-lg bg-[#1e40af] px-3 py-2 text-xs font-medium text-white shadow-lg" style={{ left: `${(tip.x / ANCHO) * 100}%`, top: `${(tip.y / ALTO) * 100 - 2}%` }}>
+        <div className="pointer-events-none absolute z-10 max-w-[14rem] -translate-x-1/2 -translate-y-full rounded-lg bg-[#101729] px-3 py-2 text-xs font-medium text-white shadow-lg" style={{ left: `${(tip.x / ANCHO) * 100}%`, top: `${(tip.y / ALTO) * 100 - 2}%` }}>
           {tip.texto}
         </div>
       )}
@@ -121,9 +121,9 @@ function MapaEje({ tipo }: { tipo: string }) {
         {ESCALA.map((e) => (
           <li key={e.color} className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full" style={{ background: e.color }} />{e.texto}</li>
         ))}
-        <li className="flex items-center gap-1.5"><span className="h-1.5 w-6 rounded bg-[#1e40af]" />Carrera 49 existente</li>
-        <li className="flex items-center gap-1.5"><span className="h-1.5 w-6 rounded border-t-4 border-dotted border-[#6ab7ff]" />Tramo proyectado en el POT</li>
-        <li className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-[#1d4fa0]" />Estación</li>
+        <li className="flex items-center gap-1.5"><span className="h-1.5 w-6 rounded bg-[#1f40cc]" />Carrera 49 existente</li>
+        <li className="flex items-center gap-1.5"><span className="h-1.5 w-6 rounded border-t-4 border-dotted border-[#c98a1b]" />Tramo proyectado en el POT</li>
+        <li className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-[#101729]" />Estación de Metro o Metrocable</li>
       </ul>
     </div>
   );
@@ -149,44 +149,36 @@ function Contenido({ d }: { d: Eje49 }) {
   const anchoMax = Math.max(e.siniestros_por_km, e.siniestros_por_km_comuna ?? 0);
 
   return (
-    <div className="space-y-8">
+    <>
       <Cabecera etiqueta="Corredor Carrera 49 · Avenida Venezuela" icono="corredor" titulo="¿Conviene ir por la 49?"
-        texto={<>Lo medimos con la red de calles, andenes y escaleras de la comuna, caminando, y con las {num(metro.personas)} personas del Censo 2018. La respuesta corta: <strong>depende de dónde vivas y a dónde vayas</strong>.</>}>
+        texto={<>La Carrera 49 (Avenida Venezuela, 49B y 49C) cruza la comuna de norte a sur por {dec(e.largo_km)} km. Medimos, caminando por la red real de calles, andenes y escaleras y con las {num(metro.personas)} personas del Censo 2018, a quién le sirve ir por ella. La respuesta corta: <strong>depende de dónde vivas y a dónde vayas</strong>.</>}
+        pregunta="¿A quién le sirve la 49 para llegar a lo básico, qué tan segura es y qué no se puede concluir todavía?">
         <BotonCabecera to="/mapa?capas=eje49">Ver el eje en el mapa</BotonCabecera>
         <BotonCabecera to="/accesibilidad" claro>Accesibilidad por barrio</BotonCabecera>
       </Cabecera>
 
-      {/* ------------------------------------------------------------------ resumen */}
-      <Revelar>
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl border-l-4 border-marca bg-menta-2 p-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-marca">Para toda la comuna</p>
-            <p className="mt-2 text-base">
-              Al Metro, la ruta más rápida toma <strong>{dec(metro.minutos_ruta_rapida)} min</strong>. Obligando a caminar por la 49 sube a <strong>{dec(metro.minutos_por_la_49)} min</strong>.
-            </p>
-          </div>
-          <div className="rounded-2xl border-l-4 border-[#6ab7ff] bg-aviso-fondo p-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-ambar-texto">Para quién sí sirve</p>
-            <p className="mt-2 text-base">
-              Le queda de camino al Metro a {mejores.map((b, i) => `${dec(b.pct_49_en_el_camino)} % de ${b.barrio}${i < mejores.length - 2 ? ", " : i === mejores.length - 2 ? " y " : ""}`).join("")}.
-            </p>
-          </div>
-          <div className="rounded-2xl border-l-4 border-[#c2301a] bg-ladrillo-claro p-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-peligro">Lo que sí es seguro</p>
-            <p className="mt-2 text-base">
-              {veces ? <>Tiene <strong>{dec(veces)} veces</strong> los siniestros por kilómetro del promedio de las calles de la comuna.</> : "Concentra muchos siniestros viales."}
-            </p>
-          </div>
+      <section aria-label="Resumen" className="grid gap-6 md:grid-cols-3">
+        <div className="border-t-2 border-tinta pt-3">
+          <p className="text-sm text-tinta-suave">Para toda la comuna</p>
+          <p className="mt-1 text-lg leading-snug">Al Metro, la ruta más rápida toma <strong>{dec(metro.minutos_ruta_rapida)} min</strong>. Obligando a pasar por la 49 sube a <strong className="text-peligro">{dec(metro.minutos_por_la_49)} min</strong>.</p>
         </div>
-      </Revelar>
+        <div className="border-t-2 border-tinta pt-3">
+          <p className="text-sm text-tinta-suave">Para quién sí sirve</p>
+          <p className="mt-1 text-lg leading-snug">Le queda de camino al Metro a {mejores.map((b, i) => `${dec(b.pct_49_en_el_camino)} % de ${b.barrio}${i < mejores.length - 2 ? ", " : i === mejores.length - 2 ? " y " : ""}`).join("")}.</p>
+        </div>
+        <div className="border-t-2 border-peligro pt-3">
+          <p className="text-sm text-tinta-suave">Lo que sí es claro</p>
+          <p className="mt-1 text-lg leading-snug">{veces ? <>Tiene <strong className="text-peligro">{dec(veces)} veces</strong> los siniestros por kilómetro del promedio de las calles de la comuna.</> : "Concentra muchos siniestros viales."}</p>
+        </div>
+      </section>
 
       {/* ------------------------------------------------------------------ mapa interactivo */}
-      <Seccion id="t-mapa" titulo="Dónde le sirve y dónde no" texto="Cada punto es una manzana, más grande si vive más gente. El color dice cuántos minutos más caminaría esa gente si va por la 49 en vez de por su ruta más rápida.">
+      <Seccion id="t-mapa" pregunta="¿Para quién queda de camino?" titulo="Dónde le sirve y dónde no" texto="Cada punto es una manzana, más grande si vive más gente. El color dice cuántos minutos más caminaría esa gente si va por la 49 en vez de por su ruta más rápida. Elige el destino." fuente={<Fuente ids={["vias", "manzanas_censo", "estaciones"]} calculo="rutas comparadas por OTEA (data-pipeline/eje49.py)" />}>
         <div className="flex flex-wrap gap-2" role="tablist" aria-label="Destino">
           {ORDEN.filter((o) => d.destinos[o.id]).map((o) => (
             <button
               key={o.id} role="tab" aria-selected={tipo === o.id} onClick={() => setTipo(o.id)}
-              className={`flex items-center gap-2 rounded-full px-4 py-2 text-base font-semibold transition ${tipo === o.id ? "bg-[#1e40af] text-white shadow-md" : "bg-superficie text-tinta ring-1 ring-black/10 hover:bg-menta"}`}
+              aria-pressed={tipo === o.id} className="chip !text-base"
             >
               <IconoNav nombre={o.icono} className="h-5 w-5" />
               {o.corto}
@@ -202,7 +194,7 @@ function Contenido({ d }: { d: Eje49 }) {
                 { k: "Ruta más rápida", v: dest.minutos_ruta_rapida, u: "min", c: "rgb(var(--marca))" },
                 { k: "Obligando la 49", v: dest.minutos_por_la_49, u: "min", c: "rgb(var(--peligro))" },
               ].map((x) => (
-                <div key={x.k} className="rounded-2xl bg-superficie p-5 shadow-sm ring-1 ring-black/5">
+                <div key={x.k} className="border-t-2 border-tinta pt-3">
                   <dt className="text-sm font-semibold text-tinta-suave">{x.k}</dt>
                   <dd className="mt-1 text-3xl font-semibold leading-none tabular-nums" style={{ color: x.c }}>
                     <Cuenta hasta={x.v} decimales={1} activo duracion={900} /> <span className="text-lg font-semibold">{x.u}</span>
@@ -224,28 +216,28 @@ function Contenido({ d }: { d: Eje49 }) {
       </Seccion>
 
       {/* ------------------------------------------------------------------ tabla por barrio */}
-      <Seccion id="t-barrios" titulo="Barrio por barrio" texto={`Minutos promedio hacia ${dest.nombre.toLowerCase()}, ponderados por las personas de cada manzana.`}>
-        <div className="overflow-x-auto rounded-2xl bg-superficie shadow-sm ring-1 ring-black/5">
-          <table className="w-full min-w-[40rem] text-left text-base">
-            <thead className="border-b border-nivel text-sm text-tinta-suave">
+      <Seccion id="t-barrios" pregunta="¿Y en mi barrio?" titulo="Barrio por barrio" texto={`Minutos promedio hacia ${dest.nombre.toLowerCase()}, ponderados por las personas de cada manzana. Cambia el destino arriba y la tabla se actualiza.`}>
+        <div className="overflow-x-auto">
+          <table className="tabla min-w-[40rem]">
+            <thead>
               <tr>
-                <th className="px-5 py-3 font-semibold">Barrio</th>
-                <th className="px-3 py-3 text-right font-semibold">Personas</th>
-                <th className="px-3 py-3 text-right font-semibold">Ruta rápida</th>
-                <th className="px-3 py-3 text-right font-semibold">Por la 49</th>
-                <th className="px-5 py-3 font-semibold">La 49 le queda de camino</th>
+                <th>Barrio</th>
+                <th className="text-right">Personas</th>
+                <th className="text-right">Ruta rápida</th>
+                <th className="text-right">Por la 49</th>
+                <th>La 49 le queda de camino</th>
               </tr>
             </thead>
             <tbody>
               {[...dest.por_barrio].sort((a, b) => b.pct_49_en_el_camino - a.pct_49_en_el_camino).map((b) => (
-                <tr key={b.barrio} className="border-b border-nivel/60 last:border-0">
-                  <td className="px-5 py-3 font-semibold">{b.barrio}</td>
-                  <td className="px-3 py-3 text-right tabular-nums">{num(b.personas)}</td>
-                  <td className="px-3 py-3 text-right tabular-nums">{dec(b.minutos_ruta_rapida)} min</td>
-                  <td className="px-3 py-3 text-right tabular-nums">{dec(b.minutos_por_la_49)} min</td>
-                  <td className="px-5 py-3">
+                <tr key={b.barrio}>
+                  <td className="font-semibold">{b.barrio}</td>
+                  <td className="text-right tabular-nums">{num(b.personas)}</td>
+                  <td className="text-right tabular-nums">{dec(b.minutos_ruta_rapida)} min</td>
+                  <td className="text-right tabular-nums">{dec(b.minutos_por_la_49)} min</td>
+                  <td>
                     <div className="flex items-center gap-3">
-                      <div className="w-32"><Barra valor={b.pct_49_en_el_camino} max={100} color="#2f8f5b" /></div>
+                      <div className="w-32"><Barra valor={b.pct_49_en_el_camino} max={100} color="#2e7d4f" /></div>
                       <span className="w-14 tabular-nums">{dec(b.pct_49_en_el_camino)} %</span>
                     </div>
                   </td>
@@ -258,7 +250,7 @@ function Contenido({ d }: { d: Eje49 }) {
       </Seccion>
 
       {/* ------------------------------------------------------------------ estado de la vía */}
-      <Seccion mitad id="t-estado" titulo="Cómo está la 49 por dentro" texto={`Datos oficiales a menos de 25 m de sus ${dec(e.largo_km)} km existentes (Venezuela, 49B y 49C).`}>
+      <Seccion id="t-estado" pregunta="¿Qué tan segura y cómoda es?" titulo="Cómo está la 49 por dentro" texto={`Datos oficiales a menos de 25 m de sus ${dec(e.largo_km)} km existentes (Venezuela, 49B y 49C).`} fuente={<Fuente ids={["siniestros_viales", "andenes", "rutas_bus", "paradas", "cctv_camaras", "semaforos"]} calculo="conteos a lo largo del eje hechos por OTEA" />}>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           {[
             { n: e.siniestros, t: "siniestros viales entre 2019 y 2025", c: "rgb(var(--peligro))" },
@@ -267,9 +259,9 @@ function Contenido({ d }: { d: Eje49 }) {
             { n: e.paradas_cerca, t: "paradas de bus a menos de 40 m", c: "rgb(var(--marca))" },
           ].map((x) => (
             <Revelar key={x.t}>
-              <div className="h-full rounded-2xl bg-superficie p-6 shadow-sm ring-1 ring-black/5">
-                <p className="text-3xl font-semibold leading-none tabular-nums" style={{ color: x.c }}><Cuenta hasta={x.n} activo /></p>
-                <p className="mt-2 text-base font-semibold">{x.t}</p>
+              <div className="h-full border-t-2 border-tinta pt-3">
+                <p className="fuente-titulo text-4xl font-extrabold leading-none tabular-nums" style={{ color: x.c }}><Cuenta hasta={x.n} activo /></p>
+                <p className="mt-2 text-base">{x.t}</p>
               </div>
             </Revelar>
           ))}
@@ -277,17 +269,17 @@ function Contenido({ d }: { d: Eje49 }) {
 
         <div className="mt-8 grid gap-8 lg:grid-cols-2">
           <Revelar>
-            <div className="rounded-2xl bg-superficie p-6 shadow-sm ring-1 ring-black/5">
-              <h3 className="text-base font-semibold">Siniestros por kilómetro</h3>
+            <div className="vidrio p-6">
+              <h3 className="fuente-titulo text-lg font-bold">Siniestros por kilómetro</h3>
               <div className="mt-4 space-y-4">
                 <div>
                   <div className="flex justify-between text-base"><span className="font-semibold">Carrera 49</span><span className="tabular-nums font-semibold text-peligro">{dec(e.siniestros_por_km)}</span></div>
-                  <Barra valor={e.siniestros_por_km} max={anchoMax} color="#c2301a" />
+                  <Barra valor={e.siniestros_por_km} max={anchoMax} color="#b5452f" />
                 </div>
                 {e.siniestros_por_km_comuna != null && (
                   <div>
                     <div className="flex justify-between text-base"><span className="font-semibold">Promedio de las calles de la comuna</span><span className="tabular-nums font-bold">{dec(e.siniestros_por_km_comuna)}</span></div>
-                    <Barra valor={e.siniestros_por_km_comuna} max={anchoMax} color="#3b82f6" />
+                    <Barra valor={e.siniestros_por_km_comuna} max={anchoMax} color="#101729" />
                   </div>
                 )}
               </div>
@@ -295,8 +287,8 @@ function Contenido({ d }: { d: Eje49 }) {
             </div>
           </Revelar>
           <Revelar retraso={120}>
-            <div className="h-full rounded-2xl bg-superficie p-6 shadow-sm ring-1 ring-black/5">
-              <h3 className="text-base font-semibold">Andenes de la 49</h3>
+            <div className="vidrio h-full p-6">
+              <h3 className="fuente-titulo text-lg font-bold">Andenes de la 49</h3>
               {e.ancho_andén_mediana_m != null ? (
                 <>
                   <p className="mt-3 text-3xl font-semibold leading-none tabular-nums text-peligro">{dec(e.ancho_andén_mediana_m)} m</p>
@@ -312,8 +304,8 @@ function Contenido({ d }: { d: Eje49 }) {
         </div>
 
         <Revelar>
-          <div className="rounded-2xl bg-superficie p-6 shadow-sm ring-1 ring-black/5">
-            <h3 className="text-base font-semibold">Líneas de bus que recorren la 49 (más de 200 m)</h3>
+          <div className="mt-8 border-t-2 border-tinta pt-3">
+            <h3 className="fuente-titulo text-lg font-bold">Líneas de bus que recorren la 49 (más de 200 m)</h3>
             <ul className="mt-3 grid gap-x-8 gap-y-2 sm:grid-cols-2">
               {e.rutas_de_bus_sobre_el_eje.map((r) => (
                 <li key={r.nombre + r.codigo} className="flex items-baseline justify-between gap-3 border-b border-nivel/60 py-1.5">
@@ -328,11 +320,11 @@ function Contenido({ d }: { d: Eje49 }) {
       </Seccion>
 
       {/* ------------------------------------------------------------------ qué sigue */}
-      <Seccion mitad id="t-sigue" titulo="Qué dice esto y qué falta">
+      <Seccion id="t-sigue" pregunta="¿Qué se puede concluir?" titulo="Qué dice esto y qué falta">
         <div className="grid gap-6 lg:grid-cols-2">
           <Revelar>
-            <div className="h-full rounded-2xl border-l-4 border-marca bg-menta-2 p-6">
-              <h3 className="text-base font-semibold">Lo que podemos afirmar</h3>
+            <div className="aviso aviso-info h-full">
+              <h3 className="aviso-t text-lg">Lo que podemos afirmar</h3>
               <ul className="mt-3 list-disc space-y-2 pl-5 text-base">
                 <li>A pie, la 49 no es la ruta más rápida para la comuna entera: a la mayoría de las manzanas no les queda de camino hacia ningún destino.</li>
                 <li>Sí es el camino natural de {mejores.map((b) => b.barrio).join(", ")}, y por ella van varias líneas de bus.</li>
@@ -341,8 +333,8 @@ function Contenido({ d }: { d: Eje49 }) {
             </div>
           </Revelar>
           <Revelar retraso={120}>
-            <div className="h-full rounded-2xl border-l-4 border-[#6ab7ff] bg-aviso-fondo p-6">
-              <h3 className="text-base font-semibold">Lo que todavía no podemos afirmar</h3>
+            <div className="aviso aviso-ojo h-full">
+              <h3 className="aviso-t text-lg">Lo que todavía no podemos afirmar</h3>
               <ul className="mt-3 list-disc space-y-2 pl-5 text-base">
                 <li>Cuánto se demora un bus o un carro por la 49: no hay datos abiertos de velocidades reales.</li>
                 <li>El estado de los andenes (código sin diccionario) y la iluminación.</li>
@@ -354,32 +346,29 @@ function Contenido({ d }: { d: Eje49 }) {
             </div>
           </Revelar>
         </div>
-        <details className="mt-6 rounded-2xl bg-superficie p-5 shadow ring-1 ring-black/5">
-          <summary className="cursor-pointer text-base font-semibold">Cómo se calculó (supuestos)</summary>
+        <details className="metodo mt-6">
+          <summary>Cómo se calculó (supuestos)</summary>
           <ul className="mt-3 list-disc space-y-1.5 pl-5 text-base text-tinta-suave">
             {d.supuestos.map((s) => <li key={s}>{s}</li>)}
           </ul>
           <p className="mt-3 text-sm text-tinta-tenue">Script: <code>data-pipeline/eje49.py</code>. Tramos del eje: {d.eje.tramos.map((t) => `${t.nombre} (${t.estado.toLowerCase()}, ${num(t.metros)} m)`).join("; ")}.</p>
         </details>
         <div>
-          <Link to="/mapa" className="inline-flex items-center gap-3 rounded-2xl bg-[#1e40af] px-6 py-3 text-base font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl">
-            <IconoNav nombre="mapa" className="h-6 w-6" trazo={2} /> Probar mi propia ruta en el mapa
+          <Link to="/mapa?ruta=1" className="boton boton-1 mt-6 !px-6 !py-3 !text-base">
+            <IconoNav nombre="mapa" className="h-5 w-5" trazo={2} /> Probar mi propia ruta en el mapa
           </Link>
         </div>
       </Seccion>
-      <Relacionados ids={["problematicas", "accesibilidad", "prioridades"]} />
-    </div>
+      <Relacionados ids={["accesibilidad", "prioridades", "reclamos"]} />
+    </>
   );
 }
 
 export default function Corredor49() {
   const estado = useDatos<Eje49>("eje49.json");
   return (
-    <div className="relative isolate overflow-hidden">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-papel" />
-      <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
-        <ConDatos estado={estado}>{(d) => <Contenido d={d} />}</ConDatos>
-      </div>
+    <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
+      <ConDatos estado={estado}>{(d) => <Contenido d={d} />}</ConDatos>
     </div>
   );
 }

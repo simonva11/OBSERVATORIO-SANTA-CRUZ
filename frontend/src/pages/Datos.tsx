@@ -7,9 +7,8 @@ import { useProyeccion } from "../lib/proyeccion";
 import IconoNav from "../components/IconosNav";
 import type { Coleccion } from "../lib/tipos";
 import { LIMITE_BYTES, guardarConjuntos, leerCSV, leerConjuntos, leerGeoJSON, type ConjuntoPropio } from "../lib/misdatos";
-import { Cabecera, Relacionados, Seccion } from "../components/Pagina";
+import { Aviso, Cabecera, EtiquetaClase, Kpi, Relacionados, Seccion } from "../components/Pagina";
 
-const VERDE = "rgb(var(--marca))";
 const MORADO = "#7a4e9b";
 const ANCHO = 560;
 const ALTO = 560;
@@ -57,10 +56,10 @@ function MapaMuestra({ col }: { col: FeatureCollection | null }) {
     });
     return items;
   }, [proy, col]);
-  if (!proy) return <div className="aspect-square w-full animate-[suave_2.6s_ease-in-out_infinite] rounded-2xl bg-papel-hondo" />;
+  if (!proy) return <div className="aspect-square w-full animate-[suave_2.6s_ease-in-out_infinite] rounded-[14px] bg-papel-hondo" />;
   return (
-    <svg viewBox={`0 0 ${ANCHO} ${ALTO}`} className="h-auto w-full rounded-2xl bg-menta-2" role="img" aria-label="Mapa de la comuna con tus datos encima">
-      {proy.items.map((b) => <path key={b.codigo} d={b.d} fill="rgb(var(--menta))" stroke="rgb(var(--nivel))" strokeWidth="1" strokeLinejoin="round" />)}
+    <svg viewBox={`0 0 ${ANCHO} ${ALTO}`} className="h-auto w-full rounded-[14px] border border-nivel bg-papel-hondo" role="img" aria-label="Mapa de la comuna con tus datos encima">
+      {proy.items.map((b) => <path key={b.codigo} d={b.d} fill="rgb(var(--superficie))" stroke="rgb(var(--nivel))" strokeWidth="1" strokeLinejoin="round" />)}
       {dibujo}
     </svg>
   );
@@ -135,7 +134,7 @@ function SubirDatos() {
     setGuardados(lista);
     setLectura(null);
     if (verEnMapa) navegar("/mapa?capas=mis_datos");
-    else setAviso(`Guardado "${nuevo.nombre}". Lo ves en el mapa prendiendo la capa "Mis datos".`);
+    else setAviso(`Se guardó "${nuevo.nombre}" en este navegador. Para verlo, prende la capa "Mis datos" en el mapa.`);
   };
   const borrar = (id: string) => {
     const lista = leerConjuntos().filter((c) => c.id !== id);
@@ -145,98 +144,126 @@ function SubirDatos() {
 
   return (
     <div>
-      <div
-        onDragOver={(e) => { e.preventDefault(); setArrastrando(true); }}
-        onDragLeave={() => setArrastrando(false)}
-        onDrop={(e) => { e.preventDefault(); setArrastrando(false); const f = e.dataTransfer.files[0]; if (f) void abrir(f); }}
-        className={`flex flex-col items-center rounded-2xl border-2 border-dashed px-6 py-12 text-center transition ${arrastrando ? "border-[#7a4e9b] bg-[#f3ecfa]" : "border-marca/35 bg-superficie/70"}`}
-      >
-        <span className="grid h-16 w-16 place-items-center rounded-2xl bg-menta text-marca"><IconoNav nombre="subir" className="h-9 w-9" trazo={1.8} /></span>
-        <p className="mt-4 text-base font-semibold">Arrastra aquí tu archivo</p>
-        <p className="mt-1 max-w-xl text-base text-tinta-suave">CSV con columnas <code>lat</code> y <code>lon</code>, o un GeoJSON. Se lee en tu computador: no se manda a ningún servidor.</p>
-        <div className="mt-5 flex flex-wrap justify-center gap-3">
-          <button type="button" onClick={() => input.current?.click()} className="rounded-2xl bg-[#1e40af] px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5">Elegir archivo</button>
-          <a href={`data:text/csv;charset=utf-8,${encodeURIComponent(PLANTILLA)}`} download="plantilla-mis-datos.csv" className="rounded-2xl border-2 border-marca/40 px-5 py-2.5 text-sm font-semibold text-marca transition hover:bg-menta">Bajar plantilla CSV</a>
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+        <div
+          onDragOver={(e) => { e.preventDefault(); setArrastrando(true); }}
+          onDragLeave={() => setArrastrando(false)}
+          onDrop={(e) => { e.preventDefault(); setArrastrando(false); const f = e.dataTransfer.files[0]; if (f) void abrir(f); }}
+          className={`flex flex-col items-center justify-center rounded-[14px] border-2 border-dashed px-6 py-12 text-center transition ${arrastrando ? "border-marca bg-menta-2" : "border-nivel bg-superficie"}`}
+        >
+          <IconoNav nombre="subir" className="h-10 w-10 text-marca" trazo={1.6} />
+          <p className="mt-4 text-lg font-semibold">Arrastra aquí tu archivo</p>
+          <p className="mt-1 max-w-md text-sm text-tinta-suave">o elígelo desde tu computador. Se lee aquí mismo: no se manda a ningún servidor.</p>
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <button type="button" onClick={() => input.current?.click()} className="boton boton-1">Elegir archivo</button>
+            <a href={`data:text/csv;charset=utf-8,${encodeURIComponent(PLANTILLA)}`} download="plantilla-mis-datos.csv" className="boton boton-2">Bajar plantilla CSV</a>
+          </div>
+          <input ref={input} type="file" accept=".csv,.txt,.json,.geojson,text/csv,application/json" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) void abrir(f); e.target.value = ""; }} />
         </div>
-        <input ref={input} type="file" accept=".csv,.txt,.json,.geojson,text/csv,application/json" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) void abrir(f); e.target.value = ""; }} />
+        <div className="text-sm">
+          <p className="font-mono text-xs uppercase tracking-wider text-tinta-tenue">Qué acepta</p>
+          <dl className="mt-2 divide-y divide-nivel border-y border-nivel">
+            {[
+              ["CSV", "Separado por punto y coma, coma o tabulador. Columnas de coordenadas llamadas lat y lon (también latitud y longitud), en grados decimales."],
+              ["GeoJSON", "Puntos, líneas o polígonos en coordenadas geográficas (WGS84, las de cualquier GPS o Google Maps)."],
+              ["Tamaño", `Hasta ${dec(LIMITE_BYTES / 1e6)} MB en total, porque se guarda en tu navegador.`],
+              ["Otras columnas", "Se conservan. Las numéricas se pueden sumar y promediar."],
+            ].map(([k, v]) => (
+              <div key={k} className="grid grid-cols-[6.5rem_1fr] gap-3 py-2">
+                <dt className="font-semibold">{k}</dt>
+                <dd className="text-tinta-suave">{v}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-3 text-tinta-tenue">No subas nombres, cédulas ni teléfonos de personas: no hace falta para ubicar puntos en el mapa.</p>
+        </div>
       </div>
 
-      {error && <p role="alert" className="mt-4 rounded-xl border border-ladrillo/40 bg-ladrillo-claro p-4 text-base font-semibold text-ladrillo">{error}</p>}
-      {aviso && <p role="status" className="mt-4 rounded-xl bg-menta p-4 text-base font-semibold text-marca">{aviso}</p>}
+      {error && <div className="mt-5"><Aviso tono="demo" titulo="No se pudo leer el archivo">{error}</Aviso></div>}
+      {aviso && <div role="status" className="mt-5"><Aviso tono="info">{aviso}</Aviso></div>}
 
       {lectura && (
-        <div className="mt-8 grid items-start gap-8 lg:grid-cols-[1fr_1.1fr]">
+        <div className="mt-10 grid items-start gap-8 lg:grid-cols-[1fr_1.1fr]">
           <MapaMuestra col={lectura.geojson} />
           <div>
-            <h3 className="text-base font-semibold">{lectura.nombre}</h3>
-            <dl className="mt-4 grid grid-cols-3 gap-3">
-              {[{ k: "Elementos", v: num(lectura.geojson.features.length) }, { k: "Dentro de la comuna", v: analisis ? num(analisis.dentro) : "…" }, { k: "Fuera", v: analisis ? num(analisis.fuera) : "…" }].map((x) => (
-                <div key={x.k} className="rounded-2xl bg-superficie p-4 shadow ring-1 ring-black/5">
-                  <dt className="text-sm font-semibold text-tinta-suave">{x.k}</dt>
-                  <dd className="mt-1 text-3xl font-semibold tabular-nums" style={{ color: VERDE }}>{x.v}</dd>
-                </div>
-              ))}
-            </dl>
-            {lectura.descartadas > 0 && <p className="mt-3 text-sm text-ladrillo">Se ignoraron {num(lectura.descartadas)} filas sin coordenadas válidas.</p>}
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="fuente-titulo text-xl font-semibold">{lectura.nombre}</h3>
+              <span className="clase clase-ciudadano">Tus datos · vista previa</span>
+            </div>
+            <p className="mt-1 text-sm text-tinta-suave">Todavía no está guardado. Revisa que los puntos caigan donde esperas.</p>
+            <div className="mt-5 grid grid-cols-3 gap-5">
+              <Kpi valor={num(lectura.geojson.features.length)} texto="elementos leídos" />
+              <Kpi valor={analisis ? num(analisis.dentro) : "…"} texto="dentro de la comuna" />
+              <Kpi valor={analisis ? num(analisis.fuera) : "…"} tono={analisis && analisis.fuera > 0 ? "ambar" : "verde"} texto="fuera de la comuna" />
+            </div>
+            {lectura.descartadas > 0 && <p className="mt-3 text-sm text-peligro">Se ignoraron {num(lectura.descartadas)} filas sin coordenadas válidas.</p>}
+            {analisis && analisis.fuera > 0 && analisis.dentro === 0 && (
+              <div className="mt-4"><Aviso tono="ojo" titulo="Ningún punto cae en la Comuna 2">Revisa que lat y lon no estén al revés y que estén en grados decimales (por ejemplo 6.29 y -75.55).</Aviso></div>
+            )}
             {analisis && analisis.porBarrio.length > 0 && (
-              <div className="mt-5">
-                <h4 className="font-semibold">Por barrio</h4>
+              <div className="mt-6">
+                <h4 className="font-semibold">Cuántos caen en cada barrio</h4>
                 <ul className="mt-2 grid gap-x-6 sm:grid-cols-2">
                   {analisis.porBarrio.map(([b, n]) => (
-                    <li key={b} className="flex justify-between border-b border-nivel/60 py-1.5"><span>{b}</span><strong className="tabular-nums">{num(n)}</strong></li>
+                    <li key={b} className="flex justify-between border-b border-nivel py-1.5 text-sm"><span>{b}</span><strong className="tabular-nums">{num(n)}</strong></li>
                   ))}
                 </ul>
               </div>
             )}
             {analisis && analisis.numericos.length > 0 && (
-              <div className="mt-5">
-                <label className="font-semibold" htmlFor="campo-num">Resumir una columna numérica</label>
-                <select id="campo-num" value={campoNum} onChange={(e) => setCampoNum(e.target.value)} className="mt-1 block w-full rounded-xl border border-nivel bg-superficie px-3 py-2 text-base">
+              <div className="mt-6">
+                <label className="etiqueta-campo" htmlFor="campo-num">Resumir una columna numérica</label>
+                <select id="campo-num" value={campoNum} onChange={(e) => setCampoNum(e.target.value)} className="campo">
                   <option value="">Elegir…</option>
                   {analisis.numericos.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
                 {resumenNum && (
-                  <p className="mt-2 text-base">Suma <strong>{dec(resumenNum.suma)}</strong> · promedio <strong>{dec(resumenNum.prom)}</strong> · de {dec(resumenNum.min)} a {dec(resumenNum.max)} ({num(resumenNum.n)} valores)</p>
+                  <p className="mt-2 text-sm">Suma <strong>{dec(resumenNum.suma)}</strong> · promedio <strong>{dec(resumenNum.prom)}</strong> · de {dec(resumenNum.min)} a {dec(resumenNum.max)} ({num(resumenNum.n)} valores)</p>
                 )}
               </div>
             )}
-            <div className="mt-6">
-              <h4 className="font-semibold">Primeras filas</h4>
-              <div className="mt-2 overflow-x-auto rounded-xl ring-1 ring-black/10">
-                <table className="w-full min-w-[26rem] text-left text-sm">
-                  <thead className="bg-papel-hondo"><tr>{lectura.campos.slice(0, 5).map((c) => <th key={c} className="px-3 py-2 font-semibold">{c}</th>)}</tr></thead>
-                  <tbody>
-                    {lectura.geojson.features.slice(0, 5).map((f, i) => (
-                      <tr key={i} className="border-t border-nivel/60">{lectura.campos.slice(0, 5).map((c) => <td key={c} className="px-3 py-1.5">{String(f.properties?.[c] ?? "")}</td>)}</tr>
-                    ))}
-                  </tbody>
-                </table>
+            {lectura.campos.length > 0 && (
+              <div className="mt-6">
+                <h4 className="font-semibold">Primeras filas</h4>
+                <div className="mt-2 overflow-x-auto">
+                  <table className="tabla min-w-[26rem]">
+                    <thead><tr>{lectura.campos.slice(0, 5).map((c) => <th key={c}>{c}</th>)}</tr></thead>
+                    <tbody>
+                      {lectura.geojson.features.slice(0, 5).map((f, i) => (
+                        <tr key={i}>{lectura.campos.slice(0, 5).map((c) => <td key={c}>{String(f.properties?.[c] ?? "")}</td>)}</tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
+            )}
             <div className="mt-6 flex flex-wrap gap-3">
-              <button type="button" onClick={() => guardar(true)} className="inline-flex items-center gap-2 rounded-2xl bg-[#1e40af] px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5"><IconoNav nombre="mapa" className="h-6 w-6" trazo={2} /> Guardar y verlo en el mapa</button>
-              <button type="button" onClick={() => guardar(false)} className="rounded-2xl border-2 border-marca/40 px-5 py-2.5 text-sm font-semibold text-marca transition hover:bg-menta">Solo guardar</button>
-              <button type="button" onClick={() => setLectura(null)} className="rounded-2xl px-4 py-2.5 text-sm font-semibold text-tinta-suave hover:underline">Descartar</button>
+              <button type="button" onClick={() => guardar(true)} className="boton boton-1"><IconoNav nombre="mapa" className="h-5 w-5" trazo={2} /> Guardar y verlo en el mapa</button>
+              <button type="button" onClick={() => guardar(false)} className="boton boton-2">Solo guardar</button>
+              <button type="button" onClick={() => setLectura(null)} className="boton text-tinta-suave hover:underline">Descartar</button>
             </div>
+            <p className="mt-3 text-xs text-tinta-tenue">Guardar significa guardarlo en este navegador. Nadie más lo ve, y se pierde si borras los datos del navegador o cambias de equipo.</p>
           </div>
         </div>
       )}
 
-      {guardados.length > 0 && (
+      {guardados.length > 0 ? (
         <div className="mt-10">
-          <h3 className="text-base font-semibold">Lo que ya guardaste en este navegador</h3>
-          <ul className="mt-3 grid gap-3 md:grid-cols-2">
+          <h3 className="font-semibold">Lo que ya guardaste en este navegador</h3>
+          <ul className="mt-3 divide-y divide-nivel border-y border-nivel">
             {guardados.map((c) => (
-              <li key={c.id} className="flex items-center justify-between gap-3 rounded-2xl bg-superficie p-4 shadow ring-1 ring-black/5">
-                <div><p className="font-semibold">{c.nombre}</p><p className="text-sm text-tinta-suave">{num(c.filas)} elementos · {new Date(c.creado).toLocaleDateString("es-CO")}</p></div>
+              <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                <div><p className="font-semibold">{c.nombre}</p><p className="text-sm text-tinta-suave">{num(c.filas)} elementos · subido el {new Date(c.creado).toLocaleDateString("es-CO")}</p></div>
                 <div className="flex gap-2">
-                  <Link to="/mapa?capas=mis_datos" className="rounded-xl bg-menta px-3 py-2 text-sm font-semibold text-marca">Ver en el mapa</Link>
-                  <button type="button" onClick={() => borrar(c.id)} className="rounded-xl px-3 py-2 text-sm font-semibold text-ladrillo hover:bg-ladrillo-claro">Borrar</button>
+                  <Link to="/mapa?capas=mis_datos" className="chip">Ver en el mapa</Link>
+                  <button type="button" onClick={() => borrar(c.id)} className="chip text-peligro">Borrar</button>
                 </div>
               </li>
             ))}
           </ul>
         </div>
+      ) : !lectura && (
+        <p className="mt-8 text-sm text-tinta-tenue">Todavía no has guardado archivos en este navegador.</p>
       )}
     </div>
   );
@@ -266,40 +293,27 @@ const MUNICIPIOS = ["Medellín", "Bello", "Itagüí", "Envigado", "Sabaneta", "L
 function Catalogo() {
   const f = useDatos<Fuente[]>("fuentes.json");
   const total = f.estado === "listo" ? f.datos.length : null;
-  const ok = f.estado === "listo" ? f.datos.filter((x) => x.registros != null && x.registros > 0).length : null;
+  const comprobadas = POR_BAJAR.filter((r) => r.estado === "comprobada").length;
   return (
     <div>
-      <div className="grid gap-5 md:grid-cols-3">
-        {[{ n: total, t: "capas y fuentes en la plataforma" }, { n: ok, t: "con datos cargados hoy" }, { n: POR_BAJAR.length, t: "más encontradas para bajar" }].map((x) => (
-          <div key={x.t} className="rounded-2xl bg-superficie p-6 shadow-sm ring-1 ring-black/5">
-            <p className="text-3xl font-semibold leading-none tabular-nums" style={{ color: VERDE }}>{x.n ?? "…"}</p>
-            <p className="mt-2 text-base font-semibold">{x.t}</p>
-          </div>
+      <div className="grid gap-6 sm:grid-cols-3">
+        <Kpi valor={total ?? "…"} texto="fuentes ya cargadas" nota={<Link to="/fuentes" className="fuente-enlace">Ver el catálogo completo</Link>} />
+        <Kpi valor={comprobadas} texto="encontradas y que responden" nota="Aún no están en la plataforma" />
+        <Kpi valor={POR_BAJAR.length - comprobadas} tono="ambar" texto="conocidas, sin comprobar" nota="No se sabe si se pueden descargar" />
+      </div>
+      <ul className="mt-8 divide-y divide-nivel border-y border-nivel">
+        {POR_BAJAR.map((r) => (
+          <li key={r.que} className="grid gap-1 py-3 md:grid-cols-[minmax(0,16rem)_minmax(0,1fr)_auto] md:gap-6">
+            <p className="font-semibold">{r.que}</p>
+            <div className="min-w-0 text-sm">
+              <p>{r.para}</p>
+              <p className="mt-0.5 break-all text-xs text-tinta-tenue">{r.donde}</p>
+            </div>
+            <span className="self-start">{r.estado === "comprobada" ? <span className="clase clase-oficial">Existe y responde</span> : <EtiquetaClase clase="pendiente" />}</span>
+          </li>
         ))}
-      </div>
-      <p className="mt-4 text-base text-tinta-suave">De cada capa que ya está, con fecha, número de registros y limitaciones, hay detalle en <Link to="/fuentes" className="font-semibold text-marca underline underline-offset-4">Fuentes y calidad</Link>.</p>
-      <div className="mt-8 overflow-x-auto rounded-2xl bg-superficie shadow-sm ring-1 ring-black/5">
-        <table className="w-full min-w-[46rem] text-left text-sm">
-          <thead className="border-b border-nivel text-sm text-tinta-suave">
-            <tr><th className="px-5 py-3 font-semibold">Qué</th><th className="px-3 py-3 font-semibold">Dónde</th><th className="px-3 py-3 font-semibold">Para qué sirve</th><th className="px-5 py-3 font-semibold">Estado</th></tr>
-          </thead>
-          <tbody>
-            {POR_BAJAR.map((r) => (
-              <tr key={r.que} className="border-b border-nivel/60 align-top last:border-0">
-                <td className="w-56 px-5 py-3 font-semibold">{r.que}</td>
-                <td className="px-3 py-3 text-xs text-tinta-suave break-all">{r.donde}</td>
-                <td className="px-3 py-3 text-sm">{r.para}</td>
-                <td className="px-5 py-3">
-                  <span className={`inline-block whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${r.estado === "comprobada" ? "bg-menta text-marca" : "bg-ambar-claro text-ambar-texto"}`}>
-                    {r.estado === "comprobada" ? "Existe y responde" : "Por verificar"}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <p className="mt-3 text-sm text-tinta-tenue">"Existe y responde" significa que se consultó el servicio el 10 de octubre de 2026 desde el computador del equipo. "Por verificar" es una fuente conocida cuya descarga todavía no se comprobó aquí.</p>
+      </ul>
+      <p className="mt-3 text-sm text-tinta-tenue">“Existe y responde” significa que el servicio se consultó el 10 de octubre de 2026 y devolvió datos. “Pendiente” es una fuente conocida cuya descarga todavía no se comprobó.</p>
     </div>
   );
 }
@@ -308,67 +322,66 @@ function Catalogo() {
 function ValleDeAburra() {
   return (
     <div>
-      <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
-        <ol className="space-y-4">
+      <div className="grid gap-10 lg:grid-cols-[1.1fr_1fr]">
+        <ol className="space-y-5">
           {[
-            { t: "Cambiar la comuna por el territorio", d: "El pipeline filtra hoy por el código de comuna 02. Con un parámetro (comuna o municipio) la misma descarga sirve para cualquier otra." },
-            { t: "Usar lo que ya es nacional", d: "Población por manzana del Censo 2018 (DANE), caminos de OpenStreetMap y relieve del modelo de elevación existen para todo el país, sin depender de una alcaldía." },
+            { t: "Cambiar la comuna por el territorio", d: "El programa de descarga filtra hoy por el código de comuna 02. Con un parámetro (comuna o municipio) la misma descarga sirve para cualquier otra." },
+            { t: "Usar lo que ya es nacional", d: "Población por manzana del Censo 2018 (DANE), caminos de OpenStreetMap y relieve existen para todo el país, sin depender de una alcaldía." },
             { t: "Conseguir lo local", d: "Equipamientos, andenes, paradas, siniestros y normas del POT los publica cada alcaldía. Medellín lo hace por su geoportal; para los otros nueve municipios hay que verificar qué publican." },
-            { t: "Medir con el mismo método", d: "La red peatonal con pendiente, los tiempos de Tobler y los indicadores son los mismos. Lo que cambia es la fuente, que queda documentada en Fuentes y calidad." },
+            { t: "Medir con el mismo método", d: "La red peatonal con pendiente, los tiempos a pie y los indicadores son los mismos. Lo que cambia es la fuente, que queda documentada." },
             { t: "Comparar entre municipios", d: "Con el mismo método se pueden poner lado a lado espacio público por habitante, tiempo al transporte masivo y atropellos por mil habitantes." },
           ].map((p, i) => (
-            <li key={p.t} className="flex gap-4 rounded-2xl bg-superficie p-5 shadow ring-1 ring-black/5">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#1e40af] text-base font-semibold text-white">{i + 1}</span>
-              <div><p className="text-base font-semibold">{p.t}</p><p className="mt-0.5 text-base text-tinta-suave">{p.d}</p></div>
+            <li key={p.t} className="grid grid-cols-[2rem_1fr] gap-3">
+              <span className="font-mono text-sm text-tinta-tenue">{String(i + 1).padStart(2, "0")}</span>
+              <div><p className="font-semibold">{p.t}</p><p className="mt-0.5 text-sm text-tinta-suave">{p.d}</p></div>
             </li>
           ))}
         </ol>
-        <div className="rounded-2xl border-l-4 border-marca bg-menta-2 p-6">
-          <h3 className="text-base font-semibold">Qué es el POT y por qué importa</h3>
-          <p className="mt-2 text-base leading-relaxed">El Plan de Ordenamiento Territorial define qué se puede construir y dónde: usos del suelo, densidades, alturas, espacio público, vías y zonas de riesgo. En Medellín rige el Acuerdo 48 de 2014 y hoy está en revisión de mediano plazo.</p>
-          <p className="mt-3 text-base leading-relaxed">Según la prensa y la Alcaldía, el 2 de junio de 2026 el Distrito y el Área Metropolitana firmaron el acta de concertación de las determinantes ambientales y metropolitanas, y el siguiente paso es la concertación rural con Corantioquia y la discusión en el Concejo. La revisión toca cerca del 78 % del articulado.</p>
-          <p className="mt-3 text-base leading-relaxed">Cada municipio tiene su propio plan, y las determinantes metropolitanas son un marco común. Por eso un observatorio que cruce el POT con datos reales sirve en todo el Valle.</p>
+        <div className="panel-hondo p-6">
+          <div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold">Qué es el POT y por qué importa</h3></div>
+          <p className="mt-2 text-sm leading-relaxed">El Plan de Ordenamiento Territorial define qué se puede construir y dónde: usos del suelo, densidades, alturas, espacio público, vías y zonas de riesgo. En Medellín rige el Acuerdo 48 de 2014 y hoy está en revisión de mediano plazo.</p>
+          <p className="mt-3 text-sm leading-relaxed"><EtiquetaClase clase="prensa" /> Según la prensa y la Alcaldía, el 2 de junio de 2026 el Distrito y el Área Metropolitana firmaron el acta de concertación de las determinantes ambientales y metropolitanas; el siguiente paso es la concertación rural con Corantioquia y la discusión en el Concejo.</p>
+          <p className="mt-3 text-sm leading-relaxed">Cada municipio tiene su propio plan y las determinantes metropolitanas son un marco común. Por eso un observatorio que cruce el POT con datos reales serviría en todo el Valle.</p>
         </div>
       </div>
-      <div className="mt-8 overflow-x-auto rounded-2xl bg-superficie shadow-sm ring-1 ring-black/5">
-        <table className="w-full min-w-[40rem] text-left text-sm">
-          <thead className="border-b border-nivel text-sm text-tinta-suave">
-            <tr><th className="px-5 py-3 font-semibold">Municipio</th><th className="px-3 py-3 font-semibold">Censo 2018, OSM y relieve</th><th className="px-5 py-3 font-semibold">Datos locales (equipamientos, andenes, siniestros, POT)</th></tr>
-          </thead>
+      <div className="mt-10 overflow-x-auto">
+        <table className="tabla min-w-[36rem]">
+          <thead><tr><th>Municipio</th><th>Censo 2018, OSM y relieve</th><th>Datos locales (equipamientos, andenes, siniestros, POT)</th></tr></thead>
           <tbody>
             {MUNICIPIOS.map((m) => (
-              <tr key={m} className="border-b border-nivel/60 last:border-0">
-                <td className="px-5 py-3 font-semibold">{m}</td>
-                <td className="px-3 py-3"><span className="rounded-full bg-ambar-claro px-3 py-1 text-xs font-semibold text-ambar-texto">{m === "Medellín" ? "Descargado" : "Por verificar"}</span></td>
-                <td className="px-5 py-3"><span className={`rounded-full px-3 py-1 text-xs font-semibold ${m === "Medellín" ? "bg-menta text-marca" : "bg-ambar-claro text-ambar-texto"}`}>{m === "Medellín" ? "Geoportal de la Alcaldía (ya integrado)" : "Por verificar"}</span></td>
+              <tr key={m}>
+                <td className="font-semibold">{m}</td>
+                <td>{m === "Medellín" ? <span className="clase clase-oficial">Descargado</span> : <EtiquetaClase clase="pendiente" />}</td>
+                <td>{m === "Medellín" ? <span className="clase clase-oficial">Geoportal integrado</span> : <EtiquetaClase clase="pendiente" />}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
       <p className="mt-3 text-sm text-tinta-tenue">No se afirma qué publica cada municipio hasta comprobarlo capa por capa, igual que se hizo con Medellín.</p>
-      <Relacionados ids={["fuentes", "mapa", "indicadores"]} />
     </div>
   );
 }
 
 export default function Datos() {
   return (
-    <div className="relative isolate overflow-hidden">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-papel" />
-      <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
-        <Cabecera className="mb-10" etiqueta="Mis datos y descargas" icono="subir" titulo="Todo lo que bajes, aquí se ve"
-          texto="Sube un archivo y míralo al instante sobre la comuna, mira qué otros datos se pueden bajar y de dónde, y entiende cómo llevar esto a todo el Valle de Aburrá." />
-        <Seccion id="t-subir" titulo="Sube tus datos" texto="Pueden ser encuestas, recorridos de campo, puntos de obras, lo que tengas con una ubicación.">
-          <SubirDatos />
-        </Seccion>
-        <Seccion id="t-catalogo" titulo="Qué datos podemos bajar y de dónde" texto="Lo que ya está en la plataforma y lo que encontramos disponible, con su dirección.">
-          <Catalogo />
-        </Seccion>
-        <Seccion id="t-valle" titulo="De la Comuna 2 a todo el Valle de Aburrá" texto="El método no depende de Santa Cruz. Lo que cambia es la fuente de cada capa.">
-          <ValleDeAburra />
-        </Seccion>
-      </div>
+    <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
+      <Cabecera etiqueta="Mis datos" icono="subir" titulo="Pon tus propios datos sobre la comuna"
+        pregunta="¿Cómo se ven mis puntos junto a los datos de la comuna?"
+        texto="Sube una encuesta, un recorrido de campo o una lista de obras con coordenadas y mírala al instante sobre el mapa, contada por barrio. Tu archivo no sale de tu computador." />
+      <Seccion id="t-subir" titulo="Sube tus datos" pregunta="¿Dónde caen mis puntos y en qué barrios?"
+        texto="Lo que subas se queda en este navegador. OTEA no lo recibe, no lo publica y no lo mezcla con los datos oficiales: en el mapa aparece como una capa aparte llamada “Mis datos”.">
+        <SubirDatos />
+      </Seccion>
+      <Seccion id="t-catalogo" titulo="Datos que se podrían sumar" pregunta="¿Qué más existe y todavía no está?"
+        texto="Fuentes públicas que encontramos y que mejorarían los análisis. Ninguna está todavía en la plataforma.">
+        <Catalogo />
+      </Seccion>
+      <Seccion id="t-valle" titulo="De la Comuna 2 a todo el Valle de Aburrá" pregunta="¿Sirve esto para otra comuna o municipio?"
+        texto="El método no depende de Santa Cruz. Lo que cambia es la fuente de cada capa.">
+        <ValleDeAburra />
+      </Seccion>
+      <Relacionados ids={["fuentes", "mapa", "indicadores"]} />
     </div>
   );
 }

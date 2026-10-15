@@ -7,7 +7,7 @@ import { DIRECTORIO } from "../lib/acudir";
 import { habilesHasta, TIPOS_PETICION, vence, type TipoPeticion } from "../lib/plazos";
 import type { Coleccion, Indicadores } from "../lib/tipos";
 import { ConDatos } from "../components/Estado";
-import { Cabecera, Seccion } from "../components/Pagina";
+import { Aviso, Cabecera, Fuente, Relacionados, Seccion } from "../components/Pagina";
 
 type Fila = Record<string, number | string | null>;
 
@@ -100,7 +100,7 @@ function Actores({ codigo }: { codigo: string }) {
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       {filas.map(([g, nombres]) => (
-        <div key={g} className="rounded-2xl border border-nivel bg-superficie p-3 text-sm shadow-sm">
+        <div key={g} className="border-t border-nivel pt-2 text-sm">
           <p className="font-semibold">{g} <span className="font-normal text-tinta-suave">({nombres.length})</span></p>
           <ul className="mt-1 list-disc space-y-0.5 pl-4 text-xs text-tinta-suave">{nombres.slice(0, 8).map((n, i) => <li key={i}>{n}</li>)}{nombres.length > 8 && <li>y {nombres.length - 8} más</li>}</ul>
         </div>
@@ -197,52 +197,65 @@ function Contenido({ ind }: { ind: Indicadores }) {
         icono="estrella"
         titulo="Kit para líderes"
         texto="Para presidentes y miembros de JAC, ediles de la JAL y representantes al Consejo de Planeación: cifras del barrio para la reunión, cartas de petición, un contador de plazos y a quién acudir."
+        pregunta="¿Cómo preparo una solicitud con datos, a quién se la envío y cuándo me deben responder?"
       />
 
+      <ol aria-label="Cómo usar el kit" className="grid gap-px overflow-hidden rounded-xl bg-nivel sm:grid-cols-2 lg:grid-cols-5">
+        {[
+          ["Elige el barrio", "Las cifras y la carta se llenan solas."],
+          ["Lleva el resumen", "Tres frases con cifra para la reunión."],
+          ["Prepara la carta", "Derecho de petición con los datos del barrio."],
+          ["Radícala y anótala", "El contador te dice cuándo vence el plazo."],
+          ["Si no responden", "A quién acudir para escalar."],
+        ].map(([t, d], i) => (
+          <li key={t} className="bg-papel p-4"><p className="mono text-[0.72rem] text-marca">Paso {i + 1}</p><p className="mt-1 font-semibold">{t}</p><p className="text-sm text-tinta-suave">{d}</p></li>
+        ))}
+      </ol>
+
       {sinRespuesta > 0 && (
-        <p role="status" className="no-imprimir rounded-lg bg-ambar-claro px-3 py-2 text-sm text-tinta">
-          Tiene {sinRespuesta} {sinRespuesta === 1 ? "petición" : "peticiones"} sin respuesta con el plazo de referencia vencido. Revise el contador de plazos más abajo.
-        </p>
+        <div role="status" className="no-imprimir"><Aviso tono="ojo">Tienes {sinRespuesta} {sinRespuesta === 1 ? "petición" : "peticiones"} sin respuesta con el plazo de referencia vencido. Revisa el contador de plazos más abajo.</Aviso></div>
       )}
 
-      <div className="no-imprimir flex flex-wrap gap-2" role="group" aria-label="Elegir barrio">
+      <div className="no-imprimir flex flex-wrap items-center gap-1.5" role="group" aria-label="Elegir barrio">
+        <span className="mono mr-1 text-[0.7rem] uppercase tracking-[0.06em] text-tinta-tenue">Barrio</span>
         {ind.barrios.map((x) => (
-          <button key={x.codigo} type="button" aria-pressed={x.codigo === codigo} onClick={() => setCodigo(x.codigo)}
-            className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${x.codigo === codigo ? "bg-[#1e40af] text-white shadow" : "bg-superficie ring-1 ring-nivel hover:bg-menta"}`}>{x.nombre}</button>
+          <button key={x.codigo} type="button" aria-pressed={x.codigo === codigo} onClick={() => setCodigo(x.codigo)} className="chip !py-1 !text-[0.85rem]">{x.nombre}</button>
         ))}
       </div>
 
-      <Seccion id="t-l-resumen" titulo={`Resumen para la reunión: ${b.nombre}`} texto="Tres frases con cifra, listas para leer en voz alta o imprimir.">
-        <ul className="space-y-2 rounded-2xl border border-nivel bg-superficie p-4 text-sm shadow-sm">
+      <Seccion id="t-l-resumen" pregunta="¿Qué digo en la reunión?" titulo={`Resumen para la reunión: ${b.nombre}`} texto="Tres frases con cifra, listas para leer en voz alta o imprimir." fuente={<Fuente ids={["manzanas_censo", "espacio_publico", "siniestros_viales", "amenaza_movimiento_masa"]} calculo="índice de entorno de OTEA" />}>
+        <ul className="grid gap-3 border-l-2 border-tinta pl-4 text-[1.02rem]">
           <li>{num(b.poblacion_2018)} personas y {num(b.viviendas_2018)} viviendas (Censo 2018). Índice de entorno: {mio.total} de 100, puesto {ranking.indexOf(mio) + 1} de {ranking.length} barrios.</li>
           {peores.map((c) => (
             <li key={c.clave}>Punto débil: {c.nombre.toLowerCase()} ({c.valor == null ? "sin dato" : `${c.valor.toLocaleString("es-CO", { maximumFractionDigits: 2 })} ${c.unidad}`.trim()}), {c.puntos} de 100 frente a los demás barrios.</li>
           ))}
         </ul>
-        <button type="button" onClick={() => window.print()} className="no-imprimir mt-3 rounded-full bg-superficie px-3 py-1.5 text-sm font-medium ring-1 ring-nivel transition hover:bg-menta">Imprimir para la asamblea</button>
+        <button type="button" onClick={() => window.print()} className="boton boton-2 no-imprimir mt-4">Imprimir para la asamblea</button>
       </Seccion>
 
-      <Seccion mitad id="t-l-carta" titulo="Carta de derecho de petición" texto="Elija el tema: la carta se llena con las cifras del barrio. Complete los datos entre corchetes antes de radicarla.">
-        <details className="group">
-          <summary className="no-imprimir w-fit cursor-pointer list-none rounded-full bg-superficie px-4 py-2 text-sm font-semibold text-marca ring-1 ring-nivel hover:bg-menta">
+      <Seccion mitad id="t-l-carta" pregunta="¿Cómo lo pido por escrito?" titulo="Carta de derecho de petición" texto="Elige el tema: la carta se llena con las cifras del barrio. Completa los datos entre corchetes antes de radicarla.">
+        <Aviso tono="ojo" titulo="Es una plantilla, no asesoría jurídica">Revísala y adáptala a tu caso. Si el tema es delicado (una tutela, una demanda o una emergencia), busca apoyo en la Personería o en un consultorio jurídico.</Aviso>
+        <details className="group mt-4" open>
+          <summary className="no-imprimir boton boton-2 w-fit cursor-pointer list-none">
             <span className="group-open:hidden">Ver la carta</span><span className="hidden group-open:inline">Ocultar la carta</span>
           </summary>
         <div className="no-imprimir mt-3 flex flex-wrap gap-2" role="group" aria-label="Tema de la petición">
           {Object.entries(TEMAS).map(([id, x]) => (
             <button key={id} type="button" aria-pressed={id === tema} onClick={() => setTema(id)}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition ${id === tema ? "bg-[#1d4f9a] text-white" : "bg-superficie ring-1 ring-nivel hover:bg-menta"}`}>{x.nombre}</button>
+              className="chip !py-1 !text-xs">{x.nombre}</button>
           ))}
         </div>
-        <pre className="mt-3 overflow-x-auto whitespace-pre-wrap rounded-2xl border border-nivel bg-superficie p-4 font-sans text-sm leading-relaxed shadow-sm">{carta}</pre>
+        <pre className="vidrio mt-3 overflow-x-auto whitespace-pre-wrap p-5 font-sans text-sm leading-relaxed">{carta}</pre>
         <div className="no-imprimir mt-2 flex flex-wrap items-center gap-3">
-          <button type="button" onClick={copiar} className="rounded-full bg-marca px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110">{copiado ? "Copiada" : "Copiar carta"}</button>
+          <button type="button" onClick={copiar} className="boton boton-1">{copiado ? "Copiada" : "Copiar carta"}</button>
+          <button type="button" onClick={() => { const u = URL.createObjectURL(new Blob([carta], { type: "text/plain;charset=utf-8" })); const a = document.createElement("a"); a.href = u; a.download = `derecho-de-peticion-${b.nombre.toLowerCase().replace(/\s+/g, "-")}.txt`; a.click(); URL.revokeObjectURL(u); }} className="boton boton-2">Descargar (.txt)</button>
           <p className="text-xs text-tinta-suave">La entidad es una sugerencia: confirme qué dependencia atiende su tema antes de radicar.</p>
         </div>
         </details>
       </Seccion>
 
-      <Seccion mitad id="t-l-plazos" titulo="Contador de plazos" texto="Cuente los días hábiles que tiene la entidad para responder (Ley 1755 de 2015, art. 14): sin sábados, domingos ni festivos, y sin contar el día en que radicó. Si la entidad le avisa por escrito que necesita más tiempo, el plazo cambia.">
-        <div className="no-imprimir grid gap-3 rounded-2xl border border-nivel bg-superficie p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
+      <Seccion mitad id="t-l-plazos" pregunta="¿Cuándo me deben responder?" titulo="Contador de plazos" texto="Cuente los días hábiles que tiene la entidad para responder (Ley 1755 de 2015, art. 14): sin sábados, domingos ni festivos, y sin contar el día en que radicó. Si la entidad le avisa por escrito que necesita más tiempo, el plazo cambia.">
+        <div className="no-imprimir vidrio grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
           <label className="text-sm font-semibold sm:col-span-2">Asunto<input value={asunto} onChange={(e) => setAsunto(e.target.value)} maxLength={120} className={campo} placeholder="Andén de la calle 107" /></label>
           <label className="text-sm font-semibold sm:col-span-2">Entidad
             <input value={entidadNueva} onChange={(e) => setEntidadNueva(e.target.value)} maxLength={100} list="entidades-l" className={campo} placeholder={t.entidad} />
@@ -255,11 +268,11 @@ function Contenido({ ind }: { ind: Indicadores }) {
           </label>
           <label className="text-sm font-semibold">Radicada el<input type="date" value={rad} onChange={(e) => setRad(e.target.value)} className={campo} /></label>
           <label className="text-sm font-semibold">N.º de radicado<input value={numero} onChange={(e) => setNumero(e.target.value)} maxLength={40} className={campo} placeholder="Opcional" /></label>
-          <button type="button" onClick={agregar} className="rounded-full bg-marca px-4 py-2 text-sm font-semibold text-white">Agregar</button>
+          <button type="button" onClick={agregar} className="boton boton-1 justify-center">Agregar</button>
           {errorLista && <p role="alert" className="text-sm text-ladrillo sm:col-span-2 lg:col-span-4">{errorLista}</p>}
         </div>
         {lista.length === 0 ? (
-          <p className="mt-3 text-sm text-tinta-suave">Todavía no hay peticiones en seguimiento.</p>
+          <p className="vacio mt-3 text-sm">Todavía no hay peticiones en seguimiento. Agrega la primera con el formulario: se guarda solo en este navegador, nadie más la ve.</p>
         ) : (
           <ul className="mt-3 divide-y divide-nivel border-y border-nivel">
             {[...lista].sort((x, y) => Number(!!x.respondida) - Number(!!y.respondida) || limite(x).localeCompare(limite(y))).map((p) => {
@@ -288,14 +301,14 @@ function Contenido({ ind }: { ind: Indicadores }) {
         {sinRespuesta > 0 && <p className="no-imprimir mt-2 text-sm text-tinta-suave">Una petición vencida sin respuesta se puede llevar a la Personería. Mire a quién acudir más abajo.</p>}
       </Seccion>
 
-      <Seccion mitad id="t-l-acudir" titulo="A quién acudir" texto="Quién es cada entidad, para qué sirve y cómo llegarle. Solo están los datos que se confirmaron en páginas oficiales.">
+      <Seccion mitad id="t-l-acudir" pregunta="¿A quién acudo?" titulo="A quién acudir" texto="Quién es cada entidad, para qué sirve y cómo llegarle. Solo están los datos que se confirmaron en páginas oficiales.">
         <div className="space-y-6">
           {DIRECTORIO.map((g) => (
             <div key={g.titulo}>
               <h3 className="text-base font-semibold">{g.titulo}</h3>
               <ul className="mt-2 grid gap-3 sm:grid-cols-2">
                 {g.entradas.map((e) => (
-                  <li key={e.quien} className="rounded-2xl border border-nivel bg-superficie p-4 text-sm shadow-sm">
+                  <li key={e.quien} className="border-t-2 border-tinta pt-3 text-sm">
                     <p className="font-semibold">{e.quien}</p>
                     <p className="mt-1 text-tinta-suave">{e.para}</p>
                     <p className="mt-2"><span className="font-semibold">Cómo: </span>{e.como}</p>
@@ -314,7 +327,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
         </div>
       </Seccion>
 
-      <Seccion mitad id="t-l-ruta" titulo="Planeación Local y Presupuesto Participativo" texto="Las cuatro fases según la Subsecretaría de Planeación Local y Presupuesto Participativo de la Alcaldía. Las fechas de cada fase se consultan allá: cambian cada año.">
+      <Seccion mitad id="t-l-ruta" pregunta="¿Cómo se decide la inversión de la comuna?" titulo="Planeación Local y Presupuesto Participativo" texto="Las cuatro fases según la Subsecretaría de Planeación Local y Presupuesto Participativo de la Alcaldía. Las fechas de cada fase se consultan allá: cambian cada año.">
         <ol className="grid gap-3 sm:grid-cols-2">
           {[
             ["1. Planeación participativa", "Elegir o ser elegido representante al Consejo Comunal de Planeación y priorizar ideas para el Plan de Desarrollo Local."],
@@ -322,7 +335,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
             ["3. Ejecución", "Hacer control social a los proyectos elegidos mientras la Administración los ejecuta."],
             ["4. Evaluación", "Hacer seguimiento con los informes de seguimiento y evaluación."],
           ].map(([a, d]) => (
-            <li key={a} className="rounded-2xl border border-nivel bg-superficie p-4 text-sm shadow-sm"><p className="font-semibold">{a}</p><p className="mt-1 text-tinta-suave">{d}</p></li>
+            <li key={a} className="border-t-2 border-tinta pt-3 text-sm"><p className="font-semibold">{a}</p><p className="mt-1 text-tinta-suave">{d}</p></li>
           ))}
         </ol>
         <p className="mt-3 text-sm">
@@ -333,6 +346,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
           <li>Línea Única de Atención a la Ciudadanía: 604 44 44 144 · WhatsApp: 301 604 44 44 · atencion.ciudadana@medellin.gov.co</li>
         </ul>
       </Seccion>
+      <Relacionados ids={["prioridades", "reclamos", "barrio"]} />
     </div>
   );
 }

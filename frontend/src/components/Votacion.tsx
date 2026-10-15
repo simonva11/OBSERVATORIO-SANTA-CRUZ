@@ -78,15 +78,16 @@ export default function Votacion() {
 
   return (
     <section aria-labelledby="t-votacion" className="space-y-3">
-      <h2 id="t-votacion" className="text-lg font-semibold">¿Qué debería arreglarse primero en su barrio?</h2>
+      <p className="seccion-pregunta">Consulta de prueba</p>
+      <h2 id="t-votacion" className="seccion-titulo">¿Qué debería arreglarse primero en su barrio?</h2>
       <p className="text-sm text-tinta-suave">Un voto por barrio, que se puede cambiar. Es una consulta de prueba y no reemplaza el Presupuesto Participativo.</p>
       {estado === "sin_servidor" && (
-        <p role="status" className="rounded-lg bg-ambar-claro px-3 py-2 text-sm text-tinta">La votación no está disponible por ahora.</p>
+        <p role="status" className="aviso aviso-ojo">La votación necesita el servidor de OTEA, que no está encendido en esta versión publicada. Los botones quedan desactivados para no simular votos.</p>
       )}
       <div className="flex flex-wrap gap-2" role="group" aria-label="Barrio de la votación">
         {barrios.map((b) => (
           <button key={b.codigo} type="button" aria-pressed={b.codigo === barrio} onClick={() => setBarrio(b.codigo)}
-            className={`rounded-full px-3 py-1 text-xs font-medium transition ${b.codigo === barrio ? "bg-[#1e40af] text-white" : "bg-superficie ring-1 ring-nivel hover:bg-menta"}`}>{b.nombre}</button>
+            className="chip !py-1 !text-xs">{b.nombre}</button>
         ))}
       </div>
       <ul className="grid gap-2 sm:grid-cols-2">
@@ -96,7 +97,7 @@ export default function Votacion() {
           return (
             <li key={id}>
               <button type="button" disabled={estado !== "listo"} onClick={() => votar(id)} aria-pressed={mio}
-                className={`relative w-full overflow-hidden rounded-xl border px-3 py-2 text-left text-sm transition disabled:opacity-50 ${mio ? "border-marca font-semibold" : "border-nivel hover:bg-menta"}`}>
+                className={`relative w-full overflow-hidden rounded-xl border px-3 py-2 text-left text-sm transition disabled:opacity-50 ${mio ? "border-tinta font-semibold" : "border-nivel bg-superficie hover:border-tinta/50"}`}>
                 <span aria-hidden="true" className="absolute inset-y-0 left-0 bg-marca/15" style={{ width: `${total ? (n / total) * 100 : 0}%` }} />
                 <span className="relative flex justify-between gap-2"><span>{nombre}{mio ? " (su voto)" : ""}</span><span className="tabular-nums">{estado === "listo" ? n : "–"}</span></span>
               </button>

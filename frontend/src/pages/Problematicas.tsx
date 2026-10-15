@@ -2,14 +2,13 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useDatos } from "../lib/datos";
 import { dec, num } from "../lib/formato";
-import { Cuenta, Revelar } from "../components/Animacion";
+import { Cuenta } from "../components/Animacion";
 import { ConDatos } from "../components/Estado";
 import IconoNav from "../components/IconosNav";
-import type { Coleccion, Indicadores } from "../lib/tipos";
-import { Cabecera, Relacionados, Seccion } from "../components/Pagina";
+import type { Indicadores } from "../lib/tipos";
+import { Cabecera, Fuente, Relacionados, Seccion } from "../components/Pagina";
 
 const ROJO = "#c2301a";
-const VERDE = "rgb(var(--marca))";
 const AMBAR = "#b7791f";
 
 interface Seguridad {
@@ -34,20 +33,18 @@ interface Problema {
   explica: string;
   donde: string;
   fuente: string;
+  ids: string[];
+  limite: string;
   mapa?: string;
   enlace?: { a: string; texto: string };
   reto: string;
 }
 
-function Contenido({ ind, seg, eje, andenes }: { ind: Indicadores; seg: Seguridad; eje: Eje; andenes: Coleccion | null }) {
+function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad; eje: Eje }) {
   const c = ind.comuna;
   const barrios = ind.barrios;
-  const anchoMediano = useMemo(() => {
-    if (!andenes) return null;
-    const a = andenes.features.map((f) => Number(f.properties?.ancho_m)).filter((x) => isFinite(x) && x > 0).sort((x, y) => x - y);
-    if (!a.length) return null;
-    return { mediana: a[Math.floor(a.length / 2)], menores: (a.filter((x) => x < 1.5).length / a.length) * 100, n: a.length };
-  }, [andenes]);
+  const an = ind.infraestructura?.andenes;
+  const anchoMediano = useMemo(() => (an ? { mediana: an.ancho_mediano_m, menores: an.angostos_pct, km: an.km } : null), [an]);
 
   const peorEP = [...barrios].sort((a, b) => (a.espacio_publico_m2_hab ?? 99) - (b.espacio_publico_m2_hab ?? 99))[0];
   const peorAtrop = [...barrios].sort((a, b) => b.atropellos - a.atropellos)[0];
@@ -60,115 +57,107 @@ function Contenido({ ind, seg, eje, andenes }: { ind: Indicadores; seg: Segurida
 
   const problemas: Problema[] = ([
     {
-      id: "ep", icono: "arbol", color: ROJO, titulo: "Casi no hay dónde estar afuera",
+      id: "ep", icono: "arbol", color: ROJO, titulo: "Muy poco espacio público por persona",
       numero: c.espacio_publico_m2_hab ?? 0, decimales: 2, unidad: "m² de espacio público por persona",
       explica: `La referencia nacional es de 15 m². En ${peorEP.nombre} son ${dec(peorEP.espacio_publico_m2_hab)} m²: prácticamente nada.`,
       donde: `Peor: ${peorEP.nombre}, ${barrios.filter((b) => b.codigo !== peorEP.codigo && (b.espacio_publico_m2_hab ?? 99) < 0.5).map((b) => b.nombre).slice(0, 4).join(", ")}.`,
-      fuente: "Alcaldía de Medellín, espacio público existente y Censo 2018 (DANE)", mapa: "espacio_publico", reto: "Espacio público",
+      fuente: "Alcaldía de Medellín, espacio público existente y Censo 2018 (DANE)", ids: ["espacio_publico", "manzanas_censo"], limite: "Suma la capa de espacio público existente; no es el indicador oficial de espacio público efectivo.", mapa: "espacio_publico", reto: "Espacio público",
     },
     {
-      id: "atrop", icono: "alerta", color: ROJO, titulo: "Cruzar la calle se paga caro",
+      id: "atrop", icono: "alerta", color: ROJO, titulo: "Muchos atropellos en las calles de la comuna",
       numero: atropellos, unidad: "personas atropelladas entre 2019 y 2025",
       explica: `De ${num(c.siniestros_total)} siniestros viales, ${num(atropellos)} fueron atropellos. Además hay ${seg.mortalidad_vial.total} muertes viales registradas, ${atrop} de ellas por atropello.`,
       donde: `Más atropellos: ${peorAtrop.nombre} (${peorAtrop.atropellos}). Muertes por año: ${anios.map((a) => `${a.anio}: ${a.n}`).join(", ")}.`,
-      fuente: "Secretaría de Movilidad de Medellín: siniestros viales y mortalidad", mapa: "siniestros_viales,mortalidad_vial", reto: "Infraestructura peatonal",
+      fuente: "Secretaría de Movilidad de Medellín: siniestros viales y mortalidad", ids: ["siniestros_viales", "mortalidad_vial"], limite: "Son siniestros registrados: los que no se reportan no aparecen, y 2025 puede estar incompleto.", mapa: "siniestros_viales,mortalidad_vial", reto: "Infraestructura peatonal",
     },
     {
-      id: "49", icono: "andenes", color: ROJO, titulo: "La vía principal es la más peligrosa",
+      id: "49", icono: "andenes", color: ROJO, titulo: "La Carrera 49 concentra siniestros",
       numero: eje.estado_del_eje.siniestros_por_km, decimales: 0, unidad: "siniestros por km en la Carrera 49",
       explica: `${eje.estado_del_eje.siniestros_por_km_comuna ? `El promedio de las calles de la comuna es ${dec(eje.estado_del_eje.siniestros_por_km_comuna)}. ` : ""}Por la 49 van varias líneas de bus y sus andenes tienen una mediana de ${dec(eje.estado_del_eje.ancho_andén_mediana_m)} m.`,
       donde: "Eje de unos 2 km formado por Venezuela (Carrera 49), 49B y 49C.",
-      fuente: "Siniestros, andenes, paradas y rutas de la Secretaría de Movilidad; POT", mapa: "eje49,siniestros_viales", enlace: { a: "/corredor-49", texto: "Ver el análisis de la 49" }, reto: "Infraestructura vial",
+      fuente: "Siniestros, andenes, paradas y rutas de la Secretaría de Movilidad; POT", ids: ["siniestros_viales", "andenes", "rutas_bus"], limite: "Por la 49 pasa más gente y más buses: parte de la diferencia es exposición, no solo el diseño de la vía.", mapa: "eje49,siniestros_viales", enlace: { a: "/corredor-49", texto: "Ver el análisis de la 49" }, reto: "Infraestructura vial",
     },
     {
-      id: "andenes", icono: "andenes", color: AMBAR, titulo: "Los andenes no alcanzan",
+      id: "andenes", icono: "andenes", color: AMBAR, titulo: "Andenes angostos",
       numero: anchoMediano?.mediana ?? 0, decimales: 1, unidad: "m de ancho mediano del andén",
-      explica: anchoMediano ? `${dec(anchoMediano.menores)} % de los ${num(anchoMediano.n)} tramos inventariados mide menos de 1,5 m. El estado y el material no se pueden leer: el inventario oficial no publica el diccionario de sus códigos.` : "Pendiente de datos",
+      explica: anchoMediano ? `${dec(anchoMediano.menores)} % del largo de los ${dec(anchoMediano.km)} km de andén inventariado mide menos de 1,2 m, el ancho que OTEA usa como referencia para circular cómodo.` : "Pendiente de datos",
       donde: "En toda la comuna; el mapa los pinta rojo, amarillo y violeta según su ancho.",
-      fuente: "Inventario de andenes de la Secretaría de Movilidad (sin fecha de corte publicada)", mapa: "andenes", reto: "Infraestructura peatonal",
+      fuente: "Inventario de andenes de la Secretaría de Movilidad (sin fecha de corte publicada)", ids: ["andenes"], limite: "El inventario no tiene fecha de corte publicada ni diccionario de estado y material; 1,2 m es una referencia, no una norma verificada.", mapa: "andenes", reto: "Infraestructura peatonal",
     },
     {
       id: "metro", icono: "tren", color: AMBAR, titulo: "El Metro queda lejos de varios barrios",
       numero: eje.destinos.transporte_masivo.minutos_ruta_rapida, decimales: 1, unidad: "min caminando al Metro o Metrocable",
       explica: `Es el promedio de toda la comuna por la ruta más rápida. Dentro de la comuna solo está la estación ${c.estaciones_en_comuna[0] ?? "—"}. Los barrios más lejos son ${lejosMetro.map((b) => `${b.barrio} (${dec(b.minutos_ruta_rapida)} min)`).join(" y ")}.`,
       donde: `Tiempos estimados con la velocidad de Tobler sobre la red de caminos, no medidos en campo.`,
-      fuente: "Red peatonal del proyecto (calles, senderos y escaleras) y estaciones del Metro", mapa: "estaciones,lineas_transporte,escaleras_osm", enlace: { a: "/accesibilidad", texto: "Ver accesibilidad" }, reto: "Conexión con el resto de Medellín",
+      fuente: "Red peatonal del proyecto (calles, senderos y escaleras) y estaciones del Metro", ids: ["vias", "estaciones", "manzanas_censo"], limite: "Velocidad teórica de caminata: no incluye semáforos, cruces difíciles ni la sensación de seguridad.", mapa: "estaciones,lineas_transporte,escaleras_osm", enlace: { a: "/accesibilidad", texto: "Ver accesibilidad" }, reto: "Conexión con el resto de Medellín",
     },
     {
-      id: "riesgo", icono: "alerta", color: AMBAR, titulo: "Vivir en la ladera tiene riesgo",
+      id: "riesgo", icono: "alerta", color: AMBAR, titulo: "Parte de la comuna está en amenaza alta",
       numero: c.amenaza_pct["Alta"] ?? 0, decimales: 1, unidad: "% del área con amenaza alta por movimiento en masa",
       explica: `${dec(c.riesgo_pct["Con condiciones de riesgo"])} % del área tiene condiciones de riesgo y ${dec(c.riesgo_pct["Alto riesgo no mitigable"])} % está catalogada de alto riesgo no mitigable.`,
       donde: `Más expuesto: ${peorAmenaza.nombre} (${dec(peorAmenaza.amenaza_alta_pct)} % del barrio).`,
-      fuente: "POT de Medellín: amenaza por movimiento en masa y zonas de riesgo", mapa: "amenaza_movimiento_masa,riesgo_no_mitigable", reto: "Dónde construir",
+      fuente: "POT de Medellín: amenaza por movimiento en masa y zonas de riesgo", ids: ["amenaza_movimiento_masa", "riesgo_no_mitigable"], limite: "Es amenaza de planeación del POT, no una predicción ni el estado del terreno hoy.", mapa: "amenaza_movimiento_masa,riesgo_no_mitigable", enlace: { a: "/riesgo", texto: "Ver riesgo de ladera" }, reto: "Dónde construir",
     },
     {
-      id: "seguridad", icono: "corazon", color: AMBAR, titulo: "Hurtos que pasan cerca de la gente",
+      id: "seguridad", icono: "corazon", color: AMBAR, titulo: "Hurtos (último dato: 2017)",
       numero: seg.hurto_2017.total, unidad: "hurtos registrados en 2017",
       explica: `${seg.hurto_2017.por_tipo[0] ? `El más frecuente fue ${seg.hurto_2017.por_tipo[0].nombre.toLowerCase()} (${seg.hurto_2017.por_tipo[0].n}). ` : ""}Hubo ${seg.homicidio_2017.total} homicidios ese año. Es el último año publicado en esa capa y hay ${seg.camaras.total} cámaras registradas dentro de la comuna.`,
       donde: `Más hurtos: ${seg.hurto_2017.por_barrio.slice(0, 3).map((b) => `${b.nombre} (${b.n})`).join(", ")}.`,
-      fuente: "Secretaría de Seguridad de Medellín, indicadores de seguridad 2017 (solo conteos por barrio)", mapa: "camaras_cctv", reto: "Entorno de las obras",
+      fuente: "Secretaría de Seguridad de Medellín, indicadores de seguridad 2017 (solo conteos por barrio)", ids: ["hurto_2017", "homicidio_2017", "cctv_camaras"], limite: "El último año publicado por barrio es 2017: no sirve para decir cómo está la seguridad hoy.", mapa: "camaras_cctv", reto: "Entorno de las obras",
     },
     {
-      id: "vida", icono: "personas", color: ROJO, titulo: "Peor calidad de vida que casi toda la ciudad",
+      id: "vida", icono: "personas", color: ROJO, titulo: "Calidad de vida por debajo de casi toda la ciudad",
       numero: imcv.posicion ?? 0, unidad: `puesto entre ${imcv.de} en el índice de condiciones de vida (${imcv.ultimo_anio})`,
       explica: `Tiene ${dec(imcv.ultimo_valor)} puntos contra ${dec(imcv.mejor_valor_ciudad)} de ${imcv.mejor_territorio}. Solo ${imcv.de - (imcv.posicion ?? 0)} territorios están peor.`,
       donde: "Es un índice de toda la comuna: no se publica por barrio.",
-      fuente: "Encuesta de Calidad de Vida de Medellín (Alcaldía)", enlace: { a: "/indicadores", texto: "Ver indicadores" }, reto: "Contexto de la comuna",
+      fuente: "Encuesta de Calidad de Vida de Medellín (Alcaldía)", ids: ["indicadores_ecv"], limite: "Es un índice de toda la comuna; no se publica por barrio.", enlace: { a: "/indicadores", texto: "Ver indicadores" }, reto: "Contexto de la comuna",
     },
   ] as Problema[]).filter((p) => p.id !== "vida" || imcv.posicion != null);
 
   return (
-    <div className="space-y-8">
+    <>
       <Cabecera etiqueta="Problemáticas reales de la comuna" icono="alerta" titulo="Lo que pasa en Santa Cruz, con datos"
-        texto="Ocho problemas. Cada número viene de una fuente oficial que puedes revisar, y cada uno se puede ver en el mapa." />
+        texto="Ocho problemas que se pueden medir con datos públicos. Para cada uno: el número, dónde pesa más, de dónde sale, qué no se puede concluir y dónde estudiarlo mejor."
+        pregunta="¿Cuáles son los problemas que los datos ya muestran y qué tan seguros estamos de cada uno?" />
 
-      <Seccion id="t-p-ocho" titulo="Los ocho problemas" texto="Cada número viene de una fuente oficial que puedes revisar.">
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {problemas.map((p, i) => (
-          <Revelar key={p.id} retraso={(i % 2) * 100}>
-            <article className="vidrio vidrio--quieto flex h-full flex-col rounded-xl p-4">
-              <div className="flex items-center gap-3">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-white" style={{ background: p.color }}><IconoNav nombre={p.icono} className="h-7 w-7" trazo={1.9} /></span>
-                <h2 className="text-base font-semibold leading-snug">{p.titulo}</h2>
+      <Seccion id="t-p-ocho" pregunta="¿Qué muestran los datos?" titulo="Ocho problemas, uno por uno" texto="El orden no es un ranking de gravedad: va de lo que se vive en la calle al contexto de toda la comuna.">
+        <ol className="grid border-t-2 border-tinta">
+          {problemas.map((p, i) => (
+            <li key={p.id} className="grid gap-x-8 gap-y-3 border-b border-nivel py-6 lg:grid-cols-[3rem_minmax(0,1.1fr)_minmax(0,1.4fr)_minmax(0,1fr)]">
+              <p className="mono text-sm text-tinta-tenue">0{i + 1}</p>
+              <div>
+                <div className="flex items-center gap-2.5">
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-papel-hondo text-tinta"><IconoNav nombre={p.icono} className="h-5 w-5" trazo={1.9} /></span>
+                  <h3 className="fuente-titulo text-xl font-bold leading-tight">{p.titulo}</h3>
+                </div>
+                <p className="fuente-titulo mt-3 text-4xl font-extrabold leading-none tabular-nums" style={{ color: p.color === ROJO ? "rgb(var(--peligro))" : "rgb(var(--tinta))" }}>
+                  <Cuenta hasta={p.numero} decimales={p.decimales ?? 0} activo />
+                </p>
+                <p className="mt-1 text-sm font-medium">{p.unidad}</p>
               </div>
-              <p className="mt-3 text-[1.7rem] font-semibold leading-none tabular-nums" style={{ color: p.color === ROJO ? "rgb(var(--peligro))" : "rgb(var(--ambar))" }}>
-                <Cuenta hasta={p.numero} decimales={p.decimales ?? 0} activo />
-              </p>
-              <p className="mt-1 text-[0.85rem] font-semibold leading-snug">{p.unidad}</p>
-              <p className="mt-2 text-[0.85rem] leading-snug">{p.explica}</p>
-              <p className="mt-2 text-[0.85rem] leading-snug text-tinta-suave">{p.donde}</p>
-              <div className="mt-auto pt-5">
-                <p className="text-xs text-tinta-tenue">Fuente: {p.fuente}. Reto: {p.reto}.</p>
-                <div className="mt-3 flex flex-wrap gap-3">
-                  {p.mapa && (
-                    <Link to={`/mapa?capas=${p.mapa}`} className="inline-flex items-center gap-2 rounded-lg bg-menta px-3 py-1.5 text-sm font-semibold text-marca transition hover:brightness-95">
-                      <IconoNav nombre="mapa" className="h-5 w-5" trazo={2} /> Verlo en el mapa
-                    </Link>
-                  )}
-                  {p.enlace && (
-                    <Link to={p.enlace.a} className="inline-flex items-center gap-2 rounded-lg px-1 py-1.5 text-sm font-semibold text-marca underline underline-offset-4">
-                      {p.enlace.texto} <IconoNav nombre="flecha" className="h-5 w-5" trazo={2} />
-                    </Link>
-                  )}
+              <div className="text-[0.95rem]">
+                <p>{p.explica}</p>
+                <p className="mt-2 text-tinta-suave"><span className="mono text-[0.68rem] uppercase tracking-[0.05em] text-tinta-tenue">Dónde · </span>{p.donde}</p>
+                <p className="mt-2 text-tinta-suave"><span className="mono text-[0.68rem] uppercase tracking-[0.05em] text-tinta-tenue">Qué no dice · </span>{p.limite}</p>
+              </div>
+              <div className="grid content-start gap-3">
+                <Fuente ids={p.ids} />
+                <p className="mono text-[0.7rem] text-tinta-tenue">Tema del reto: {p.reto}</p>
+                <div className="flex flex-wrap gap-2">
+                  {p.mapa && <Link to={`/mapa?capas=${p.mapa}`} className="boton boton-2 !px-3 !py-1.5 !text-sm"><IconoNav nombre="mapa" className="h-4 w-4" trazo={2} /> En el mapa</Link>}
+                  {p.enlace && <Link to={p.enlace.a} className="boton boton-1 !px-3 !py-1.5 !text-sm">{p.enlace.texto}</Link>}
                 </div>
               </div>
-            </article>
-          </Revelar>
-        ))}
-      </div>
+            </li>
+          ))}
+        </ol>
       </Seccion>
 
-      <Revelar>
-        <div className="rounded-xl bg-menta-2 px-5 py-5">
-          <h2 className="text-lg font-semibold" style={{ color: VERDE }}>Y qué se hace con esto</h2>
-          <p className="mt-2 max-w-3xl text-sm text-tinta-suave">La plataforma convierte estas problemáticas en obras posibles, con cuánta gente ayuda cada una y cuánto cuesta. Los costos quedan en blanco hasta que se registre una fuente.</p>
-          <Link to="/prioridades" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold underline underline-offset-4" style={{ color: VERDE }}>
-            Ver prioridad de obras <IconoNav nombre="flecha" className="h-5 w-5" trazo={2} />
-          </Link>
-        </div>
-      </Revelar>
+      <Seccion id="t-p-ahora" pregunta="¿Y ahora qué?" titulo="De los problemas a las decisiones" texto="Los problemas se convierten en obras posibles en Prioridad de obras, con cuánta gente ayudaría cada una. El costo no se muestra porque no hay una fuente pública confiable de precios." siguiente={[{ to: "/prioridades", texto: "Ver prioridad de obras" }, { to: "/lideres", texto: "Pedir una obra por escrito" }]}>
+        <span className="sr-only">Acciones</span>
+      </Seccion>
       <Relacionados ids={["corredor", "accesibilidad", "prioridades"]} />
-    </div>
+    </>
   );
 }
 
@@ -176,15 +165,11 @@ export default function Problematicas() {
   const ind = useDatos<Indicadores>("indicadores.json");
   const seg = useDatos<Seguridad>("seguridad.json");
   const eje = useDatos<Eje>("eje49.json");
-  const and = useDatos<Coleccion>("andenes.geojson");
   return (
-    <div className="relative isolate overflow-hidden">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-papel" />
-      <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
-        <ConDatos estado={ind}>
-          {(i) => <ConDatos estado={seg}>{(s) => <ConDatos estado={eje}>{(e) => <Contenido ind={i} seg={s} eje={e} andenes={and.estado === "listo" ? and.datos : null} />}</ConDatos>}</ConDatos>}
-        </ConDatos>
-      </div>
+    <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
+      <ConDatos estado={ind}>
+        {(i) => <ConDatos estado={seg}>{(s) => <ConDatos estado={eje}>{(e) => <Contenido ind={i} seg={s} eje={e} />}</ConDatos>}</ConDatos>}
+      </ConDatos>
     </div>
   );
 }

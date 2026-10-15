@@ -1,4 +1,4 @@
-import { Cabecera } from "../components/Pagina";
+import { Aviso, Cabecera, Relacionados } from "../components/Pagina";
 import Votacion from "../components/Votacion";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { CircleMarker, GeoJSON, MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
@@ -165,7 +165,7 @@ export default function Participacion() {
       lon: +punto.lon.toFixed(6),
       barrio: barrioDe(punto.lat, punto.lon),
       fecha: new Date().toISOString(),
-      estado: "Recibido",
+      estado: "Recibido", // solo en este navegador: no hay servidor que lo reciba
     };
     setReportes((rs) => [r, ...rs]);
     setCategoria("");
@@ -175,7 +175,7 @@ export default function Participacion() {
     abierto.current = Date.now();
     setPunto(null);
     setConfirmarDuplicado(false);
-    setMensaje(`Reporte guardado${r.barrio ? ` en ${r.barrio}` : ""}. Quedó en estado Recibido.`);
+    setMensaje(`Reporte guardado en este navegador${r.barrio ? ` (${r.barrio})` : ""}. Todavía no llega a ninguna entidad: compártelo por WhatsApp o repórtalo en ReportesMED para que alguien lo vea.`);
   };
 
   const ponerFoto = async (f?: File) => {
@@ -204,26 +204,37 @@ export default function Participacion() {
   return (
     <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
       <Cabecera etiqueta="Participación" icono="participacion" titulo="Reportar un problema"
-        texto="Andenes dañados, puntos peligrosos, barreras de acceso, parques deteriorados o conexiones que hacen falta. Los reportes servirán como insumo para el Presupuesto Participativo y las entidades, no como decisiones automáticas.">
-        <p className="w-full rounded-lg bg-ambar-claro px-3 py-2 text-sm text-tinta">
-          Por ahora esto es una prueba: los reportes todavía no llegan a ninguna entidad.
+        texto="Andenes dañados, puntos peligrosos, barreras de acceso, parques deteriorados o conexiones que hacen falta. Cuatro pasos cortos: qué pasa, cuéntalo, una foto si quieres y dónde queda."
+        pregunta="¿Cómo dejo constancia de un problema de mi cuadra y qué pasa después?" />
+
+      <Aviso tono="demo" titulo="Esto es una prueba: tu reporte no llega a ninguna entidad">
+        Por ahora el reporte se guarda solo en este navegador; nadie más lo ve y la Alcaldía no lo recibe. Para que alguien lo atienda, compártelo por WhatsApp con tu JAC o repórtalo en <a className="font-semibold underline" href="https://www.medellin.gov.co/es/sala-de-prensa/noticias/con-reportesmed-ciudadanos-podran-reportar-escombros-huecos-en-las-calles-y-danos-en-luminarias/" target="_blank" rel="noopener noreferrer">ReportesMED</a>, la aplicación de la Alcaldía.
+      </Aviso>
+      {!almacenamiento && (
+        <p role="alert" className="aviso aviso-ojo">
+          Este navegador no permite guardar datos (modo privado o almacenamiento bloqueado). Los reportes se perderán al cerrar la página.
         </p>
-        {!almacenamiento && (
-          <p role="alert" className="w-full text-sm text-ladrillo">
-            Este navegador no permite guardar datos (modo privado o almacenamiento bloqueado). Los reportes se perderán al cerrar la página.
-          </p>
-        )}
-      </Cabecera>
+      )}
+
+      <section aria-label="Qué pasa con tu reporte" className="grid gap-6 md:grid-cols-3">
+        {[
+          ["Qué se guarda", "Tipo de problema, descripción, urgencia, el punto en el mapa, el barrio y la foto si la pones. No se piden nombre, teléfono ni correo."],
+          ["Quién lo ve", "Solo tú, en este navegador. Puedes borrarlo cuando quieras. Cuando exista el servidor, se verá agregado por barrio, nunca con datos de quien reporta."],
+          ["Qué pasará después", "La idea es que la JAC valide los reportes y que sirvan como insumo para Presupuesto Participativo y las entidades. Eso todavía no está funcionando."],
+        ].map(([t, d]) => (
+          <div key={t} className="border-t-2 border-tinta pt-3"><p className="font-semibold">{t}</p><p className="mt-1 text-sm text-tinta-suave">{d}</p></div>
+        ))}
+      </section>
 
       <Votacion />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
-        <form onSubmit={enviar} noValidate className="relative space-y-4 vidrio vidrio--quieto rounded-xl p-4">
+        <form onSubmit={enviar} noValidate className="vidrio relative space-y-5 p-5">
           <fieldset>
-            <legend className="font-semibold">1. ¿Qué pasa?</legend>
+            <legend className="font-semibold"><span className="mono mr-2 text-sm text-marca">01</span>¿Qué pasa?</legend>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
               {Object.entries(CATEGORIAS).map(([id, n]) => (
-                <label key={id} className={`cursor-pointer rounded-xl border px-3 py-2 text-sm transition ${categoria === id ? "border-marca bg-marca/10 font-semibold" : "border-nivel bg-superficie hover:bg-menta"}`}>
+                <label key={id} className={`cursor-pointer rounded-xl border px-3 py-2 text-sm transition ${categoria === id ? "border-tinta bg-tinta font-semibold text-papel" : "border-nivel bg-superficie hover:border-tinta/50"}`}>
                   <input type="radio" name="categoria" value={id} checked={categoria === id} className="sr-only"
                     onChange={() => { setCategoria(id); setConfirmarDuplicado(false); }} />
                   {n}
@@ -235,7 +246,7 @@ export default function Participacion() {
 
           <div>
             <label htmlFor="descripcion" className="block font-semibold">
-              2. Cuéntelo
+              <span className="mono mr-2 text-sm text-marca">02</span>Cuéntalo
             </label>
             <textarea
               id="descripcion"
@@ -246,13 +257,13 @@ export default function Participacion() {
               aria-invalid={!!errores.descripcion}
               aria-describedby="ayuda-desc"
               placeholder="Ejemplo: el andén de la calle 107 frente a la cancha está roto y la gente camina por la vía."
-              className="mt-1 w-full rounded-md border border-nivel px-2 py-2"
+              className="campo mt-1"
             />
             <p id="ayuda-desc" className={`mt-1 text-sm ${errores.descripcion ? "text-ladrillo" : "text-tinta-tenue"}`}>
               {errores.descripcion ?? `${descripcion.trim().length} de 1.000 caracteres (mínimo 20). Sin nombres, teléfonos, correos ni enlaces.`}
             </p>
             <label htmlFor="urgencia" className="mt-3 block text-sm font-semibold">¿Qué tan urgente es?</label>
-            <select id="urgencia" value={urgencia} onChange={(e) => setUrgencia(e.target.value)} className="mt-1 w-full rounded-md border border-nivel bg-superficie px-2 py-2 text-sm">
+            <select id="urgencia" value={urgencia} onChange={(e) => setUrgencia(e.target.value)} className="campo mt-1">
               <option value="">Elija una opción</option>
               {Object.entries(URGENCIAS).map(([id, n]) => <option key={id} value={id}>{n}</option>)}
             </select>
@@ -260,10 +271,10 @@ export default function Participacion() {
           </div>
 
           <div>
-            <label htmlFor="foto" className="block font-semibold">3. Una foto (opcional)</label>
+            <label htmlFor="foto" className="block font-semibold"><span className="mono mr-2 text-sm text-marca">03</span>Una foto (opcional)</label>
             <div className="mt-1 flex items-center gap-3">
               <input id="foto" type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => { ponerFoto(e.target.files?.[0]); e.target.value = ""; }} className="peer sr-only" />
-              <label htmlFor="foto" className="cursor-pointer rounded-full bg-marca px-4 py-1.5 text-sm font-medium text-white transition hover:brightness-110 peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-marca">{foto ? "Cambiar foto" : "Elegir foto"}</label>
+              <label htmlFor="foto" className="boton boton-2 cursor-pointer !py-1.5 !text-sm peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-marca">{foto ? "Cambiar foto" : "Elegir foto"}</label>
               <span className="text-sm text-tinta-suave">{foto ? "Foto lista" : "Ninguna foto elegida"}</span>
             </div>
             <p className={`mt-1 text-xs ${errores.foto ? "text-ladrillo" : "text-tinta-tenue"}`}>{errores.foto || "JPG, PNG o WebP. Se reduce y se le borra la ubicación y los datos del celular. Evite que salgan caras o placas."}</p>
@@ -276,14 +287,14 @@ export default function Participacion() {
           </div>
 
           <div>
-            <p className="font-semibold">4. ¿Dónde queda?</p>
+            <p className="font-semibold"><span className="mono mr-2 text-sm text-marca">04</span>¿Dónde queda?</p>
             <p className={`text-sm ${errores.punto ? "text-ladrillo" : "text-tinta-suave"}`}>
               {errores.punto ??
                 (punto
                   ? `Punto marcado${barrioDe(punto.lat, punto.lon) ? ` en ${barrioDe(punto.lat, punto.lon)}` : ""}. Puede hacer clic en otro lugar para cambiarlo.`
                   : "Haga clic en el mapa (los nombres son los barrios) o use su ubicación.")}
             </p>
-            <button type="button" onClick={miUbicacion} disabled={ubicando} className="mt-2 rounded-full bg-superficie px-3 py-1.5 text-sm font-medium ring-1 ring-nivel transition hover:bg-menta disabled:opacity-50">
+            <button type="button" onClick={miUbicacion} disabled={ubicando} className="boton boton-2 mt-2 !py-1.5 !text-sm disabled:opacity-50">
               {ubicando ? "Buscando…" : "Usar mi ubicación"}
             </button>
           </div>
@@ -294,13 +305,13 @@ export default function Participacion() {
           </div>
 
           {duplicado && (
-            <div className="rounded-md border border-ambar/40 bg-ambar-claro p-3 text-sm">
+            <div className="aviso aviso-ojo text-sm">
               <p>
                 Ya hay un reporte de este tipo a menos de 30 m, hecho el {fecha(duplicado.fecha)}: “{duplicado.descripcion.slice(0, 80)}
                 {duplicado.descripcion.length > 80 ? "…" : ""}”.
               </p>
               <label className="mt-2 flex items-center gap-2">
-                <input type="checkbox" checked={confirmarDuplicado} onChange={(e) => setConfirmarDuplicado(e.target.checked)} className="accent-[#3b82f6]" />
+                <input type="checkbox" checked={confirmarDuplicado} onChange={(e) => setConfirmarDuplicado(e.target.checked)} className="accent-[#1f40cc]" />
                 Es un problema distinto
               </label>
               {errores.duplicado && <p className="mt-1 text-ladrillo">{errores.duplicado}</p>}
@@ -308,8 +319,8 @@ export default function Participacion() {
           )}
 
           {errores.general && <p role="alert" className="text-sm text-ladrillo">{errores.general}</p>}
-          <button type="submit" className="w-full rounded-md bg-acento px-4 py-2.5 font-semibold text-white hover:bg-acento-hondo">
-            Guardar reporte
+          <button type="submit" className="boton boton-1 w-full justify-center !py-3">
+            Guardar en este navegador
           </button>
           {/* shortcut: sin servidor, así que el reporte "sale" por el WhatsApp de quien lo hace; con backend se cambia por un POST. */}
           {categoria && revisarDescripcion(descripcion).ok && (
@@ -317,19 +328,19 @@ export default function Participacion() {
               href={`https://wa.me/?text=${encodeURIComponent(`Reporte OTEA Santa Cruz\n${CATEGORIAS[categoria] ?? categoria}: ${revisarDescripcion(descripcion).ok ? limpiarTexto(descripcion) : ""}${punto ? `\nUbicación: https://maps.google.com/?q=${punto.lat.toFixed(5)},${punto.lon.toFixed(5)}` : ""}`)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full rounded-md border border-nivel px-4 py-2.5 text-center font-semibold hover:bg-menta"
+              className="boton boton-2 w-full justify-center !py-3"
             >
               Compartir por WhatsApp
             </a>
           )}
           {mensaje && (
-            <p role="status" className="text-sm text-marca">
+            <p role="status" className="aviso aviso-info text-sm">
               {mensaje}
             </p>
           )}
         </form>
 
-        <div className="h-[420px] overflow-hidden rounded-lg border border-nivel lg:h-auto lg:min-h-[460px]">
+        <div className="h-[420px] overflow-hidden rounded-xl border border-nivel lg:h-auto lg:min-h-[460px]">
           <MapContainer bounds={CAJA} className="h-full w-full" zoomSnap={0.25}>
             <TileLayer
               url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -338,13 +349,13 @@ export default function Participacion() {
               className="base-clara"
             />
             {barrios.estado === "listo" && (
-              <GeoJSON data={barrios.datos} style={{ color: "#1e40af", weight: 1, fillOpacity: 0.03 }} onEachFeature={(f, l) => l.bindTooltip(String(f.properties?.nombre ?? ""), { permanent: true, direction: "center", className: "rotulo-barrio" })} />
+              <GeoJSON data={barrios.datos} style={{ color: "#1f40cc", weight: 1, fillOpacity: 0.03 }} onEachFeature={(f, l) => l.bindTooltip(String(f.properties?.nombre ?? ""), { permanent: true, direction: "center", className: "rotulo-barrio" })} />
             )}
             {comuna.estado === "listo" && (
-              <GeoJSON data={comuna.datos} interactive={false} style={{ color: "#0c1d3a", weight: 2.5, dashArray: "8 5", fillOpacity: 0 }} />
+              <GeoJSON data={comuna.datos} interactive={false} style={{ color: "#101729", weight: 2.5, dashArray: "8 5", fillOpacity: 0 }} />
             )}
             {reportes.map((r) => (
-              <CircleMarker key={r.id} center={[r.lat, r.lon]} radius={6} pathOptions={{ color: "#fff", weight: 1.5, fillColor: "#1d4fa0", fillOpacity: 1 }} />
+              <CircleMarker key={r.id} center={[r.lat, r.lon]} radius={6} pathOptions={{ color: "#fff", weight: 1.5, fillColor: "#1f40cc", fillOpacity: 1 }} />
             ))}
             {punto && (
               <CircleMarker center={[punto.lat, punto.lon]} radius={9} pathOptions={{ color: "#fff", weight: 2.5, fillColor: "#a8452b", fillOpacity: 1 }} />
@@ -355,11 +366,12 @@ export default function Participacion() {
         </div>
       </div>
 
-      <section>
-        <h2 className="text-lg font-semibold">Sus reportes</h2>
+      <section aria-labelledby="t-mis">
+        <p className="seccion-pregunta">Guardados en este navegador</p>
+        <h2 id="t-mis" className="seccion-titulo">Tus reportes</h2>
         {reportes.length === 0 ? (
-          <p className="mt-3 rounded-md border border-dashed border-nivel p-4 text-sm text-tinta-suave">
-            Todavía no hay reportes. Use el formulario para crear el primero.
+          <p className="vacio mt-3 text-sm">
+            Todavía no hay reportes en este navegador. Usa el formulario para crear el primero.
           </p>
         ) : (
           <ul className="mt-3 divide-y divide-nivel border-y border-nivel">
@@ -375,7 +387,7 @@ export default function Participacion() {
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="rounded bg-cable-claro px-1.5 py-0.5 text-xs font-medium text-cable">{r.estado}</span>
+                  <span className="clase clase-demo">Solo en este navegador</span>
                   <button type="button" onClick={() => borrar(r.id)} className="text-sm text-ladrillo underline-offset-2 hover:underline">
                     Borrar
                   </button>
@@ -385,6 +397,7 @@ export default function Participacion() {
           </ul>
         )}
       </section>
+      <Relacionados ids={["reclamos", "lideres", "mapa"]} />
     </div>
   );
 }
