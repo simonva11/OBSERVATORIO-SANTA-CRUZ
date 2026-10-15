@@ -2,21 +2,19 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import IconoNav from "./IconosNav";
 import Paleta from "./Paleta";
-import FondoPagina from "./FondoPagina";
-import { ACENTOS } from "../lib/marca";
+import { acentoDeRuta } from "../lib/marca";
 import { GRUPOS, grupoDeRuta, type ModuloMenu } from "../lib/menu";
 
 export function Logo({ className = "" }: { className?: string }) {
-  // Curvas de nivel de una ladera con la línea de un cable aéreo encima.
+  // Tres curvas de nivel de la ladera y la línea del cable aéreo que la cruza: la comuna vista como un mapa.
   return (
     <svg viewBox="0 0 40 40" className={className} aria-hidden="true">
-      <defs><linearGradient id="logo-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#3b82f6" /><stop offset="1" stopColor="#1d4f9a" /></linearGradient></defs>
-      <rect width="40" height="40" rx="9" fill="url(#logo-g)" />
-      <path d="M2 34 C12 30 18 22 38 20" stroke="#bfdbfe" strokeWidth="1.6" fill="none" />
-      <path d="M2 38 C14 34 22 28 38 27" stroke="#bfdbfe" strokeWidth="1.6" fill="none" />
-      <path d="M4 26 L36 8" stroke="#f4f8fe" strokeWidth="1.6" />
-      <rect x="17" y="15" width="6" height="5" rx="1" fill="#f4f8fe" />
-      <path d="M20 13.5 V15" stroke="#f4f8fe" strokeWidth="1.4" />
+      <rect width="40" height="40" rx="10" fill="#1f40cc" />
+      <path d="M3 33c9-1 14-8 21-10s10-6 13-11" stroke="#fff" strokeOpacity=".45" strokeWidth="1.6" fill="none" />
+      <path d="M3 38c10-1 16-7 23-9s9-5 12-9" stroke="#fff" strokeOpacity=".3" strokeWidth="1.6" fill="none" />
+      <path d="M3 27c8-1 12-7 18-9s9-7 11-13" stroke="#fff" strokeOpacity=".7" strokeWidth="1.6" fill="none" />
+      <path d="M5 30 35 10" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="20" cy="20" r="3.2" fill="#fff" />
     </svg>
   );
 }
@@ -56,10 +54,9 @@ function ItemMenu({ m, compacta, onNavegar }: { m: ModuloMenu; compacta: boolean
       onClick={onNavegar}
       title={compacta ? m.nombre : undefined}
       aria-label={m.nombre}
-      style={({ isActive }) => (isActive ? { backgroundImage: `linear-gradient(135deg, ${ACENTOS.violeta.medio}, ${ACENTOS.violeta.vivo})` } : undefined)}
       className={({ isActive }) =>
         `group relative flex items-center rounded-xl transition-colors ${compacta ? "flex-col justify-center gap-1 px-1 py-2" : "gap-3 px-3 py-2 text-[0.9rem]"} ${
-          isActive ? "text-white shadow-md shadow-acento/25" : "text-tinta hover:bg-acento/10"
+          isActive ? "bg-tinta text-papel" : "text-tinta hover:bg-papel-hondo"
         }`
       }
     >
@@ -274,16 +271,16 @@ function IndicePagina({ raiz }: { raiz: React.RefObject<HTMLElement> }) {
   }, [items, raiz]);
   if (items.length < 3 || pathname === "/") return null;
   return (
-    <nav aria-label="En esta página" className="sticky top-0 z-20 border-b border-nivel/70 bg-papel/92 backdrop-blur">
+    <nav aria-label="En esta página" className="barra-sup sticky top-0 z-20">
       <ul className="mx-auto flex max-w-[112rem] items-center gap-1.5 overflow-x-auto px-4 py-1.5 lg:px-8 2xl:px-12 [scrollbar-width:none]">
-        <li className="shrink-0 pr-1 text-xs font-medium text-tinta-tenue">En esta página</li>
+        <li className="mono shrink-0 pr-2 text-[0.68rem] uppercase tracking-[0.06em] text-tinta-tenue">En esta página</li>
         {items.map((i) => (
           <li key={i.id} className="shrink-0">
             <button
               type="button"
               onClick={() => document.getElementById(i.id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
               aria-current={activo === i.id ? "true" : undefined}
-              className={`max-w-[15rem] truncate rounded-full px-3 py-1 text-xs font-medium transition-colors ${activo === i.id ? "bg-marca text-white" : "text-tinta-suave hover:bg-acento/10 hover:text-tinta"}`}
+              className={`max-w-[15rem] truncate rounded-full px-3 py-1 text-xs font-medium transition-colors ${activo === i.id ? "bg-tinta text-papel" : "text-tinta-suave hover:bg-papel-hondo hover:text-tinta"}`}
             >
               {i.t}
             </button>
@@ -312,10 +309,12 @@ function BarraModulos() {
       document.removeEventListener("keydown", esc);
     };
   }, [abierto]);
+  const tono = acentoDeRuta(pathname).medio;
   const chip = (activa: boolean) =>
-    `flex items-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-1.5 text-[0.88rem] font-medium transition-colors ${activa ? "bg-acento/15 text-tinta" : "text-tinta-suave hover:bg-acento/10 hover:text-tinta"}`;
+    `relative flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[0.9rem] transition-colors ${activa ? "font-semibold text-tinta" : "font-medium text-tinta-suave hover:bg-papel-hondo hover:text-tinta"}`;
+  const raya = (activa: boolean) => (activa ? <span aria-hidden="true" className="absolute inset-x-2.5 -bottom-[0.6rem] h-[3px] rounded-full" style={{ background: tono }} /> : null);
   return (
-    <nav ref={ref} aria-label="Módulos" className="hidden items-center gap-0.5 lg:flex">
+    <nav ref={ref} aria-label="Módulos" className="hidden min-w-0 items-center gap-0.5 xl:flex">
       {GRUPOS.map((g, i) => {
         const esActivo = activo === g.id;
         if (g.modulos.length === 1) {
@@ -324,6 +323,7 @@ function BarraModulos() {
             <NavLink key={g.id} to={m.ruta} className={chip(esActivo)} aria-current={esActivo ? "page" : undefined}>
               <IconoNav nombre={m.icono} className="h-4 w-4" trazo={esActivo ? 2.2 : 1.8} />
               {m.corto}
+              {raya(esActivo)}
             </NavLink>
           );
         }
@@ -332,14 +332,15 @@ function BarraModulos() {
           <div key={g.id} className="relative">
             <button type="button" aria-expanded={abre} aria-haspopup="true" onClick={() => setAbierto(abre ? null : g.id)} className={chip(esActivo || abre)}>
               {g.titulo}
+              {raya(esActivo)}
               <svg viewBox="0 0 24 24" aria-hidden="true" className={`h-3.5 w-3.5 transition-transform ${abre ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
             </button>
             {abre && (
-              <div className={`absolute top-full z-[1200] mt-2 w-80 rounded-2xl border border-nivel bg-superficie p-2 shadow-xl ${i >= 4 ? "right-0" : "left-0"}`}>
+              <div className={`absolute top-full z-[1200] mt-3 w-[22rem] rounded-xl border border-nivel bg-superficie p-1.5 shadow-[0_18px_40px_-16px_rgb(16_23_41/0.35)] ${i >= 4 ? "right-0" : "left-0"}`}>
                 {g.modulos.map((m) => (
                   <NavLink key={m.ruta} to={m.ruta} end={m.ruta === "/"} onClick={() => setAbierto(null)}
-                    className={({ isActive }) => `flex items-start gap-3 rounded-xl px-3 py-2 transition-colors ${isActive ? "bg-acento/15" : "hover:bg-acento/10"}`}>
-                    <IconoNav nombre={m.icono} className="mt-0.5 h-5 w-5 shrink-0 text-acento" trazo={1.8} />
+                    className={({ isActive }) => `flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors ${isActive ? "bg-papel-hondo" : "hover:bg-papel-hondo"}`}>
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-white" style={{ background: acentoDeRuta(m.ruta).medio }}><IconoNav nombre={m.icono} className="h-[1.1rem] w-[1.1rem]" trazo={1.9} /></span>
                     <span className="min-w-0">
                       <span className="flex items-center gap-2 text-[0.92rem] font-semibold">
                         {m.nombre}
@@ -390,36 +391,39 @@ export default function Layout({ children }: { children: ReactNode }) {
       </a>
 
       {/* Barra superior: en computador lleva los módulos agrupados en desplegables; en celular, un botón de menú */}
-      <header data-cromo="cabecera" className="relative z-[1100] flex items-center gap-3 border-b border-nivel bg-papel px-4 py-2.5 lg:px-6">
+      <header data-cromo="cabecera" className="barra-sup relative z-[1100] flex items-center gap-3 px-4 py-2.5 lg:px-6">
         <NavLink to="/" className="flex shrink-0 items-center gap-2.5" aria-label="OTEA, ir al inicio">
           <Logo className="h-8 w-8" />
-          <p className="font-bold tracking-[0.1em]">OTEA<span className="hidden font-normal tracking-normal text-tinta-suave xl:inline"> · Santa Cruz</span></p>
+          <p className="leading-none"><span className="fuente-titulo text-[1.15rem] font-extrabold tracking-[0.04em]">OTEA</span><span className="mono hidden pl-2 text-[0.7rem] uppercase tracking-[0.06em] text-tinta-tenue 2xl:inline">Santa Cruz · Comuna 2</span></p>
         </NavLink>
         <BarraModulos />
         <div className="ml-auto flex items-center gap-1.5">
           <button type="button" onClick={() => setBuscar(true)} title="Buscar (Ctrl + K)" aria-label="Buscar un módulo o barrio"
-            className="hidden items-center gap-2 whitespace-nowrap rounded-xl border border-nivel bg-superficie px-3 py-1.5 text-sm text-tinta-suave transition hover:border-marca hover:text-tinta lg:flex">
+            className="hidden items-center gap-2 whitespace-nowrap rounded-lg border border-nivel bg-superficie px-3 py-1.5 text-sm text-tinta-suave transition hover:border-tinta/60 hover:text-tinta xl:flex">
             <IconoNav nombre="lupa" className="h-4 w-4" trazo={2} />
-            <span className="hidden xl:inline">Buscar…</span>
-            <kbd className="hidden rounded bg-papel px-1.5 py-0.5 text-[0.68rem] font-semibold xl:inline">Ctrl K</kbd>
+            <span className="hidden 2xl:inline">Buscar barrio, tema o módulo</span>
+            <kbd className="mono hidden rounded border border-nivel px-1.5 py-0.5 text-[0.66rem] 2xl:inline">Ctrl K</kbd>
           </button>
           <button type="button" onClick={() => setNoche((v) => !v)} aria-pressed={noche} title={noche ? "Modo día" : "Modo noche"} aria-label={noche ? "Cambiar a modo día" : "Cambiar a modo noche"}
-            className="hidden h-9 w-9 place-items-center rounded-xl text-tinta-suave transition hover:bg-menta hover:text-tinta lg:grid">
+            className="hidden h-9 w-9 place-items-center rounded-lg text-tinta-suave transition hover:bg-papel-hondo hover:text-tinta xl:grid">
             <IconoNav nombre={noche ? "sol" : "luna"} className="h-5 w-5" trazo={2} />
           </button>
-          <div className="hidden whitespace-nowrap lg:block [&_button]:!h-8 [&_button]:!w-8 [&_div]:!py-0 [&_div]:!px-1 [&_span.font-semibold]:hidden"><LetraTamano nivel={nivel} onNivel={setNivel} variante="barra" /></div>
+          <div className="hidden whitespace-nowrap 2xl:block [&_button]:!h-8 [&_button]:!w-8 [&_div]:!py-0 [&_div]:!px-1 [&_span.font-semibold]:hidden"><LetraTamano nivel={nivel} onNivel={setNivel} variante="barra" /></div>
+          <button type="button" onClick={() => setBuscar(true)} aria-label="Buscar" className="grid h-9 w-9 place-items-center rounded-lg border border-nivel bg-superficie xl:hidden">
+            <IconoNav nombre="lupa" className="h-4 w-4" trazo={2} />
+          </button>
           <button
             type="button"
             onClick={() => setMenuAbierto((v) => !v)}
             aria-expanded={menuAbierto}
             aria-controls="menu-movil"
-            className="rounded-md border border-nivel px-3 py-1.5 text-sm font-medium lg:hidden"
+            className="rounded-lg border border-nivel bg-superficie px-3 py-1.5 text-sm font-semibold xl:hidden"
           >
             {menuAbierto ? "Cerrar" : "Menú"}
           </button>
         </div>
         {menuAbierto && (
-          <div id="menu-movil" className="absolute inset-x-0 top-full max-h-[80dvh] overflow-y-auto border-b border-nivel bg-papel p-3 shadow-lg lg:hidden">
+          <div id="menu-movil" className="absolute inset-x-0 top-full max-h-[85dvh] overflow-y-auto border-b border-nivel bg-papel p-3 shadow-[0_18px_40px_-16px_rgb(16_23_41/0.35)] xl:hidden">
             <Navegacion onNavegar={() => setMenuAbierto(false)} />
             <div className="mt-3 space-y-2">
               <BotonTema noche={noche} onCambiar={() => setNoche((v) => !v)} />
@@ -430,11 +434,10 @@ export default function Layout({ children }: { children: ReactNode }) {
       </header>
 
       <div className="relative min-h-0 flex-1">
-        {!esMapa && <FondoPagina />}
         {!esMapa && <div ref={barra} aria-hidden="true" className="progreso-lectura absolute inset-x-0 top-0 z-10 h-0.5 origin-left scale-x-0" />}
         <main id="contenido" ref={principal} onScroll={alDesplazar} className={`absolute inset-0 ${esMapa ? "overflow-hidden" : "overflow-y-auto"}`}>
           {!esMapa && <IndicePagina raiz={principal} />}
-          <div key={pathname} className={esMapa ? "h-full" : "animate-[entrar-suave_450ms_ease-out_backwards]"}>{children}</div>
+          <div key={pathname} className={esMapa ? "h-full" : "animate-[entrar-suave_220ms_ease-out_backwards]"}>{children}</div>
         </main>
       </div>
 

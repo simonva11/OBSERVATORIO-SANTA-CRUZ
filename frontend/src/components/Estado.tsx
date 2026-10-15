@@ -4,23 +4,23 @@ import type { TipoDato } from "../lib/tipos";
 
 export function Cargando({ texto = "Cargando datos" }: { texto?: string }) {
   return (
-    <div role="status" className="flex items-center gap-3 p-6 text-tinta-suave">
-      <span className="h-3 w-3 animate-[suave_2.6s_ease-in-out_infinite] rounded-full bg-acento" aria-hidden="true" />
-      {texto}
+    <div role="status" className="grid gap-3 py-6" aria-label={texto}>
+      <p className="mono text-[0.72rem] uppercase tracking-[0.06em] text-tinta-tenue">{texto}…</p>
+      <div className="grid gap-2" aria-hidden="true">
+        {[92, 76, 58].map((w) => <span key={w} className="h-3 animate-[suave_1.8s_ease-in-out_infinite] rounded bg-papel-hondo" style={{ width: `${w}%` }} />)}
+      </div>
     </div>
   );
 }
 
 export function ErrorCarga({ error, reintentar }: { error: string; reintentar?: () => void }) {
   return (
-    <div role="alert" className="m-4 rounded-md border border-ladrillo/40 bg-ladrillo-claro p-4 text-sm">
-      <p className="font-semibold text-ladrillo">No se pudieron cargar los datos.</p>
-      <p className="mt-1">{error}</p>
-      <p className="mt-1 text-tinta-suave">
-        Revise que la carpeta <code>public/data</code> exista. Si no existe, corra el pipeline (ver README).
-      </p>
+    <div role="alert" className="aviso aviso-demo">
+      <p className="aviso-t">No se pudieron cargar estos datos</p>
+      <p>{error}</p>
+      <p className="mt-1 text-sm">Si estás sin internet, vuelve a intentarlo cuando tengas conexión. El resto de la página sigue funcionando.</p>
       {reintentar && (
-        <button type="button" onClick={reintentar} className="mt-3 rounded-md bg-ladrillo px-3 py-1.5 text-papel">
+        <button type="button" onClick={reintentar} className="boton boton-2 mt-3">
           Intentar de nuevo
         </button>
       )}
@@ -30,9 +30,11 @@ export function ErrorCarga({ error, reintentar }: { error: string; reintentar?: 
 
 export function SinDatos({ titulo, children }: { titulo: string; children?: ReactNode }) {
   return (
-    <div className="rounded-md border border-dashed border-nivel bg-papel-hondo/60 p-4 text-sm">
-      <p className="font-semibold">{titulo}</p>
+    <div className="vacio text-sm">
+      <div>
+      <p className="font-semibold text-tinta">{titulo}</p>
       {children && <div className="mt-1 text-tinta-suave">{children}</div>}
+      </div>
     </div>
   );
 }

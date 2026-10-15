@@ -74,8 +74,9 @@ export default function FichaBarrio({ ficha, indicadores }: { ficha: Ficha; indi
     <article className="space-y-3">
       <header>
         <p className="text-sm text-tinta-suave">Barrio de la Comuna 2, código {ficha.codigo}</p>
-        <h2 className="text-3xl font-semibold leading-tight [font-stretch:112%]">{ficha.nombre}</h2>
+        <h2 className="fuente-titulo text-3xl font-extrabold leading-tight tracking-[-0.02em]">{ficha.nombre}</h2>
         <p className="text-sm text-tinta-suave">{dec(ficha.area_ha)} hectáreas</p>
+        <Link to={`/barrios/${ficha.codigo}`} className="boton boton-1 mt-3 !py-2 !text-sm">Abrir la ficha completa del barrio</Link>
       </header>
 
       <Seccion titulo="Necesidades que muestran los datos">

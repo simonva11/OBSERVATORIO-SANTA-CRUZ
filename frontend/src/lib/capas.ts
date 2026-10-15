@@ -621,7 +621,7 @@ export const TEMAS: Tema[] = [
   { id: "accidentes", nombre: "Atropellos", ayuda: "Siniestros viales 2019 a 2025", color: COLOR.ladrillo, capas: ["siniestros_viales"] },
   { id: "riesgo", nombre: "Riesgo de deslizamiento", ayuda: "Amenaza y zonas de riesgo", color: "#b8641f", capas: ["amenaza_movimiento_masa", "riesgo_no_mitigable"] },
   { id: "plan", nombre: "Plan de la ciudad (POT)", ayuda: "Tratamientos y planes parciales", color: "#5b4a8a", capas: ["tratamientos", "instrumentos", "jerarquia_vial_pot", "pot_centralidades", "pot_corredores_transporte", "pot_intervencion_estrategica"] },
-  { id: "corredor", nombre: "Carrera 49", ayuda: "El eje y su tramo proyectado", color: "#3d2fa8", capas: ["eje49"] },
+  { id: "corredor", nombre: "Carrera 49", ayuda: "El eje y su tramo proyectado", color: "#1f40cc", capas: ["eje49"] },
   { id: "seguridad", nombre: "Seguridad y cruces", ayuda: "Muertes viales, cámaras, semáforos", color: "#7d2a18", capas: ["mortalidad_vial", "camaras_cctv", "semaforos"] },
   { id: "misdatos", nombre: "Mis datos", ayuda: "Lo que subiste", color: "#7a4e9b", capas: ["mis_datos"] },
   { id: "vivienda", nombre: "Precios de vivienda", ayuda: "Ofertas publicadas en 2023", color: COLOR.ambar, capas: ["oferta_inmobiliaria"] },

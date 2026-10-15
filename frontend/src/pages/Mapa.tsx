@@ -121,6 +121,15 @@ function FichaComuna({ p, santaCruz, onVerSantaCruz }: { p: Props; santaCruz?: P
 }
 
 /** Marca de "elegido": chulo blanco sobre círculo verde. */
+/** Temas agrupados por la pregunta que ayudan a responder. */
+const GRUPOS_TEMA: { titulo: string; temas: string[] }[] = [
+  { titulo: "Moverse", temas: ["transporte", "caminar", "corredor", "accidentes", "seguridad"] },
+  { titulo: "Servicios cerca", temas: ["colegios", "comunidad", "parques"] },
+  { titulo: "Gente y vivienda", temas: ["personas", "vivienda"] },
+  { titulo: "Riesgo y norma", temas: ["riesgo", "plan"] },
+  { titulo: "Reportes y tus datos", temas: ["reclamos", "misdatos"] },
+];
+
 function Chulo() {
   return (
     <span aria-hidden="true" className="grid h-6 w-6 place-items-center rounded-full bg-acento text-white shadow">
@@ -488,8 +497,8 @@ export default function Mapa() {
               className="flex w-full shrink-0 items-center justify-between gap-3 px-3.5 py-3 text-left transition-colors hover:bg-acento/10"
             >
               <span>
-                <span className="block text-base font-bold">¿Qué quiere ver?</span>
-                <span className="block text-xs text-tinta-suave">{panelAbierto ? "Toque para mostrar u ocultar" : `${TEMAS.filter(temaActivo).length} activos`}</span>
+                <span className="block text-base font-bold">Capas del mapa</span>
+                <span className="block text-xs text-tinta-suave">{TEMAS.filter(temaActivo).length} activas · mejor una pregunta a la vez</span>
               </span>
               <svg viewBox="0 0 24 24" aria-hidden="true" className={`h-5 w-5 shrink-0 text-tinta-suave transition-transform duration-200 ${panelAbierto ? "" : "rotate-180"}`} fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
                 <path d="m6 15 6-6 6 6" />
@@ -498,17 +507,24 @@ export default function Mapa() {
             </button>
             {panelAbierto && (
               <>
-                <ul className="min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-contain px-1.5 pb-1.5">
-                  {TEMAS.map((t) => (
-                    <TemaCuadro
-                      key={t.id}
-                      t={t}
-                      activo={temaActivo(t)}
-                      soloComuna={modo === "ciudad" && t.capas.every((c) => !capaPorId(c)?.archivoCiudad)}
-                      onClick={() => alternarTema(t)}
-                    />
+                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-1.5 pb-1.5">
+                  {GRUPOS_TEMA.map((g) => (
+                    <div key={g.titulo} className="mt-1.5 first:mt-0">
+                      <p className="mono px-2 pb-0.5 pt-1.5 text-[0.64rem] uppercase tracking-[0.06em] text-tinta-tenue">{g.titulo}</p>
+                      <ul className="space-y-0.5">
+                        {g.temas.map((id) => TEMAS.find((t) => t.id === id)).filter((t): t is Tema => !!t).map((t) => (
+                          <TemaCuadro
+                            key={t.id}
+                            t={t}
+                            activo={temaActivo(t)}
+                            soloComuna={modo === "ciudad" && t.capas.every((c) => !capaPorId(c)?.archivoCiudad)}
+                            onClick={() => alternarTema(t)}
+                          />
+                        ))}
+                      </ul>
+                    </div>
                   ))}
-                </ul>
+                </div>
                 <div className="shrink-0 space-y-2 border-t border-nivel/60 px-3.5 py-2.5">
                   <label className="block">
                     <span className="flex items-baseline justify-between text-xs font-semibold text-tinta-suave">
@@ -611,14 +627,15 @@ export default function Mapa() {
 
         {/* Ayuda la primera vez */}
         {ayuda && !solo && (
-          <div role="dialog" aria-label="Cómo usar el mapa" className="absolute left-1/2 top-1/2 z-20 w-[min(92%,30rem)] -translate-x-1/2 -translate-y-1/2 rounded-3xl bg-superficie p-6 shadow-2xl">
-            <h2 className="text-2xl font-bold [font-stretch:110%]">Así se usa el mapa</h2>
-            <ol className="mt-4 space-y-3 text-lg">
-              <li><strong>1.</strong> Elija qué quiere ver con los botones grandes: Metro, colegios, parques…</li>
-              <li><strong>2.</strong> Toque un barrio o un punto para ver su información.</li>
-              <li><strong>3.</strong> Use <strong>Ver en 3D</strong> para ver la montaña y <strong>Toda Medellín</strong> para comparar con otras comunas.</li>
+          <div role="dialog" aria-label="Cómo usar el mapa" className="absolute left-1/2 top-1/2 z-20 w-[min(92%,30rem)] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-nivel bg-superficie p-6 shadow-[0_30px_60px_-20px_rgb(16_23_41/0.45)]">
+            <p className="mono text-[0.7rem] uppercase tracking-[0.06em] text-tinta-tenue">Antes de empezar</p>
+            <h2 className="fuente-titulo mt-1 text-2xl font-extrabold tracking-[-0.02em]">Así se usa el mapa</h2>
+            <ol className="mt-4 space-y-3 text-base">
+              <li className="flex gap-3"><span className="mono pt-0.5 text-sm text-marca">01</span><span>Elige un tema en el panel de capas: Metro, colegios, riesgo… Mejor uno a la vez.</span></li>
+              <li className="flex gap-3"><span className="mono pt-0.5 text-sm text-marca">02</span><span>Toca un barrio o un punto: a la derecha aparece qué es, sus datos y de dónde salen.</span></li>
+              <li className="flex gap-3"><span className="mono pt-0.5 text-sm text-marca">03</span><span>Usa <strong>¿Cómo llego?</strong> para ver rutas caminando, <strong>Ver en 3D</strong> para la montaña y <strong>Toda Medellín</strong> para comparar.</span></li>
             </ol>
-            <button type="button" onClick={cerrarAyuda} className="mt-6 w-full rounded-2xl bg-acento px-4 py-3.5 text-lg font-semibold text-white hover:bg-acento-hondo">
+            <button type="button" onClick={cerrarAyuda} className="boton boton-1 mt-6 w-full justify-center !py-3 !text-base">
               Entendido, ver el mapa
             </button>
           </div>

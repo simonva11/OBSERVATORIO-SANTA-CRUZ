@@ -62,7 +62,7 @@ const ESTILO_SIN_CONEXION: StyleSpecification = {
   version: 8,
   glyphs: "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
   sources: {},
-  layers: [{ id: "background", type: "background", paint: { "background-color": "#e9e6f4" } }],
+  layers: [{ id: "background", type: "background", paint: { "background-color": "#ecebe6" } }],
 };
 /** Elige el estilo: el remoto si responde (o está guardado por el service worker) y, si no, el fondo liso. */
 async function elegirEstilo(): Promise<string | StyleSpecification> {
@@ -75,15 +75,15 @@ async function elegirEstilo(): Promise<string | StyleSpecification> {
 }
 const DEM = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";
 const FUENTE_NEGRITA = ["Noto Sans Bold"];
-const NIEBLA = "#eceaf7";
+const NIEBLA = "#efeee9";
 const NIEBLA_NOCHE = "#0c0e2c";
-const VERDE_HONDO = "#3d2fa8";
+const VERDE_HONDO = "#3f4a63";
 /** Los nombres de barrio aparecen desde este zoom (60 % del zoom máximo de 22). */
 export const ZOOM_ETIQUETAS = 13.2;
 
 // Edificios: más pisos, verde más intenso
-const COLOR_PISOS: ExpressionSpecification = ["interpolate", ["linear"], ["get", "p"], 1, "#b7a9ee", 2, "#6a49d6", 3, VERDE_HONDO];
-const COLOR_OSM: ExpressionSpecification = ["interpolate", ["linear"], ["coalesce", ["get", "render_height"], 6], 3, "#b7a9ee", 6, "#6a49d6", 9, VERDE_HONDO];
+const COLOR_PISOS: ExpressionSpecification = ["interpolate", ["linear"], ["get", "p"], 1, "#d3d6dd", 2, "#8a93a8", 3, VERDE_HONDO];
+const COLOR_OSM: ExpressionSpecification = ["interpolate", ["linear"], ["coalesce", ["get", "render_height"], 6], 3, "#d3d6dd", 6, "#8a93a8", 9, VERDE_HONDO];
 const ALTURA = (barrio: string | null): ExpressionSpecification =>
   barrio ? ["+", ["*", ["get", "p"], 3], ["case", ["==", ["get", "b"], barrio], 5, 0]] : ["*", ["get", "p"], 3];
 
@@ -103,7 +103,7 @@ const PX_POR_METRO = (z: number) => (512 * 2 ** z) / (40075016.686 * Math.cos(6.
 const cielo = (noche: boolean) =>
   noche
     ? { "sky-color": "#060a18", "horizon-color": "#142046", "fog-color": "#0c0e2c", "sky-horizon-blend": 0.6, "horizon-fog-blend": 0.7, "fog-ground-blend": 0.35, "atmosphere-blend": 0.4 }
-    : { "sky-color": "#cfe0d6", "horizon-color": "#f8f6f1", "fog-color": "#eceaf7", "sky-horizon-blend": 0.55, "horizon-fog-blend": 0.75, "fog-ground-blend": 0.3, "atmosphere-blend": 0.5 };
+    : { "sky-color": "#cfe0d6", "horizon-color": "#f8f6f1", "fog-color": "#efeee9", "sky-horizon-blend": 0.55, "horizon-fog-blend": 0.75, "fog-ground-blend": 0.3, "atmosphere-blend": 0.5 };
 
 /** Colores de noche para las capas del mapa base. Calles y etiquetas claras sobre un fondo azul marino profundo. */
 const NOCHE = {
@@ -128,8 +128,8 @@ function colorNoche(id: string, tipo: string): Record<string, string> | null {
 
 /** Paleta de día de alto contraste: calles delineadas, etiquetas casi negras con halo blanco, agua y parques bien distintos. */
 const DIA = {
-  fondo: "#e9e6f4", agua: "#9cc3e8", verde: "#bfe3c6", suelo: "#e4e0f1", edificio: "#c9c1ea", edificioBorde: "#8d84bd",
-  calle: "#8a90b0", calleMayor: "#ffffff", borde: "#5b6288", texto: "#14122b", halo: "#ffffff", limite: "#6b7194",
+  fondo: "#ecebe6", agua: "#a9c6dc", verde: "#cfe1cc", suelo: "#e8e6df", edificio: "#d9d5ca", edificioBorde: "#aaa597",
+  calle: "#9b9a92", calleMayor: "#ffffff", borde: "#6b6a62", texto: "#141821", halo: "#ffffff", limite: "#7a7a72",
 };
 function colorDia(id: string, tipo: string): Record<string, string | number> | null {
   const t = id.toLowerCase();
@@ -335,7 +335,7 @@ function estilos(id: string): Capa[] {
     case "eje49":
       return ([
         { id: `${id}-borde`, type: "line", paint: { "line-color": "#ffffff", "line-width": 11, "line-opacity": 0.95 }, layout: { "line-cap": "round", "line-join": "round" } },
-        { id, type: "line", filter: ["!=", ["get", "estado"], "Proyectado"], paint: { "line-color": "#3d2fa8", "line-width": 6 }, layout: { "line-cap": "round", "line-join": "round" } },
+        { id, type: "line", filter: ["!=", ["get", "estado"], "Proyectado"], paint: { "line-color": "#1f40cc", "line-width": 6 }, layout: { "line-cap": "round", "line-join": "round" } },
         { id: `${id}-proyectado`, type: "line", filter: ["==", ["get", "estado"], "Proyectado"], paint: { "line-color": "#f5b82e", "line-width": 6, "line-dasharray": [1, 1.6] }, layout: { "line-join": "round" } },
       ] as unknown) as Capa[];
     case "pot_centralidades":
@@ -508,7 +508,7 @@ export default function MapaVivo(o: Opciones) {
         m.addLayer({ id: "barrios-relleno", type: "fill", source: "barrios", paint: { "fill-color": "#ffffff", "fill-opacity": ["case", ["boolean", ["feature-state", "encima"], false], 0.35, 0.01] } }, "ancla-poligonos");
         // Borde doble: brillo exterior de 12 px + separación clara + línea interior de 3 px
         m.addLayer({ id: "comuna-halo", type: "line", source: "comuna", paint: { "line-color": VERDE_HONDO, "line-width": 12, "line-opacity": 0.32, "line-blur": 8 } }, "ancla-mascara");
-        m.addLayer({ id: "barrios-borde", type: "line", source: "barrios", paint: { "line-color": "#5a3fd0", "line-width": 1.6, "line-opacity": 0.9, "line-dasharray": [3, 2] } }, "ancla-mascara");
+        m.addLayer({ id: "barrios-borde", type: "line", source: "barrios", paint: { "line-color": "#101729", "line-width": 1.4, "line-opacity": 0.75, "line-dasharray": [3, 2] } }, "ancla-mascara");
         m.addLayer({ id: "comuna-separador", type: "line", source: "comuna", paint: { "line-color": "#ffffff", "line-width": 6, "line-opacity": 0.85 } }, "ancla-mascara");
         m.addLayer({ id: "comuna-borde", type: "line", source: "comuna", paint: { "line-color": VERDE_HONDO, "line-width": 3 } }, "ancla-mascara");
 

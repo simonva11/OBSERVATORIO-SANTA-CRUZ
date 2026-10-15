@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { ConDatos } from "../components/Estado";
 import { useDatos } from "../lib/datos";
 import { dec2, num } from "../lib/formato";
-import { BotonCabecera, Cabecera, Relacionados } from "../components/Pagina";
+import { Aviso, BotonCabecera, Cabecera, Fuente, Relacionados, Seccion } from "../components/Pagina";
+import { celda, descargar } from "../lib/csv";
 
 /** Escenario de intervención calculado en data-pipeline/red.py. */
 interface Escenario {
@@ -158,14 +159,31 @@ const SABER = [
   { t: "Qué es el POT", d: "El Plan de Ordenamiento Territorial (Acuerdo 48 de 2014) es la norma de Medellín que define cómo se usa el suelo y qué espacios públicos se prevén en cada zona. Las obras de espacio público de esta lista salen de ahí." },
   { t: "Qué quiere decir «proyectado»", d: "En la base oficial de Planeación estos espacios tienen estado «proyectado»: están previstos en el plan, pero todavía no existen. Estar en el POT no es lo mismo que tener presupuesto o fecha." },
   { t: "Y los andenes", d: "Los andenes no son del POT. El modelo revisó el inventario oficial de andenes y propone ensanchar los tramos que miden menos de 1,2 m." },
-  { t: "Cuánto espacio público es poco", d: `La norma nacional fija ${META_EP} m² de espacio público efectivo por habitante como mínimo. Elija su barrio abajo para ver cómo está frente a esa meta.` },
+  { t: "Cuánto espacio público es poco", d: `La norma nacional fija ${META_EP} m² de espacio público efectivo por habitante como mínimo. Al elegir un barrio en la lista se ve cómo está frente a esa meta.` },
 ];
 
 const NIVEL: Record<Nivel, { texto: string; clase: string }> = {
-  alta: { texto: "Alta", clase: "bg-marca text-white" },
-  media: { texto: "Media", clase: "bg-marca/15 text-tinta" },
+  alta: { texto: "Alta", clase: "bg-tinta text-papel" },
+  media: { texto: "Media", clase: "bg-papel-hondo text-tinta" },
   baja: { texto: "Baja", clase: "border border-nivel text-tinta-suave" },
 };
+
+/** En qué punto está cada obra. Ninguna de esta lista está aprobada ni ejecutada: se dice siempre. */
+function EstadoObra({ e }: { e: Escenario }) {
+  return e.tipo === "andenes"
+    ? <span className="clase clase-derivado" title="La propone el modelo de OTEA a partir del inventario de andenes">Propuesta del modelo</span>
+    : <span className="clase clase-oficial" title="Está prevista en el POT, pero no tiene obra, presupuesto ni fecha conocidos">Prevista en el POT</span>;
+}
+
+function csvObras(lista: Calculo[]) {
+  const cols = ["puesto_en_su_tipo", "tipo", "obra", "barrio", "prioridad", "estado", "cantidad", "unidad", "personas_cerca", "indicador_1", "indicador_2", "indicador_3", "aviso"];
+  const filas = lista.map((c) => [
+    c.puesto, c.e.tipo_nombre, c.e.nombre, c.e.barrio ?? "", c.nivel, c.e.tipo === "andenes" ? "Propuesta del modelo" : "Prevista en el POT (sin obra)",
+    c.e.cantidad, c.e.unidad_cantidad, c.e.beneficiarios, ...c.filas.map((f) => `${f.nombre}: ${f.texto} (puesto ${f.puesto ?? "-"} de ${f.de})`),
+    "Prioridad relativa calculada por OTEA; no es una obra aprobada ni contratada",
+  ]);
+  return [cols, ...filas].map((f) => f.map(celda).join(",")).join("\r\n");
+}
 
 function Insignia({ nivel }: { nivel: Nivel }) {
   return <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${NIVEL[nivel].clase}`}>{NIVEL[nivel].texto}</span>;
@@ -184,7 +202,7 @@ function Filas({ filas }: { filas: Calculo["filas"] }) {
             </div>
             <div>
               <p className="text-sm">
-                {f.puesto == null ? "Sin dato para comparar" : <>Puesto <strong>{f.puesto}</strong> de {f.de}{arriba && <span className="ml-2 rounded bg-marca/15 px-1.5 py-0.5 text-xs font-semibold">tercio de arriba</span>}</>}
+                {f.puesto == null ? "Sin dato para comparar" : <>Puesto <strong>{f.puesto}</strong> de {f.de}{arriba && <span className="mono ml-2 rounded border border-tinta/40 px-1.5 py-0.5 text-[0.66rem] uppercase">tercio de arriba</span>}</>}
               </p>
               {f.puesto != null && (
                 <span className="mt-1 block h-2 overflow-hidden rounded-full bg-nivel" aria-hidden>
@@ -222,12 +240,11 @@ function Detalle({ c, oficial }: { c: Calculo; oficial?: Oficial }) {
         </p>
         <Filas filas={c.filas} />
       </div>
-      <p className="rounded-xl bg-ambar-claro p-3 text-sm">
-        <strong>Lo que no sabemos:</strong> {e.confianza}. Los datos no dicen quién la construiría, cuándo ni con qué presupuesto. Eso se le pregunta a la entidad; en el Kit para líderes está a quién acudir.
-      </p>
-      <div className="flex flex-wrap gap-2 text-sm">
-        <Link to={`/mapa?capas=${capa}${codigo ? `&barrio=${codigo}` : ""}`} className="rounded-full border border-nivel bg-superficie px-3 py-1.5 font-semibold text-cable">Ver el barrio en el mapa</Link>
-        <Link to="/lideres" className="rounded-full border border-nivel bg-superficie px-3 py-1.5 font-semibold text-cable">Pedir esta obra con una carta</Link>
+      <Aviso tono="ojo" titulo="Lo que no sabemos">{e.confianza}. Los datos no dicen quién la construiría, cuándo ni con qué presupuesto. Eso se le pregunta a la entidad; en el Kit para líderes está a quién acudir.</Aviso>
+      <div className="flex flex-wrap gap-2">
+        <Link to={`/mapa?capas=${capa}${codigo ? `&barrio=${codigo}` : ""}`} className="boton boton-1 !py-2 !text-sm">Ver dónde queda en el mapa</Link>
+        {codigo && <Link to={`/barrios/${codigo}`} className="boton boton-2 !py-2 !text-sm">Ficha del barrio</Link>}
+        <Link to="/lideres" className="boton boton-2 !py-2 !text-sm">Pedir esta obra con una carta</Link>
       </div>
     </div>
   );
@@ -242,8 +259,8 @@ function ResumenBarrio({ barrio, lista }: { barrio: string; lista: Calculo[] }) 
   const pct = ep == null ? null : (ep / META_EP) * 100;
   const altas = lista.filter((c) => c.nivel === "alta").length;
   return (
-    <div className="mt-3 rounded-2xl border border-nivel bg-superficie p-4">
-      <h3 className="font-semibold">{barrio} en pocas palabras</h3>
+    <div className="mt-4 border-t-2 border-tinta pt-3">
+      <h3 className="fuente-titulo text-xl font-bold">{barrio} en pocas palabras</h3>
       <ul className="mt-2 space-y-1.5 text-sm">
         {ep != null && pct != null && (
           <li>Hoy tiene <strong>{dec2(ep)} m²</strong> de espacio público por habitante. La meta nacional es {META_EP}, o sea que está en {pct < 1 ? "menos del 1 %" : `el ${Math.round(pct)} %`} de esa meta.</li>
@@ -263,34 +280,36 @@ function ResumenBarrio({ barrio, lista }: { barrio: string; lista: Calculo[] }) 
 function Tabla({ titulo, lista, abierto, setAbierto, fichas }: { titulo: string; lista: Calculo[]; abierto: string | null; setAbierto: (id: string | null) => void; fichas: Map<string, Oficial> }) {
   return (
     <div className="mt-4">
-      <h3 className="font-semibold">{titulo} <span className="text-sm font-normal text-tinta-suave">({lista[0]?.de ?? 0} en la comuna)</span></h3>
-      <div className="mt-2 overflow-x-auto rounded-2xl border border-nivel bg-superficie">
-        <table className="w-full text-sm">
+      <h3 className="fuente-titulo text-xl font-bold">{titulo} <span className="mono text-[0.75rem] font-normal text-tinta-tenue">{lista[0]?.de ?? 0} en la comuna</span></h3>
+      <div className="mt-2 overflow-x-auto">
+        <table className="tabla">
           <thead>
-            <tr className="border-b border-nivel text-left text-tinta-suave">
-              <th className="px-3 py-2 font-semibold">Puesto</th>
-              <th className="px-3 py-2 font-semibold">Obra</th>
-              <th className="px-3 py-2 font-semibold">Prioridad</th>
-              <th className="hidden px-3 py-2 text-right font-semibold sm:table-cell">Personas cerca</th>
+            <tr>
+              <th>Puesto</th>
+              <th>Obra</th>
+              <th>Prioridad</th>
+              <th className="hidden md:table-cell">En qué punto está</th>
+              <th className="hidden text-right sm:table-cell">Personas cerca</th>
             </tr>
           </thead>
           <tbody>
             {lista.map((c) => (
               <Fragment key={c.e.id}>
-                <tr className="border-b border-nivel/70 align-top">
-                  <td className="px-3 py-2 text-lg font-semibold tabular-nums">{c.puesto}</td>
-                  <td className="px-3 py-2">
-                    <button type="button" onClick={() => setAbierto(abierto === c.e.id ? null : c.e.id)} aria-expanded={abierto === c.e.id} className="text-left font-semibold text-cable hover:underline">
-                      {c.e.nombre}
+                <tr>
+                  <td className="fuente-titulo text-lg font-bold tabular-nums">{c.puesto}</td>
+                  <td>
+                    <button type="button" onClick={() => setAbierto(abierto === c.e.id ? null : c.e.id)} aria-expanded={abierto === c.e.id} className="text-left font-semibold text-marca hover:underline">
+                      {c.e.nombre} <span aria-hidden="true" className="text-tinta-tenue">{abierto === c.e.id ? "−" : "+"}</span>
                     </button>
-                    <span className="block text-xs text-tinta-suave">{c.e.barrio ?? "Sin barrio"}. {num(c.e.cantidad)} {c.e.unidad_cantidad}</span>
+                    <span className="block text-xs text-tinta-suave">{c.e.barrio ?? "Sin barrio"} · {num(c.e.cantidad)} {c.e.unidad_cantidad}</span>
                   </td>
-                  <td className="px-3 py-2"><Insignia nivel={c.nivel} /></td>
-                  <td className="hidden px-3 py-2 text-right tabular-nums sm:table-cell">{num(c.e.beneficiarios)}</td>
+                  <td><Insignia nivel={c.nivel} /></td>
+                  <td className="hidden md:table-cell"><EstadoObra e={c.e} /></td>
+                  <td className="hidden text-right tabular-nums sm:table-cell">{num(c.e.beneficiarios)}</td>
                 </tr>
                 {abierto === c.e.id && (
-                  <tr className="border-b border-nivel/70 bg-papel">
-                    <td colSpan={4} className="px-4 py-4"><Detalle c={c} oficial={fichas.get(c.e.id)} /></td>
+                  <tr>
+                    <td colSpan={5} className="!bg-papel-hondo !px-4 !py-5"><Detalle c={c} oficial={fichas.get(c.e.id)} /></td>
                   </tr>
                 )}
               </Fragment>
@@ -299,6 +318,22 @@ function Tabla({ titulo, lista, abierto, setAbierto, fichas }: { titulo: string;
         </table>
       </div>
     </div>
+  );
+}
+
+/** Resumen ejecutivo: cuántas obras hay, cuántas salen primero y a cuánta gente tocan. */
+function Resumen({ calculos }: { calculos: Calculo[] }) {
+  const ep = calculos.filter((c) => c.e.tipo === "espacio_publico");
+  const an = calculos.filter((c) => c.e.tipo === "andenes");
+  const altas = calculos.filter((c) => c.nivel === "alta");
+  const top = (l: Calculo[]) => l[0];
+  return (
+    <section aria-label="Resumen" className="grid gap-6 md:grid-cols-4">
+      <div className="border-t-2 border-tinta pt-3"><p className="text-sm text-tinta-suave">Obras evaluadas</p><p className="fuente-titulo mt-1 text-4xl font-extrabold tabular-nums">{calculos.length}</p><p className="mt-1 text-sm text-tinta-tenue">{ep.length} de espacio público previsto en el POT y {an.length} de andenes</p></div>
+      <div className="border-t-2 border-tinta pt-3"><p className="text-sm text-tinta-suave">Con prioridad alta</p><p className="fuente-titulo mt-1 text-4xl font-extrabold tabular-nums">{altas.length}</p><p className="mt-1 text-sm text-tinta-tenue">Frente a las demás de su mismo tipo</p></div>
+      {top(ep) && <div className="border-t-2 border-tinta pt-3"><p className="text-sm text-tinta-suave">Primera en espacio público</p><p className="mt-1 text-lg font-semibold leading-snug">{top(ep).e.nombre}</p><p className="mt-1 text-sm text-tinta-tenue">{top(ep).e.barrio} · {num(top(ep).e.mejora)} personas ganarían un parque cerca</p></div>}
+      {top(an) && <div className="border-t-2 border-tinta pt-3"><p className="text-sm text-tinta-suave">Primera en andenes</p><p className="mt-1 text-lg font-semibold leading-snug">{top(an).e.nombre}</p><p className="mt-1 text-sm text-tinta-tenue">{num(top(an).e.mejora)} m de andén angosto · {num(top(an).e.beneficiarios)} personas cerca</p></div>}
+    </section>
   );
 }
 
@@ -317,35 +352,55 @@ function Contenido({ escenarios, oficiales }: { escenarios: Escenario[]; oficial
   return (
     <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
       <Cabecera etiqueta="Prioridad de obras" icono="prioridades" titulo="Dónde intervenir primero"
-        texto="Una lista para conversar con la comunidad: qué espacios públicos y andenes podrían hacerle más falta a cada barrio, y por qué. Son propuestas del modelo, no obras aprobadas ni contratadas." >
+        texto="Una lista para conversar con la comunidad y con la Alcaldía: qué espacios públicos y andenes podrían hacerle más falta a cada barrio, y por qué. Son propuestas para discutir, no obras aprobadas, contratadas ni ejecutadas."
+        pregunta="¿Dónde sería más útil intervenir primero, con qué evidencia y con qué límites?">
         <BotonCabecera to="/mapa?capas=espacio_publico_proyectado">Verlo en el mapa</BotonCabecera>
         <BotonCabecera to="/lideres" claro>Cómo pedir una obra</BotonCabecera>
       </Cabecera>
 
-      <section aria-labelledby="t-saber">
-        <h2 id="t-saber" className="text-lg font-semibold">Antes de mirar la lista</h2>
-        <p className="mt-1 max-w-3xl text-sm text-tinta-suave">Cuatro ideas que ayudan a leer todo lo demás.</p>
-        <div className="mt-3 grid gap-3 md:grid-cols-2">
-          {SABER.map((x) => (
-            <div key={x.t} className="rounded-xl border border-nivel bg-superficie p-4">
-              <h3 className="font-semibold">{x.t}</h3>
-              <p className="mt-1 text-sm text-tinta-suave">{x.d}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <Resumen calculos={calculos} />
 
-      <section aria-labelledby="t-como">
-        <h2 id="t-como" className="text-lg font-semibold">Cómo se decide la prioridad</h2>
-        <p className="mt-1 max-w-3xl text-sm text-tinta-suave">
-          No hay un puntaje mágico. Cada obra se compara solo con las de su mismo tipo en tres indicadores con su dato real. Si está en el
-          tercio de arriba en 2 o más, la prioridad es <strong>alta</strong>; en 1, <strong>media</strong>; en ninguno, <strong>baja</strong>.
-          Todos los indicadores valen lo mismo. Dentro de cada nivel se ordena por el promedio de puestos.
-        </p>
-        <div className="mt-3 grid gap-3 md:grid-cols-2">
+      <Seccion
+        id="t-lista"
+        pregunta="¿Qué obra ayudaría a más gente primero?"
+        titulo="Las obras, de más a menos prioritaria"
+        texto="Elige tu barrio para ver solo lo que le toca. Toca el nombre de una obra para saber qué es, qué haría, en qué se basa su prioridad y qué falta saber."
+        derecha={<button type="button" onClick={() => descargar(`otea-prioridad-obras${barrio ? "-" + barrio.toLowerCase().replace(/\s+/g, "-") : ""}.csv`, csvObras(delBarrio))} className="boton boton-2 !py-2 !text-sm">Descargar esta lista (CSV)</button>}
+        fuente={<Fuente ids={["espacio_publico_proyectado", "andenes", "manzanas_censo", "siniestros_viales"]} calculo="prioridad relativa calculada por OTEA" />}
+        siguiente={[{ to: "/lideres", texto: "Pedir una obra con un derecho de petición" }, { to: "/participacion", texto: "Contar una necesidad que no aparece" }]}
+      >
+        <div className="flex flex-wrap items-end gap-4">
+          <label className="text-sm font-semibold">
+            Barrio
+            <select value={barrio} onChange={(e) => { setBarrio(e.target.value); setAbierto(null); }} className="campo mt-1 !w-auto min-w-[14rem]">
+              <option value="">Toda la comuna</option>
+              {barrios.map((b) => <option key={b} value={b}>{b}</option>)}
+            </select>
+          </label>
+          <div role="group" aria-label="Filtrar por tipo de obra" className="flex flex-wrap gap-2">
+            {(["todos", "espacio_publico", "andenes"] as const).map((f) => (
+              <button key={f} type="button" aria-pressed={filtro === f} onClick={() => setFiltro(f)} className="chip">
+                {f === "todos" ? "Todas" : f === "espacio_publico" ? "Espacio público" : "Andenes"}
+              </button>
+            ))}
+          </div>
+        </div>
+        {barrio && <ResumenBarrio barrio={barrio} lista={delBarrio} />}
+        {mostrarEp && <Tabla titulo="Espacio público" lista={ep} abierto={abierto} setAbierto={setAbierto} fichas={fichas} />}
+        {mostrarAn && <Tabla titulo="Andenes" lista={an} abierto={abierto} setAbierto={setAbierto} fichas={fichas} />}
+        {!mostrarEp && !mostrarAn && <p className="vacio mt-4 text-sm">No hay obras de este tipo en este barrio. Prueba con «Todas» o con otro barrio.</p>}
+      </Seccion>
+
+      <Seccion mitad id="t-como" pregunta="¿Cómo se ordenó la lista?" titulo="Cómo se decide la prioridad" texto="No hay un puntaje mágico. Cada obra se compara solo con las de su mismo tipo, en tres indicadores con su dato real.">
+        <ol className="grid gap-3 text-[0.95rem]">
+          <li className="border-t border-nivel pt-2"><strong>Alta</strong>: está en el tercio de arriba en 2 o 3 indicadores.</li>
+          <li className="border-t border-nivel pt-2"><strong>Media</strong>: en el tercio de arriba en 1 indicador.</li>
+          <li className="border-t border-nivel pt-2"><strong>Baja</strong>: en ninguno. Dentro de cada nivel se ordena por el promedio de puestos; todos los indicadores pesan igual.</li>
+        </ol>
+        <div className="mt-5 grid gap-5 md:grid-cols-2">
           {(["espacio_publico", "andenes"] as const).map((t) => (
-            <div key={t} className="rounded-xl border border-nivel bg-superficie p-4">
-              <h3 className="font-semibold">{t === "espacio_publico" ? "Espacio público" : "Andenes"} ({calculos.filter((c) => c.e.tipo === t).length} obras)</h3>
+            <div key={t}>
+              <h3 className="font-semibold">{t === "espacio_publico" ? "Espacio público" : "Andenes"} <span className="mono text-[0.72rem] font-normal text-tinta-tenue">{calculos.filter((c) => c.e.tipo === t).length} obras</span></h3>
               <ul className="mt-2 space-y-2 text-sm">
                 {INDICADORES[t].map((i) => (
                   <li key={i.nombre}><strong>{i.nombre}.</strong> <span className="text-tinta-suave">{i.que}</span></li>
@@ -354,59 +409,30 @@ function Contenido({ escenarios, oficiales }: { escenarios: Escenario[]; oficial
             </div>
           ))}
         </div>
-        <p className="mt-3 max-w-3xl text-sm text-tinta-suave">
-          Por qué no se mezclan los dos tipos: la gente cercana a un parque se cuenta a 10 minutos caminando y la cercana a un andén a 100 m en línea
-          recta, así que esos números no son comparables entre sí. Y ojo: los datos de barrio (espacio público y atropellos) son iguales para
-          todas las obras del mismo barrio.
-        </p>
-      </section>
+        <Aviso tono="info" titulo="Por qué no se mezclan los dos tipos">La gente cercana a un parque se cuenta a 10 minutos caminando y la cercana a un andén a 100 m en línea recta, así que esos números no son comparables. Los datos de barrio (espacio público y atropellos) son iguales para todas las obras del mismo barrio.</Aviso>
+      </Seccion>
 
-      <section aria-labelledby="t-lista">
-        <h2 id="t-lista" className="text-lg font-semibold">Las obras, de más a menos prioritaria</h2>
-        <p className="mt-1 max-w-3xl text-sm text-tinta-suave">Elija su barrio para ver solo lo que le toca. Toque el nombre de una obra para saber qué es, qué haría y en qué se basa su prioridad.</p>
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2 text-sm font-semibold">
-            Barrio
-            <select value={barrio} onChange={(e) => { setBarrio(e.target.value); setAbierto(null); }} className="h-10 rounded-lg border border-nivel bg-superficie px-3 text-base font-normal">
-              <option value="">Toda la comuna</option>
-              {barrios.map((b) => <option key={b} value={b}>{b}</option>)}
-            </select>
-          </label>
-          <div role="group" aria-label="Filtrar por tipo" className="flex gap-2">
-            {(["todos", "espacio_publico", "andenes"] as const).map((f) => (
-              <button key={f} type="button" aria-pressed={filtro === f} onClick={() => setFiltro(f)} className={`rounded-full border px-3 py-1.5 text-sm ${filtro === f ? "border-acento bg-acento text-white" : "border-nivel bg-superficie"}`}>
-                {f === "todos" ? "Todos" : f === "espacio_publico" ? "Espacio público" : "Andenes"}
-              </button>
-            ))}
-          </div>
-        </div>
-        {barrio && <ResumenBarrio barrio={barrio} lista={delBarrio} />}
-        {mostrarEp && <Tabla titulo="Espacio público" lista={ep} abierto={abierto} setAbierto={setAbierto} fichas={fichas} />}
-        {mostrarAn && <Tabla titulo="Andenes" lista={an} abierto={abierto} setAbierto={setAbierto} fichas={fichas} />}
-        {!mostrarEp && !mostrarAn && <p className="mt-4 rounded-2xl border border-nivel bg-superficie px-3 py-6 text-center text-sm text-tinta-suave">No hay obras de este tipo en este barrio.</p>}
-        <p className="mt-3 text-sm text-tinta-suave">
-          La prioridad ordena opciones, no prueba que una obra mejore las cosas ni que sea técnicamente posible. Para ver la ruta real de
-          caminata hacia cualquier lugar use <Link to="/mapa?ruta=1" className="text-cable underline">¿Cómo llego?</Link> en el mapa.
-        </p>
-      </section>
+      <Seccion mitad id="t-saber" pregunta="¿Qué hay que saber antes?" titulo="Palabras que se usan aquí">
+        <dl className="grid gap-4">
+          {SABER.map((x) => (
+            <div key={x.t} className="border-t border-nivel pt-2">
+              <dt className="font-semibold">{x.t}</dt>
+              <dd className="mt-0.5 text-sm text-tinta-suave">{x.d}</dd>
+            </div>
+          ))}
+        </dl>
+      </Seccion>
 
-      <section aria-labelledby="t-dudas">
-        <h2 id="t-dudas" className="text-lg font-semibold">Dudas frecuentes</h2>
-        <div className="mt-3 divide-y divide-nivel rounded-2xl border border-nivel bg-superficie">
+      <Seccion id="t-dudas" pregunta="¿Te quedó alguna duda?" titulo="Dudas frecuentes">
+        <div className="grid gap-x-8 md:grid-cols-2">
           {DUDAS.map((d) => (
-            <details key={d.p} className="group px-4 py-3">
-              <summary className="cursor-pointer list-none font-semibold marker:hidden">
-                <span className="mr-2 inline-block text-marca transition-transform group-open:rotate-90">›</span>
-                {d.p}
-              </summary>
-              <p className="mt-2 pl-5 text-sm text-tinta-suave">{d.r}</p>
+            <details key={d.p} className="metodo !border-solid">
+              <summary>{d.p}</summary>
+              <div className="metodo-cuerpo"><p>{d.r}</p></div>
             </details>
           ))}
         </div>
-        <p className="mt-3 text-sm text-tinta-suave">
-          ¿Ve algo que falta en su barrio? Cuéntelo en <Link to="/participacion" className="text-cable underline">Participación</Link>.
-        </p>
-      </section>
+      </Seccion>
       <Relacionados ids={["problematicas", "accesibilidad", "corredor"]} />
     </div>
   );

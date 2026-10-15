@@ -18,6 +18,23 @@ const FIJAS: Opcion[] = GRUPOS.flatMap((g) => {
   return g.id === "territorio" ? [ops[0], ...ATAJOS, ...ops.slice(1)] : ops;
 });
 
+/** Conceptos que la gente busca por su nombre: llevan a la página donde se explican con datos. */
+const CONCEPTOS: Opcion[] = [
+  ["POT", "Plan de Ordenamiento Territorial: tratamientos e instrumentos por barrio", "cubo", "/inmobiliario"],
+  ["Amenaza por movimiento en masa", "Zonas de ladera donde el POT marca amenaza alta, media o baja", "ladera", "/riesgo"],
+  ["Riesgo no mitigable", "Zonas donde el POT dice que el riesgo no se puede reducir con obras", "ladera", "/riesgo"],
+  ["Espacio público por habitante", "Metros cuadrados por persona frente a la meta nacional de 15", "indicadores", "/indicadores"],
+  ["Derecho de petición", "Carta para pedirle algo a la Alcaldía, con plazos de respuesta", "estrella", "/lideres"],
+  ["Presupuesto Participativo", "Cómo se decide parte de la inversión de la comuna", "estrella", "/lideres"],
+  ["Huecos", "Reportes del Sistema de Gestión Vial por barrio", "alerta", "/reclamos"],
+  ["Toneladas de residuos", "Estimación mensual por barrio", "residuos", "/residuos"],
+  ["Metrocable", "Minutos caminando hasta las estaciones", "accesibilidad", "/accesibilidad"],
+  ["Andenes angostos", "Tramos de andén de menos de 1,2 m", "accesibilidad", "/accesibilidad"],
+  ["Siniestros viales", "Choques y atropellos registrados en la comuna", "corredor", "/corredor-49"],
+  ["Calidad de vida (IMCV)", "Índice de la Encuesta de Calidad de Vida por año", "indicadores", "/indicadores"],
+  ["Licencia de los datos", "Condiciones de uso de cada fuente", "fuentes", "/fuentes"],
+].map(([n, d, i, r]) => ({ id: `c-${n}`, nombre: n, detalle: d, icono: i, ruta: r, grupo: "Conceptos" }));
+
 const sin = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 /** Buscador rápido (Ctrl + K): saltar a cualquier módulo o barrio sin recorrer el menú. */
@@ -40,7 +57,7 @@ export default function Paleta({ abierta, onCerrar }: { abierta: boolean; onCerr
 
   const lista = useMemo(() => {
     const t = sin(q.trim());
-    const todas = [...FIJAS, ...barrios];
+    const todas = [...FIJAS, ...barrios, ...CONCEPTOS];
     // Sin texto se ve el menú completo, agrupado; al escribir, los resultados quedan agrupados igual.
     return t ? todas.filter((o) => sin(`${o.nombre} ${o.detalle} ${o.grupo ?? ""}`).includes(t)) : FIJAS;
   }, [q, barrios]);
@@ -53,8 +70,8 @@ export default function Paleta({ abierta, onCerrar }: { abierta: boolean; onCerr
   };
 
   return (
-    <div className="fixed inset-0 z-[3000] flex items-start justify-center bg-[#14104a]/45 px-4 pt-[12vh] backdrop-blur-sm" onMouseDown={onCerrar} role="presentation">
-      <div role="dialog" aria-modal="true" aria-label="Buscar en el observatorio" className="w-full max-w-lg overflow-hidden rounded-2xl bg-superficie shadow-2xl ring-1 ring-black/10" onMouseDown={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-[3000] flex items-start justify-center bg-[rgb(16_23_41/0.45)] px-4 pt-[12vh]" onMouseDown={onCerrar} role="presentation">
+      <div role="dialog" aria-modal="true" aria-label="Buscar en el observatorio" className="w-full max-w-xl overflow-hidden rounded-xl border border-nivel bg-superficie shadow-[0_30px_60px_-20px_rgb(16_23_41/0.45)]" onMouseDown={(e) => e.stopPropagation()}>
         <input
           ref={input}
           value={q}
@@ -65,26 +82,26 @@ export default function Paleta({ abierta, onCerrar }: { abierta: boolean; onCerr
             else if (e.key === "ArrowUp") { e.preventDefault(); setSel((s) => Math.max(0, s - 1)); }
             else if (e.key === "Enter") abrir(lista[sel]);
           }}
-          placeholder="Ir a un módulo o un barrio…"
+          placeholder="Busca un barrio, un tema (POT, huecos, riesgo…) o un módulo"
           aria-label="Buscar"
-          className="w-full border-b border-nivel px-5 py-4 text-lg outline-none"
+          className="w-full border-b border-nivel bg-superficie px-5 py-4 text-lg text-tinta outline-none"
         />
         <ul className="max-h-[50vh] overflow-y-auto p-2">
-          {lista.length === 0 && <li className="px-3 py-6 text-center text-tinta-suave">No hay nada con ese nombre.</li>}
+          {lista.length === 0 && <li className="px-3 py-6 text-center text-tinta-suave">No encontramos eso. Prueba con el nombre de un barrio o un tema como “riesgo” o “huecos”.</li>}
           {lista.map((o, i) => (
             <li key={o.id} role="presentation">
               {o.grupo && o.grupo !== lista[i - 1]?.grupo && (
-                <p className="px-3 pb-1 pt-3 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-tinta-tenue first:pt-1">{o.grupo}</p>
+                <p className="mono px-3 pb-1 pt-3 text-[0.68rem] uppercase tracking-[0.06em] text-tinta-tenue first:pt-1">{o.grupo}</p>
               )}
               <button type="button" onMouseEnter={() => setSel(i)} onClick={() => abrir(o)}
-                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left ${i === sel ? "bg-menta" : ""}`}>
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-acento/10 text-marca"><IconoNav nombre={o.icono} className="h-5 w-5" trazo={1.8} /></span>
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left ${i === sel ? "bg-papel-hondo" : ""}`}>
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-papel-hondo text-tinta"><IconoNav nombre={o.icono} className="h-5 w-5" trazo={1.8} /></span>
                 <span className="min-w-0"><span className="block font-semibold leading-tight">{o.nombre}</span><span className="block text-sm text-tinta-suave">{o.detalle}</span></span>
               </button>
             </li>
           ))}
         </ul>
-        <p className="border-t border-nivel bg-papel px-4 py-2 text-xs text-tinta-tenue">↑ ↓ para moverte, Enter para abrir, Esc para cerrar</p>
+        <p className="mono border-t border-nivel bg-papel px-4 py-2 text-[0.7rem] text-tinta-tenue">↑ ↓ para moverte, Enter para abrir, Esc para cerrar</p>
       </div>
     </div>
   );

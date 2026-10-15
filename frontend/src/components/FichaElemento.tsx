@@ -41,7 +41,7 @@ export default function FichaElemento({ def, props }: { def: DefCapa; props: Pro
     <article className="space-y-3">
       <header>
         <p className="text-sm text-tinta-suave">{def.nombre}</p>
-        <h2 className="text-2xl font-semibold leading-tight [font-stretch:110%]">{def.titulo(props)}</h2>
+        <h2 className="fuente-titulo text-2xl font-extrabold leading-tight tracking-[-0.02em]">{def.titulo(props)}</h2>
       </header>
 
       {filas.length > 0 ? (

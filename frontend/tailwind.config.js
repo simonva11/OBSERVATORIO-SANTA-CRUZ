@@ -22,7 +22,8 @@ export default {
         ambar: { DEFAULT: "rgb(var(--ambar) / <alpha-value>)", claro: "rgb(var(--ambar-claro) / <alpha-value>)", texto: "rgb(var(--ambar-texto) / <alpha-value>)" },
       },
       fontFamily: {
-        sans: ['"Inter Variable"', '"Inter"', "system-ui", "sans-serif"],
+        sans: ['"DM Sans"', "system-ui", "sans-serif"],
+        mono: ['"IBM Plex Mono"', "ui-monospace", "monospace"],
       },
       fontSize: {
         // escala modular 1.25 (tercera mayor) desde 16 px

@@ -4,10 +4,12 @@ import type { Position } from "geojson";
 import { useDatos } from "../lib/datos";
 import { num } from "../lib/formato";
 import { LINEAS_METRO } from "../lib/capas";
-import { Cuenta, Revelar, useVisto } from "../components/Animacion";
+import { Cuenta, useVisto } from "../components/Animacion";
 import { useProyeccion } from "../lib/proyeccion";
 import type { Coleccion, Indicadores } from "../lib/tipos";
 import { useResumen } from "../lib/resumen";
+import IconoNav from "../components/IconosNav";
+import { Fuente } from "../components/Pagina";
 
 const VERDE = "rgb(var(--marca))";
 
@@ -73,11 +75,12 @@ function DibujoComuna({ stats }: { stats: Stats }) {
             <rect width={ANCHO} height={ALTO} rx="20" />
           </clipPath>
           <filter id="brillo" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="5" stdDeviation="6" floodColor="#1e40af" floodOpacity="0.45" />
+            <feDropShadow dx="0" dy="5" stdDeviation="6" floodColor="#101729" floodOpacity="0.35" />
           </filter>
         </defs>
         <g clipPath="url(#marco)">
           <rect width={ANCHO} height={ALTO} fill="rgb(var(--papel-hondo))" />
+          {Array.from({ length: 12 }, (_, k) => <path key={`g${k}`} d={`M0 ${k * 52 + 20} C ${ANCHO * 0.3} ${k * 52 - 10}, ${ANCHO * 0.6} ${k * 52 + 50}, ${ANCHO} ${k * 52 + 10}`} stroke="rgb(var(--tinta))" strokeOpacity="0.06" fill="none" />)}
           {extras.trazos.map((t) => (
             <path key={t.clave} d={t.d} stroke={t.color} strokeWidth="4" fill="none" strokeLinecap="round" opacity={t.animada ? 0.3 : 0.8} />
           ))}
@@ -93,17 +96,17 @@ function DibujoComuna({ stats }: { stats: Stats }) {
               className="cursor-pointer"
               onMouseEnter={() => setEncima(b.codigo)}
               onMouseLeave={() => setEncima(null)}
-              onClick={() => navegar(`/mapa?barrio=${b.codigo}`)}
+              onClick={() => navegar(`/barrios/${b.codigo}`)}
               tabIndex={0}
               role="link"
-              aria-label={`Abrir ${b.nombre} en el mapa`}
+              aria-label={`Abrir la ficha de ${b.nombre}`}
               onFocus={() => setEncima(b.codigo)}
               onBlur={() => setEncima(null)}
-              onKeyDown={(e) => e.key === "Enter" && navegar(`/mapa?barrio=${b.codigo}`)}
+              onKeyDown={(e) => e.key === "Enter" && navegar(`/barrios/${b.codigo}`)}
             />
           ))}
           {/* El barrio bajo el mouse se enciende en verde y se levanta */}
-          {activo && <path d={activo.d} fill="#8a7bff" fillOpacity="0.9" stroke={VERDE} strokeWidth="2.4" filter="url(#brillo)" className="barrio-resalte pointer-events-none" />}
+          {activo && <path d={activo.d} fill="#1f40cc" fillOpacity="0.88" stroke={VERDE} strokeWidth="2.4" filter="url(#brillo)" className="barrio-resalte pointer-events-none" />}
           {extras.trazos
             .filter((t) => t.animada)
             .map((t) => (
@@ -140,46 +143,63 @@ function DibujoComuna({ stats }: { stats: Stats }) {
         </g>
       </svg>
       {activo && (
-        <div role="status" className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-[135%] whitespace-nowrap rounded-xl bg-[#0b1f5c] px-4 py-2.5 text-white shadow-xl" style={{ left: `${izq}%`, top: `${(activo.centro[1] / ALTO) * 100}%` }}>
+        <div role="status" className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-[135%] whitespace-nowrap rounded-xl bg-[#101729] px-4 py-2.5 text-white shadow-xl" style={{ left: `${izq}%`, top: `${(activo.centro[1] / ALTO) * 100}%` }}>
           <p className="text-base font-bold leading-tight">{activo.nombre}</p>
           {st && (
             <p className="text-sm text-white/80">
               {st.poblacion != null ? num(st.poblacion) : "Sin dato de"} personas · {num(Math.round(st.densidad))} por hectárea
             </p>
           )}
-          <span aria-hidden="true" className="absolute left-1/2 top-full h-2.5 w-2.5 -translate-x-1/2 -translate-y-1.5 rotate-45 bg-[#0b1f5c]" />
+          <span aria-hidden="true" className="absolute left-1/2 top-full h-2.5 w-2.5 -translate-x-1/2 -translate-y-1.5 rotate-45 bg-[#101729]" />
         </div>
       )}
     </div>
   );
 }
 
-// ------------------------------------------------------------------ tarjetas de datos
-
-// ------------------------------------------------------------------ portada nueva: una historia con scroll + elige tu barrio
-function Gigante({ valor, decimales = 0, sufijo = "", className = "" }: { valor: number; decimales?: number; sufijo?: string; className?: string }) {
-  const [ref, visto] = useVisto<HTMLSpanElement>(0.3);
+// ------------------------------------------------------------------ portada
+function Numero({ valor, decimales = 0, className = "" }: { valor: number; decimales?: number; className?: string }) {
+  const [ref, visto] = useVisto<HTMLSpanElement>(0.2);
   return (
     <span ref={ref} className={className}>
-      <Cuenta hasta={valor} decimales={decimales} activo={visto} duracion={1400} />
-      {sufijo}
+      <Cuenta hasta={valor} decimales={decimales} activo={visto} duracion={800} />
     </span>
   );
 }
 
-const CAPITULOS = [
-  { n: "01", t: "Moverse", d: "Metro, buses, andenes y escaleras.", a: "/accesibilidad" },
-  { n: "02", t: "Vivir seguro", d: "Riesgo de ladera y atropellos.", a: "/riesgo" },
-  { n: "03", t: "Servicios", d: "Aseo, equipamientos y espacio público.", a: "/residuos" },
-  { n: "04", t: "Qué hacer primero", d: "Obras en orden de prioridad.", a: "/prioridades" },
-  { n: "05", t: "Participar", d: "Reporta un problema y vota.", a: "/participacion" },
-  { n: "06", t: "Los datos", d: "Fuentes y cómo se calculó cada cifra.", a: "/fuentes", oscuro: true },
+/** Cómo trabaja OTEA, en cuatro pasos que sí son una secuencia. */
+const PASOS = [
+  { t: "Reunir", d: "Capas de la Alcaldía, el DANE e INDER que hoy viven en portales distintos, más reportes y noticias." },
+  { t: "Cruzar", d: "Se ponen sobre las mismas manzanas del Censo 2018 y la misma red de calles, andenes y escaleras." },
+  { t: "Calcular", d: "Minutos caminando, gente expuesta, prioridad de obras: cada cálculo con su método escrito." },
+  { t: "Explicar", d: "Cada cifra dice de dónde sale, de qué fecha es y qué no se puede concluir con ella." },
+];
+
+const PARA_QUIEN = [
+  {
+    quien: "Si vives o trabajas en la comuna",
+    usos: [
+      { to: "/barrios", t: "Ver la ficha de tu barrio", d: "Gente, servicios, riesgos y reportes en una página." },
+      { to: "/reclamos", t: "Saber qué ya se reportó", d: "Huecos y obras pedidas, con cuánto llevan esperando." },
+      { to: "/lideres", t: "Preparar una solicitud", d: "Carta de derecho de petición, plazos y a quién acudir." },
+    ],
+  },
+  {
+    quien: "Si planeas, investigas o asesoras",
+    usos: [
+      { to: "/indicadores", t: "Comparar barrios", d: "Cifras por barrio con fórmula, unidad y fuente." },
+      { to: "/prioridades", t: "Ordenar obras posibles", d: "Qué espacio público o andén ayudaría a más gente." },
+      { to: "/fuentes", t: "Revisar las fuentes", d: "Catálogo de cada conjunto de datos, fecha y licencia." },
+    ],
+  },
 ];
 
 export default function Inicio() {
   const ind = useDatos<Indicadores>("indicadores.json");
   const d = ind.estado === "listo" ? ind.datos : null;
   const r = useResumen();
+  const cat = useDatos<{ id: string; entidad: string }[]>("fuentes.json");
+  const nFuentes = cat.estado === "listo" ? cat.datos.length : null;
   const pulso = (k: string) => r?.datos.pulso.find((p) => p.clave === k) ?? null;
   const metro = pulso("metro_10min")?.valor ?? null;
   const m49 = pulso("minutos_49")?.valor ?? null;
@@ -188,6 +208,7 @@ export default function Inicio() {
     return m ? Number(m[1] + "." + m[2]) : null;
   })();
   const espacio = pulso("espacio_publico")?.valor ?? null;
+  const comuna = r?.datos.comuna;
 
   const stats: Stats = useMemo(
     () => Object.fromEntries((d?.barrios ?? []).map((b) => [b.codigo, { poblacion: b.poblacion_2018, densidad: b.densidad_hab_ha ?? 0 }])),
@@ -195,117 +216,186 @@ export default function Inicio() {
   );
 
   return (
-    <div>
-      {/* portada */}
-      <section className="mx-auto flex max-w-[84rem] flex-wrap items-center gap-12 px-6 pb-20 pt-10 lg:px-10">
-        <div className="min-w-0 flex-[1_1_28rem]">
-          <Revelar>
-            <p className="text-sm font-bold uppercase tracking-wider text-marca">Comuna 2 · Medellín · Territorio INN 2026</p>
-            <h1 className="fuente-titulo mt-5 text-[clamp(3.2rem,8vw,6.2rem)] font-extrabold leading-[0.95] tracking-[-0.015em]">
-              Santa Cruz,<br />a pie.
-            </h1>
-            <p className="mt-7 max-w-[30rem] text-[1.35rem] leading-snug text-tinta-suave">
-              Cómo se mueve la gente de once barrios de ladera, y qué obras la ayudarían más.
-            </p>
-            <div className="mt-9 flex flex-wrap gap-3.5">
-              <a href="#barrios" className="rounded-full bg-acento px-7 py-4 text-lg font-bold text-white transition hover:brightness-110">Elige tu barrio</a>
-              <Link to="/mapa" className="rounded-full border-2 border-tinta px-6 py-3.5 text-lg font-bold transition hover:bg-tinta hover:text-papel">Abrir el mapa</Link>
-            </div>
-          </Revelar>
+    <div className="mx-auto max-w-[84rem] px-4 lg:px-8">
+      {/* ---------------------------------------------------------------- portada */}
+      <section className="grid items-center gap-10 pb-12 pt-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:pt-12">
+        <div className="min-w-0">
+          <p className="mono text-[0.75rem] uppercase tracking-[0.07em] text-marca">Observatorio territorial · Comuna 2 Santa Cruz, Medellín</p>
+          <h1 className="fuente-titulo mt-5 text-[clamp(2.5rem,5.4vw,4.4rem)] font-extrabold leading-[0.98] tracking-[-0.035em] [text-wrap:balance]">
+            Los datos de la comuna, por fin en un solo lugar.
+          </h1>
+          <p className="mt-6 max-w-[34rem] text-[1.2rem] leading-relaxed text-tinta-suave">
+            OTEA junta lo que la Alcaldía, el DANE y la propia gente saben de Santa Cruz y lo convierte en respuestas: quién llega caminando al Metro, quién vive en ladera, qué obra ayudaría a más personas.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link to="/mapa" className="boton boton-1 !px-6 !py-3 !text-base">
+              <IconoNav nombre="mapa" className="h-5 w-5" trazo={2} />
+              Explorar el mapa
+            </Link>
+            <Link to="/propuesta" className="boton boton-2 !px-6 !py-3 !text-base">Qué hace OTEA</Link>
+          </div>
+          <form
+            className="mt-8 max-w-md"
+            onSubmit={(e) => e.preventDefault()}
+            aria-label="Ir a la ficha de un barrio"
+          >
+            <label htmlFor="ir-barrio" className="mono text-[0.72rem] uppercase tracking-[0.06em] text-tinta-tenue">O ve directo a tu barrio</label>
+            <select
+              id="ir-barrio"
+              className="campo mt-1.5"
+              defaultValue=""
+              onChange={(e) => e.target.value && (window.location.hash = `#/barrios/${e.target.value}`)}
+            >
+              <option value="" disabled>Elige uno de los 11 barrios</option>
+              {(d?.barrios ?? []).map((b) => <option key={b.codigo} value={b.codigo}>{b.nombre}</option>)}
+            </select>
+          </form>
         </div>
-        <div className="min-w-0 flex-[1_1_28rem]">
-          <figure className="mx-auto w-full max-w-[38rem] rounded-[2rem] bg-papel-hondo p-4">
-            <DibujoComuna stats={stats} />
-            <figcaption className="px-2 pb-1 pt-3 text-sm text-tinta-suave">Pase el mouse o toque un barrio. Las líneas que se mueven son el Metrocable y los puntos que laten, sus estaciones.</figcaption>
-          </figure>
+        <figure className="min-w-0">
+          <DibujoComuna stats={stats} />
+          <figcaption className="mt-2 text-sm text-tinta-tenue">Los 11 barrios con las líneas de Metro y Metrocable cercanas. Toca un barrio para abrir su ficha.</figcaption>
+        </figure>
+      </section>
+
+      {/* ---------------------------------------------------------------- respaldo */}
+      <section aria-label="Qué hay detrás" className="grid gap-x-8 gap-y-5 border-y border-tinta/80 py-5 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          [comuna ? num(comuna.poblacion_2018) : "—", "personas viven en la comuna", "Censo DANE 2018"],
+          [comuna ? String(comuna.barrios) : "—", "barrios, con ficha propia cada uno", "Límites oficiales del POT"],
+          [nFuentes != null ? String(nFuentes) : "—", "conjuntos de datos catalogados", "Cada uno con entidad, fecha y licencia"],
+          ["19", "módulos para mirar el territorio", "Del mapa a la carta de petición"],
+        ].map(([v, t, n]) => (
+          <div key={t}>
+            <p className="fuente-titulo text-[2rem] font-extrabold leading-none tracking-[-0.03em] tabular-nums">{v}</p>
+            <p className="mt-1 font-medium">{t}</p>
+            <p className="mono mt-0.5 text-[0.7rem] text-tinta-tenue">{n}</p>
+          </div>
+        ))}
+      </section>
+
+      {/* ---------------------------------------------------------------- tres preguntas */}
+      <section aria-labelledby="t-preguntas" className="py-16">
+        <p className="mono text-[0.72rem] uppercase tracking-[0.06em] text-tinta-tenue">Lo que OTEA ya responde</p>
+        <h2 id="t-preguntas" className="fuente-titulo mt-2 max-w-3xl text-[clamp(1.8rem,3vw,2.6rem)] font-extrabold leading-[1.05] tracking-[-0.03em]">Tres preguntas sobre moverse y vivir en la comuna</h2>
+        <div className="mt-10 grid gap-10 lg:grid-cols-3">
+          <article className="flex flex-col border-t-2 border-tinta pt-4">
+            <h3 className="text-lg font-semibold leading-snug">¿Cuánta gente llega caminando al Metro o al Metrocable en 10 minutos?</h3>
+            {metro != null ? <p className="fuente-titulo mt-5 text-[4rem] font-extrabold leading-none tracking-[-0.04em] text-marca"><Numero valor={metro} decimales={1} /> %</p> : <p className="mt-5 text-tinta-tenue">Cargando…</p>}
+            <p className="mt-3 text-tinta-suave">de las personas de la comuna. Las demás caminan más o dependen de un bus alimentador.</p>
+            <p className="mt-3 text-sm text-tinta-tenue">Minutos estimados sobre la red de calles, andenes y escaleras, con la pendiente de cada tramo. No es un recorrido medido en campo.</p>
+            <div className="mt-auto pt-5"><Fuente ids={["manzanas_censo", "vias"]} calculo="tiempo de caminata calculado por OTEA" /><Link to="/accesibilidad" className="siguiente-a mt-3">Ver cuánto camina cada barrio <IconoNav nombre="flecha" className="h-3.5 w-3.5" trazo={2.2} /></Link></div>
+          </article>
+          <article className="flex flex-col border-t-2 border-tinta pt-4">
+            <h3 className="text-lg font-semibold leading-snug">¿Conviene caminar por la Carrera 49 para llegar a la estación?</h3>
+            {m49 != null && rapida != null ? (
+              <div className="mt-5 grid grid-cols-2 gap-4">
+                <div><p className="fuente-titulo text-[3.2rem] font-extrabold leading-none tracking-[-0.04em]"><Numero valor={rapida} decimales={1} /></p><p className="mt-1 text-sm text-tinta-suave">min por la ruta más rápida</p></div>
+                <div><p className="fuente-titulo text-[3.2rem] font-extrabold leading-none tracking-[-0.04em] text-peligro"><Numero valor={m49} decimales={1} /></p><p className="mt-1 text-sm text-tinta-suave">min si se obliga a pasar por la 49</p></div>
+              </div>
+            ) : <p className="mt-5 text-tinta-tenue">Cargando…</p>}
+            <p className="mt-3 text-tinta-suave">En promedio no conviene: la 49 sirve a algunos barrios y a otros los desvía.</p>
+            <p className="mt-3 text-sm text-tinta-tenue">Promedio ponderado por población. Los minutos cambian mucho según dónde vivas.</p>
+            <div className="mt-auto pt-5"><Fuente ids={["vias", "manzanas_censo"]} calculo="comparación de rutas hecha por OTEA" /><Link to="/corredor-49" className="siguiente-a mt-3">Ver a quién le sirve <IconoNav nombre="flecha" className="h-3.5 w-3.5" trazo={2.2} /></Link></div>
+          </article>
+          <article className="flex flex-col border-t-2 border-tinta pt-4">
+            <h3 className="text-lg font-semibold leading-snug">¿Cuánto espacio público le toca a cada persona?</h3>
+            {espacio != null ? (
+              <div className="mt-5">
+                <p className="fuente-titulo text-[4rem] font-extrabold leading-none tracking-[-0.04em] text-peligro"><Numero valor={espacio} decimales={2} /> <span className="text-2xl">m²</span></p>
+                <div className="mt-4 grid gap-1.5" role="img" aria-label={`${String(espacio).replace(".", ",")} metros cuadrados frente a una referencia de 15`}>
+                  <div className="h-2.5 rounded-full bg-papel-hondo"><div className="h-full rounded-full bg-peligro" style={{ width: `${(espacio / 15) * 100}%`, minWidth: "6px" }} /></div>
+                  <div className="h-2.5 rounded-full bg-tinta" />
+                  <p className="mono text-[0.7rem] text-tinta-tenue">comuna · {String(espacio).replace(".", ",")} m² — referencia nacional · 15 m²</p>
+                </div>
+              </div>
+            ) : <p className="mt-5 text-tinta-tenue">Cargando…</p>}
+            <p className="mt-3 text-tinta-suave">por habitante, frente a la referencia nacional de 15 m².</p>
+            <p className="mt-3 text-sm text-tinta-tenue">Suma de la capa de espacio público existente dividida por la población. No es el indicador oficial de espacio público efectivo.</p>
+            <div className="mt-auto pt-5"><Fuente ids={["espacio_publico", "manzanas_censo"]} calculo="m² por habitante calculado por OTEA" /><Link to="/indicadores" className="siguiente-a mt-3">Comparar barrios <IconoNav nombre="flecha" className="h-3.5 w-3.5" trazo={2.2} /></Link></div>
+          </article>
         </div>
       </section>
 
-      {/* dato 1 */}
-      {metro != null && (
-        <section className="bg-[#0A1A3F] text-white">
-          <div className="mx-auto flex max-w-[84rem] flex-wrap items-center gap-14 px-6 py-24 lg:px-10">
-            <div className="min-w-0 flex-[1_1_24rem]">
-              <Gigante valor={metro} decimales={1} sufijo=" %" className="fuente-titulo block text-[clamp(5rem,15vw,12rem)] font-extrabold leading-[0.9] tracking-[-0.02em] text-[#7FB0FF]" />
-            </div>
-            <div className="min-w-0 flex-[1_1_22rem]">
-              <p className="fuente-titulo text-[clamp(1.8rem,3.4vw,2.8rem)] font-bold leading-[1.1] tracking-tight">de las personas llegan caminando al Metro o al Metrocable.</p>
-              <div className="mt-8 h-3.5 overflow-hidden rounded-full bg-[#1C2F63]"><div className="h-full rounded-full bg-[#7FB0FF]" style={{ width: `${metro}%` }} /></div>
-              <p className="mt-3.5 text-[#A9BEE8]">En 10 minutos o menos. El resto sube escaleras o toma un bus alimentador.</p>
-              <Link to="/accesibilidad" className="mt-6 inline-block font-bold text-[#7FB0FF] hover:underline">Ver cómo se calculó →</Link>
-            </div>
+      {/* ---------------------------------------------------------------- cómo trabaja */}
+      <section aria-labelledby="t-como" className="-mx-4 bg-[rgb(var(--noche))] px-4 py-16 text-[#E9ECF4] lg:-mx-8 lg:px-8 lg:rounded-2xl">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+          <div>
+            <p className="mono text-[0.72rem] uppercase tracking-[0.06em] text-[#9FB0D8]">Cómo trabaja</p>
+            <h2 id="t-como" className="fuente-titulo mt-2 text-[clamp(1.8rem,3vw,2.6rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-white">De datos sueltos a una respuesta que se puede revisar</h2>
+            <p className="mt-4 max-w-md text-[#C2CBE0]">Hoy, para saber qué pasa en un barrio hay que abrir varios portales, descargar archivos y cruzarlos a mano. OTEA hace ese trabajo una vez, lo deja escrito y lo actualiza.</p>
+            <Link to="/fuentes" className="mt-6 inline-flex items-center gap-1.5 font-semibold text-white underline underline-offset-4">Ver el catálogo de fuentes <IconoNav nombre="flecha" className="h-4 w-4" trazo={2.2} /></Link>
           </div>
-        </section>
-      )}
+          <ol className="grid gap-px overflow-hidden rounded-xl bg-white/10 sm:grid-cols-2">
+            {PASOS.map((p, i) => (
+              <li key={p.t} className="bg-[rgb(var(--noche))] p-6">
+                <p className="mono text-[0.75rem] text-[#9FB0D8]">0{i + 1}</p>
+                <p className="fuente-titulo mt-2 text-2xl font-bold text-white">{p.t}</p>
+                <p className="mt-2 text-[0.95rem] leading-relaxed text-[#C2CBE0]">{p.d}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
 
-      {/* dato 2 */}
-      {m49 != null && rapida != null && (
-        <section className="mx-auto flex max-w-[84rem] flex-wrap gap-8 px-6 py-24 lg:px-10">
-          <div className="min-w-0 flex-[1_1_22rem]">
-            <p className="text-sm font-bold uppercase tracking-wider text-marca">Corredor Carrera 49</p>
-            <h2 className="fuente-titulo mt-3 text-[clamp(2.2rem,4vw,3.4rem)] font-extrabold leading-[1.02] tracking-[-0.015em]">¿Conviene ir por la 49?</h2>
-            <p className="mt-5 text-xl text-tinta-suave">Depende de dónde vivas y a dónde vayas.</p>
-            <Link to="/corredor-49" className="mt-6 inline-block font-bold text-marca hover:underline">Ver el corredor →</Link>
-          </div>
-          <div className="min-w-0 flex-[1_1_16rem] rounded-[1.75rem] bg-papel-hondo p-9">
-            <p className="text-tinta-tenue">Ruta más rápida al Metro</p>
-            <Gigante valor={rapida} decimales={1} className="fuente-titulo block text-[clamp(3.5rem,7vw,5.5rem)] font-extrabold leading-none tracking-[-0.015em] text-acento" />
-            <p className="font-bold text-acento">minutos</p>
-          </div>
-          <div className="min-w-0 flex-[1_1_16rem] rounded-[1.75rem] bg-acento p-9 text-white">
-            <p className="text-white/80">Obligando a ir por la 49</p>
-            <Gigante valor={m49} decimales={1} className="fuente-titulo block text-[clamp(3.5rem,7vw,5.5rem)] font-extrabold leading-none tracking-[-0.015em]" />
-            <p className="font-bold">minutos</p>
-          </div>
-        </section>
-      )}
-
-      {/* dato 3 */}
-      {espacio != null && (
-        <section className="bg-papel-hondo">
-          <div className="mx-auto flex max-w-[84rem] flex-wrap items-center gap-14 px-6 py-20 lg:px-10">
-            <h2 className="fuente-titulo min-w-0 flex-[1_1_22rem] text-[clamp(2.2rem,4vw,3.4rem)] font-extrabold leading-[1.02] tracking-[-0.015em]">Cada persona tiene casi nada de espacio público.</h2>
-            <div className="min-w-0 flex-[1_1_22rem]">
-              <p className="text-tinta-suave">Metros cuadrados por habitante (referencia nacional: 15)</p>
-              {[{ t: "Comuna 2", v: espacio, c: "bg-acento" }, { t: "Meta", v: 15, c: "bg-tinta" }].map((f) => (
-                <div key={f.t} className="mt-4 flex items-center gap-4">
-                  <span className="w-24 shrink-0 font-bold">{f.t}</span>
-                  <div className="h-9 flex-1 overflow-hidden rounded-xl bg-superficie"><div className={`h-full ${f.c}`} style={{ width: `${Math.max(2, (f.v / 15) * 100)}%` }} /></div>
-                  <span className="fuente-titulo w-14 text-3xl font-extrabold">{String(f.v).replace(".", ",")}</span>
-                </div>
-              ))}
+      {/* ---------------------------------------------------------------- para quién */}
+      <section aria-labelledby="t-quien" className="py-16">
+        <p className="mono text-[0.72rem] uppercase tracking-[0.06em] text-tinta-tenue">Para quién es</p>
+        <h2 id="t-quien" className="fuente-titulo mt-2 max-w-3xl text-[clamp(1.8rem,3vw,2.6rem)] font-extrabold leading-[1.05] tracking-[-0.03em]">Sirve a quien vive el territorio y a quien lo planea</h2>
+        <div className="mt-10 grid gap-12 lg:grid-cols-2">
+          {PARA_QUIEN.map((g) => (
+            <div key={g.quien}>
+              <h3 className="text-xl font-semibold">{g.quien}</h3>
+              <ul className="mt-3 border-t border-tinta/80">
+                {g.usos.map((u) => (
+                  <li key={u.to}>
+                    <Link to={u.to} className="group flex items-center gap-4 border-b border-nivel py-4">
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-semibold group-hover:text-marca">{u.t}</span>
+                        <span className="block text-sm text-tinta-suave">{u.d}</span>
+                      </span>
+                      <IconoNav nombre="flecha" className="h-5 w-5 shrink-0 text-tinta-tenue transition group-hover:translate-x-1 group-hover:text-marca" trazo={2} />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
-        </section>
-      )}
-
-      {/* elige tu barrio */}
-      <section id="barrios" className="mx-auto max-w-[64rem] px-6 pb-8 pt-24 text-center lg:px-10">
-        <h2 className="fuente-titulo text-[clamp(2.6rem,6vw,4.4rem)] font-extrabold leading-none tracking-[-0.035em]">¿Y tu barrio?</h2>
-        <p className="mt-5 text-xl text-tinta-suave">Toca el tuyo y ve solo lo que te afecta: tu ficha, tu camino al Metro y las obras que te tocan.</p>
-        <div className="mt-10 flex flex-wrap justify-center gap-3">
-          {(d?.barrios ?? []).map((b) => (
-            <Link key={b.codigo} to={`/barrios/${b.codigo}`} className="rounded-full bg-papel-hondo px-6 py-3.5 text-lg font-medium transition hover:bg-acento hover:text-white">{b.nombre}</Link>
           ))}
         </div>
       </section>
 
-      {/* capítulos */}
-      <section className="mx-auto max-w-[84rem] px-6 pb-24 pt-16 lg:px-10">
-        <h2 className="fuente-titulo mb-8 text-4xl font-extrabold tracking-tight">Sigue leyendo</h2>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {CAPITULOS.map((c) => (
-            <Link key={c.n} to={c.a} className={`block rounded-3xl p-7 transition hover:-translate-y-0.5 ${c.oscuro ? "bg-[#0A1A3F] text-white" : "bg-papel-hondo"}`}>
-              <p className={`text-sm font-bold ${c.oscuro ? "text-[#7FB0FF]" : "text-marca"}`}>{c.n}</p>
-              <p className="fuente-titulo mt-2 text-[1.7rem] font-bold leading-tight">{c.t}</p>
-              <p className={`mt-1 ${c.oscuro ? "text-[#A9BEE8]" : "text-tinta-suave"}`}>{c.d}</p>
+      {/* ---------------------------------------------------------------- barrios */}
+      <section id="barrios" aria-labelledby="t-barrios" className="border-t border-tinta/80 py-14">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h2 id="t-barrios" className="fuente-titulo text-[clamp(1.8rem,3vw,2.6rem)] font-extrabold leading-[1.05] tracking-[-0.03em]">Empieza por tu barrio</h2>
+            <p className="mt-2 max-w-xl text-tinta-suave">Cada ficha reúne población, servicios cercanos, riesgo, reportes y cómo se compara con el resto de la comuna.</p>
+          </div>
+        </div>
+        <div className="mt-6 flex flex-wrap gap-2">
+          {(d?.barrios ?? []).map((b) => (
+            <Link key={b.codigo} to={`/barrios/${b.codigo}`} className="chip !px-4 !py-2.5 !text-base">
+              {b.nombre}
+              <span className="mono text-[0.7rem] text-tinta-tenue">{b.poblacion_2018 != null ? num(b.poblacion_2018) : ""}</span>
             </Link>
           ))}
         </div>
+        <p className="mono mt-3 text-[0.7rem] text-tinta-tenue">Personas por barrio según el Censo DANE 2018.</p>
       </section>
 
-      <footer className="border-t border-nivel px-6 py-8 text-center text-sm text-tinta-suave">
-        Observatorio Santa Cruz · Territorio INN 2026 · Reto #4. Datos abiertos de la Alcaldía de Medellín, el DANE, EPM y Emvarias.
+      {/* ---------------------------------------------------------------- cierre */}
+      <section aria-labelledby="t-cierre" className="mb-16 grid gap-8 rounded-2xl bg-papel-hondo p-8 lg:grid-cols-[minmax(0,1.3fr)_auto] lg:items-center lg:p-12">
+        <div>
+          <h2 id="t-cierre" className="fuente-titulo text-[clamp(1.6rem,2.6vw,2.2rem)] font-extrabold leading-[1.08] tracking-[-0.025em]">¿Te sirve algo así para otro territorio?</h2>
+          <p className="mt-3 max-w-2xl text-tinta-suave">OTEA está hecho con datos públicos y su código está publicado. La Propuesta de valor explica qué hace hoy, qué falta y qué se necesita para montarlo en otra comuna o municipio.</p>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <Link to="/propuesta?ir=implementar" className="boton boton-1 !px-6 !py-3 !text-base">Ver cómo implementarlo</Link>
+          <Link to="/mapa" className="boton boton-2 !px-6 !py-3 !text-base">Seguir explorando</Link>
+        </div>
+      </section>
+
+      <footer className="mono border-t border-nivel py-6 text-[0.72rem] text-tinta-tenue">
+        OTEA · Observatorio territorial de Santa Cruz · Territorio INN 2026, reto 4. Datos de la Alcaldía de Medellín, el DANE e INDER; reportes y noticias públicas.
       </footer>
     </div>
   );
