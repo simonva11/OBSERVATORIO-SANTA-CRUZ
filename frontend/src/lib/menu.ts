@@ -52,7 +52,7 @@ export const GRUPOS: GrupoMenu[] = [
     id: "servicios",
     corto: "Servicios",
     titulo: "Servicios públicos",
-    modulos: [{ ruta: "/residuos", nombre: "Aseo y residuos", corto: "Aseo", icono: "residuos", detalle: "Rutas de recolección y toneladas por barrio" }],
+    modulos: [{ ruta: "/residuos", nombre: "Aseo y residuos", corto: "Aseo", icono: "residuos", detalle: "Toneladas de residuos al mes por barrio" }],
   },
   {
     id: "comunidad",

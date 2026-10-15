@@ -162,7 +162,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
             ["Titulares de noticias por tema y barrio", "Hecho"],
             ["Reportes de vecinos con foto y ubicación", "Prototipo"],
             ["Datos de ReportesMED por comuna", "Por validar"],
-            ["Recolección de residuos: rutas y frecuencias (Emvarias)", "Por validar"],
+            ["Residuos: toneladas por barrio (Emvarias y EPM)", "Por validar"],
             ["Velocidades de buses y carros en la 49", "Por validar"],
             ["Video geolocalizado de las calles para detectar daños", "Propuesta"],
           ] as [string, Estado][]).map(([t, e]) => (

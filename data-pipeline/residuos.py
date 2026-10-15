@@ -11,8 +11,8 @@ Lee de la geodatabase Proyecto_grado.gdb estas capas:
   - Instalaciones      puntos de EPM con su ruta asignada (1,18 millones en toda la ciudad)
   - Tickets_Ruta       pesajes en báscula (peso neto en kg, fecha y hora del pesaje)
 
-Escribe en frontend/public/data/residuos: macrorutas.geojson, ruteo.geojson, celdas.geojson y residuos.json,
-y agrega las fuentes a fuentes.json.
+Escribe en frontend/public/data/residuos SOLO residuos.json: toneladas al mes por barrio (nada de rutas, polígonos,
+calles ni horarios, que no se pueden publicar), y agrega la fuente a fuentes.json.
 
 PRIVACIDAD: de las instalaciones solo se usan estrato, estado, ruta, barrio EPM y coordenadas, y se publican
 únicamente conteos por celda de 100 m y por barrio. NO se leen ni se guardan la nomenclatura (dirección), la
@@ -148,7 +148,6 @@ def principal(gdb):
     print("macrorutas que tocan la comuna:", len(z), "de apoyo:", int(z["apoyo"].sum()))
     cols_z = ["COD_RUTA", "DENO_RUTA", "BLOQUE_FRE", "dias", "HORARIO_MA", "apoyo", "t_mes", "kg_inst_mes", "kg_viaje", "vehiculos", "viajes",
               "instalaciones_comuna", "instalaciones_ruta", "pct_ruta_en_comuna2", "t_mes_atribuible_comuna2", "TON_TEORIC", "TON1ERAFRE"]
-    escribir("macrorutas.geojson", a_geojson(z, cols_z))
 
     # ---------------------------------------------------------------- ruteo (líneas)
     lin = gpd.read_file(gdb, layer="Zonas_Merge").to_crs(4326)
@@ -161,7 +160,6 @@ def principal(gdb):
     lin["geometry"] = lin.geometry.simplify(0.000005)
     km = lin.groupby("RECOLEC")["long_m"].sum() / 1000
     print("tramos de calle:", len(lin), km.round(1).to_dict())
-    escribir("ruteo.geojson", a_geojson(lin, ["COD_RUTA", "RECOLEC", "long_m"]))
 
     # ---------------------------------------------------------------- celdas de 100 m con el conteo de instalaciones
     pm = ins.to_crs(CRS_M)
@@ -175,7 +173,6 @@ def principal(gdb):
     celdas["estrato_prom"] = celdas["estrato_prom"].round(1)
     celdas["t_mes_est"] = (celdas["kg_mes"] / 1000).round(3)
     print("celdas:", len(celdas), "máximo de instalaciones en una celda:", int(celdas["n"].max()))
-    escribir("celdas.geojson", a_geojson(celdas, ["n", "estrato_prom", "t_mes_est"]))
 
     # ---------------------------------------------------------------- barrios (código EPM + nombre por cruce espacial)
     cruce = gpd.sjoin(ins[["barrio_epm", "geometry"]], barrios, how="left", predicate="within")
@@ -242,20 +239,19 @@ def principal(gdb):
         "rutas": por_ruta, "barrios": filas, "serie_diaria": serie, "por_dia_semana": por_dia, "por_hora": por_hora,
         "mensual": [{"mes": m, "t": float(v)} for m, v in mensual.items()],
     }
-    escribir("residuos.json", resumen)
+    # POLÍTICA DE DATOS: solo se publican toneladas por barrio. Nada de rutas, polígonos, calles, horarios ni conteos de instalaciones.
+    barrios_t = sorted(({"nombre": f["nombre"], "t_mes": f["t_mes_estimadas"]} for f in filas if f["nombre"]), key=lambda b: -b["t_mes"])
+    escribir("residuos.json", {"generado": resumen["generado"], "periodo": resumen["periodo"],
+                               "t_mes_comuna": round(sum(b["t_mes"] for b in barrios_t), 1), "barrios": barrios_t})
 
     ruta_f = DATOS / "fuentes.json"
     cat = json.loads(ruta_f.read_text(encoding="utf-8"))
     base = {"tipo": "oficial", "url_servicio": "", "consulta": None, "estado": "ok", "error": None,
             "fecha_descarga": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            "licencia": "Datos entregados al proyecto por Emvarias y EPM, no son datos abiertos. Condiciones de uso por confirmar antes de redistribuir. No se publican direcciones ni placas."}
+            "licencia": "Datos entregados al proyecto por Emvarias y EPM, no son datos abiertos. Solo se publican toneladas por mes agregadas por barrio, sin rutas, calles, horarios ni direcciones."}
     nuevas = [
-        {**base, "id": "residuos_macrorutas", "nombre": "Macrorutas y ruteo de recolección (Zona 1)", "entidad": "Emvarias",
-         "formato_origen": "Geodatabase de Esri (z1, Zonas_Merge)", "cobertura": "Rutas que tocan la Comuna 2", "registros": len(z) + len(lin), "ultima_actualizacion_en_datos": None},
-        {**base, "id": "residuos_instalaciones", "nombre": "Instalaciones con ruta de recolección asignada", "entidad": "EPM",
-         "formato_origen": "Geodatabase de Esri (Instalaciones)", "cobertura": "Instalaciones dentro de la Comuna 2, agrupadas en celdas de 100 m", "registros": int(len(ins)), "ultima_actualizacion_en_datos": None},
-        {**base, "id": "residuos_pesajes", "nombre": "Pesajes en báscula de las rutas de la Comuna 2", "entidad": "Emvarias",
-         "formato_origen": "Geodatabase de Esri (Tickets_Ruta)", "cobertura": f"{INICIO} a {FIN}", "registros": int(len(t)), "ultima_actualizacion_en_datos": FIN},
+        {**base, "id": "residuos_toneladas_barrio", "nombre": "Toneladas de residuos por barrio (estimación mensual)", "entidad": "Emvarias y EPM",
+         "formato_origen": "Geodatabase de Esri", "cobertura": f"Barrios de la Comuna 2, {INICIO} a {FIN}", "registros": len(barrios_t), "ultima_actualizacion_en_datos": FIN},
     ]
     ids = {n["id"] for n in nuevas}
     ruta_f.write_text(json.dumps([x for x in cat if x["id"] not in ids] + nuevas, ensure_ascii=False, indent=1), encoding="utf-8")
