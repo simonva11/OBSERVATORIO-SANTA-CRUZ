@@ -57,6 +57,7 @@ export default function App() {
             <Route path="/historias/:id" element={<Historia />} />
             <Route path="/tecnico" element={<Tecnico />} />
             <Route path="/mapa" element={<Mapa />} />
+            <Route path="/mapa-vecinos" element={<Mapa vecinos />} />
             <Route path="/indicadores" element={<Indicadores />} />
             <Route path="/accesibilidad" element={<Accesibilidad />} />
             <Route path="/prioridades" element={<Prioridades />} />

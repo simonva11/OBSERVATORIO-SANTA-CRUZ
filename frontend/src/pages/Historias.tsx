@@ -25,6 +25,10 @@ export default function Historias() {
           <h2 id="t-mapa" className="ciu-h2">Mira tu barrio en el mapa</h2>
           <p className="ciu-sub">Elige un tema y toca un barrio. Más oscuro quiere decir “más” de lo que dice la leyenda.</p>
           <div className="mt-6"><MapaCiudadano /></div>
+          <div className="ciu-mapa-invita mt-8">
+            <p className="ciu-parrafo !max-w-none">¿Quieres ver más cosas del barrio, como colegios, parques o el Metro?</p>
+            <Link to="/mapa-vecinos" className="boton boton-1 ciu-boton-grande shrink-0">Abrir el mapa completo</Link>
+          </div>
         </section>
       </div>
     </div>

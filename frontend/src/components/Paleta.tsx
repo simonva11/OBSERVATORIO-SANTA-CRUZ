@@ -16,6 +16,7 @@ const ATAJOS: Opcion[] = [
 /** Vista ciudadana: la portada y las cuatro historias, primero porque es lo que busca la mayoría. */
 const CIUDADANAS: Opcion[] = [
   { id: "/", nombre: "Así vivimos Santa Cruz (vista ciudadana)", detalle: "La portada para vecinos", icono: "inicio", ruta: "/", grupo: "Para vecinos" },
+  { id: "/mapa-vecinos", nombre: "El mapa de Santa Cruz (para vecinos)", detalle: "Metro, huecos, parques, colegios y más, sobre el mapa", icono: "mapa", ruta: "/mapa-vecinos", grupo: "Para vecinos" },
   ...HISTORIAS.map((h) => ({ id: `h-${h.id}`, nombre: h.titulo, detalle: h.pregunta, icono: "alerta", ruta: `/historias/${h.id}`, grupo: "Para vecinos" })),
 ];
 

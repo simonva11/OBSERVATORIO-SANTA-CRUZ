@@ -49,6 +49,17 @@ export default function Ciudadano() {
           </ConDatos>
         </section>
 
+
+        <section aria-labelledby="t-mapa-completo" className="ciu-seccion !pb-0">
+          <div className="ciu-mapa-invita">
+            <div>
+              <h2 id="t-mapa-completo" className="ciu-h2">Mira todo Santa Cruz en el mapa</h2>
+              <p className="ciu-parrafo mt-2">El mapa completo del barrio: estaciones del Metro y Metrocable, colegios, parques, huecos reportados y más. Elige un tema, toca un lugar y mira qué dicen los datos.</p>
+            </div>
+            <Link to="/mapa-vecinos" className="boton boton-1 ciu-boton-grande shrink-0">Abrir el mapa completo</Link>
+          </div>
+        </section>
+
         {/* ---------------------------------------------------------------- tu barrio */}
         <section aria-labelledby="t-barrio" className="ciu-seccion">
           <h2 id="t-barrio" className="ciu-h2">¿Y en tu barrio?</h2>

@@ -85,7 +85,7 @@ export default function MapaCiudadano({ fijo }: { fijo?: IdHistoria }) {
               </div>
             </details>
             <p className="mt-4 text-[0.9rem] text-tinta-suave">
-              ¿Quieres ver más capas y más detalle? <Link to={h.tecnica[1]?.to ?? h.tecnica[0].to} className="font-semibold underline">Abrir el mapa completo (OTEA Técnico)</Link>
+              ¿Quieres ver más capas y más detalle? <Link to={h.tecnica[1]?.to ?? h.tecnica[0].to} className="font-semibold underline">Abrir el mapa completo del barrio</Link>
             </p>
           </div>
         );

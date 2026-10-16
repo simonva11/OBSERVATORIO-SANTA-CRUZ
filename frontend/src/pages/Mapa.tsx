@@ -191,7 +191,11 @@ function TemaCuadro({ t, activo, soloComuna, onClick }: { t: Tema; activo: boole
   );
 }
 
-export default function Mapa() {
+/** Temas del mapa para vecinos: los que se entienden sin saber de planeación. Los técnicos (POT, Carrera 49, vivienda, tus datos) quedan en OTEA Técnico. */
+const TEMAS_VECINOS = ["transporte", "caminar", "reclamos", "parques", "colegios", "comunidad", "personas", "riesgo", "accidentes"];
+
+export default function Mapa({ vecinos = false }: { vecinos?: boolean }) {
+  const temasVisibles = vecinos ? TEMAS.filter((t) => TEMAS_VECINOS.includes(t.id)) : TEMAS;
   const [params, setParams] = useSearchParams();
   const indicadores = useDatos<Indicadores>("indicadores.json");
 
@@ -429,7 +433,7 @@ export default function Mapa() {
 
   return (
     <div className="relative flex h-full bg-papel">
-      <h1 className="sr-only">Mapa territorial de Santa Cruz</h1>
+      <h1 className="sr-only">{vecinos ? "Mapa de Santa Cruz para vecinos" : "Mapa territorial de Santa Cruz"}</h1>
       <div className={`relative min-w-0 flex-1 ${noche ? "mapa-noche" : ""}`}>
         <MapaVivo
           modo={modo}
@@ -509,7 +513,7 @@ export default function Mapa() {
             {panelAbierto && (
               <>
                 <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-1.5 pb-1.5">
-                  {GRUPOS_TEMA.map((g) => (
+                  {GRUPOS_TEMA.map((g) => ({ ...g, temas: g.temas.filter((id) => temasVisibles.some((t) => t.id === id)) })).filter((g) => g.temas.length > 0).map((g) => (
                     <div key={g.titulo} className="mt-1.5 first:mt-0">
                       <p className="mono px-2 pb-0.5 pt-1.5 text-[0.64rem] uppercase tracking-[0.06em] text-tinta-tenue">{g.titulo}</p>
                       <ul className="space-y-0.5">
@@ -565,7 +569,7 @@ export default function Mapa() {
             Deslice hacia arriba para ver solo el mapa
           </div>
         <nav aria-label="Qué quiere ver en el mapa" className="flex gap-2 overflow-x-auto px-3 pb-3">
-          {TEMAS.map((t) => (
+          {temasVisibles.map((t) => (
             <div key={t.id} className="shrink-0">
               <BotonTema t={t} activo={temaActivo(t)} soloComuna={modo === "ciudad" && t.capas.every((c) => !capaPorId(c)?.archivoCiudad)} onClick={() => alternarTema(t)} />
             </div>

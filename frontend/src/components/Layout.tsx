@@ -385,7 +385,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     window.addEventListener("keydown", f);
     return () => window.removeEventListener("keydown", f);
   }, []);
-  const esMapa = pathname === "/mapa";
+  const esMapa = pathname === "/mapa" || pathname === "/mapa-vecinos";
   const ciu = esCiudadana(pathname);
   const principal = useRef<HTMLElement>(null);
   const barra = useRef<HTMLDivElement>(null);
@@ -410,7 +410,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <p className="leading-none"><span className="fuente-titulo text-[1.15rem] font-extrabold tracking-[0.04em]">OTEA</span>{ciu ? <span className="hidden pl-2 text-[0.82rem] font-medium text-tinta-suave sm:inline">Santa Cruz</span> : <span className="mono hidden pl-2 text-[0.7rem] uppercase tracking-[0.06em] text-tinta-tenue 2xl:inline">Técnico · Comuna 2</span>}</p>
         </NavLink>
         {ciu ? (
-          <nav aria-label="Principal" className="ml-3 hidden items-center gap-1 md:flex">
+          <nav aria-label="Principal" className="ml-3 hidden items-center gap-1 lg:flex">
             {NAV_CIUDADANA.map((n) => (
               <NavLink key={n.ruta} to={n.ruta} className={({ isActive }) => `rounded-lg px-3 py-2 text-[1rem] transition-colors ${isActive ? "bg-tinta font-semibold text-papel" : "font-medium text-tinta hover:bg-papel-hondo"}`}>{n.texto}</NavLink>
             ))}
@@ -427,12 +427,12 @@ export default function Layout({ children }: { children: ReactNode }) {
           </button>
           {ciu && <div className="hidden sm:block"><LetraCompacta nivel={nivel} onNivel={setNivel} /></div>}
           <button type="button" onClick={() => setNoche((v) => !v)} aria-pressed={noche} title={noche ? "Modo día" : "Modo noche"} aria-label={noche ? "Cambiar a modo día" : "Cambiar a modo noche"}
-            className={`${ciu ? "hidden h-10 w-10 md:grid" : "hidden h-9 w-9 xl:grid"} place-items-center rounded-lg text-tinta-suave transition hover:bg-papel-hondo hover:text-tinta`}>
+            className={`${ciu ? "hidden h-10 w-10 lg:grid" : "hidden h-9 w-9 xl:grid"} place-items-center rounded-lg text-tinta-suave transition hover:bg-papel-hondo hover:text-tinta`}>
             <IconoNav nombre={noche ? "sol" : "luna"} className="h-5 w-5" trazo={2} />
           </button>
           {!ciu && <div className="hidden whitespace-nowrap 2xl:block [&_button]:!h-8 [&_button]:!w-8 [&_div]:!py-0 [&_div]:!px-1 [&_span.font-semibold]:hidden"><LetraTamano nivel={nivel} onNivel={setNivel} variante="barra" /></div>}
           {ciu ? (
-            <NavLink to="/tecnico" className="hidden whitespace-nowrap rounded-lg border border-nivel px-3 py-2 text-[0.82rem] font-medium text-tinta-suave transition hover:border-tinta/60 hover:text-tinta md:inline-block" title="Cifras, métodos y fuentes para JAC, JAL, entidades y analistas">OTEA Técnico</NavLink>
+            <NavLink to="/tecnico" className="hidden whitespace-nowrap rounded-lg border border-nivel px-3 py-2 text-[0.82rem] font-medium text-tinta-suave transition hover:border-tinta/60 hover:text-tinta lg:inline-block" title="Cifras, métodos y fuentes para JAC, JAL, entidades y analistas">OTEA Técnico</NavLink>
           ) : (
             <NavLink to="/" className="hidden whitespace-nowrap rounded-lg bg-tinta px-3 py-2 text-[0.85rem] font-semibold text-papel transition hover:opacity-90 xl:inline-block">Vista ciudadana</NavLink>
           )}
@@ -441,13 +441,13 @@ export default function Layout({ children }: { children: ReactNode }) {
             onClick={() => setMenuAbierto((v) => !v)}
             aria-expanded={menuAbierto}
             aria-controls="menu-movil"
-            className={`${ciu ? "h-10 md:hidden" : "xl:hidden"} rounded-lg border border-nivel bg-superficie px-3 py-1.5 text-sm font-semibold`}
+            className={`${ciu ? "h-10 lg:hidden" : "xl:hidden"} rounded-lg border border-nivel bg-superficie px-3 py-1.5 text-sm font-semibold`}
           >
             {menuAbierto ? "Cerrar" : "Menú"}
           </button>
         </div>
         {menuAbierto && (
-          <div id="menu-movil" className={`absolute inset-x-0 top-full max-h-[85dvh] overflow-y-auto border-b border-nivel bg-papel p-3 shadow-[0_18px_40px_-16px_rgb(16_23_41/0.35)] ${ciu ? "md:hidden" : "xl:hidden"}`}>
+          <div id="menu-movil" className={`absolute inset-x-0 top-full max-h-[85dvh] overflow-y-auto border-b border-nivel bg-papel p-3 shadow-[0_18px_40px_-16px_rgb(16_23_41/0.35)] ${ciu ? "lg:hidden" : "xl:hidden"}`}>
             {ciu ? (
               <nav aria-label="Principal" className="flex flex-col gap-1">
                 {[{ ruta: "/", texto: "Inicio" }, ...NAV_CIUDADANA].map((n) => (

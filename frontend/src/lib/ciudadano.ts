@@ -173,7 +173,7 @@ export const HISTORIAS: Historia[] = [
     fuentes: [{ ids: ["manzanas_censo", "vias", "estaciones"], calculo: "tiempo de caminata calculado por OTEA" }],
     tecnica: [
       { to: "/accesibilidad", texto: "Ver los datos y cómo se calcularon" },
-      { to: "/mapa?capas=estaciones,lineas_transporte,manzanas", texto: "Ver las estaciones y las manzanas en el mapa completo" },
+      { to: "/mapa-vecinos?capas=estaciones,lineas_transporte,manzanas", texto: "Ver las estaciones y las manzanas en el mapa completo" },
     ],
     metodo:
       "Cada manzana del Censo 2018 camina hasta la estación más cercana por la red de calles, andenes y escaleras, con la fórmula de Tobler (la velocidad baja con la pendiente; unos 5 km/h en plano). Se suman las personas de 60 años o más de las manzanas que quedan a más de 10 minutos. Es un modelo, no un recorrido medido.",
@@ -230,7 +230,7 @@ export const HISTORIAS: Historia[] = [
     ],
     tecnica: [
       { to: "/residuos", texto: "Ver las toneladas por barrio y el método" },
-      { to: "/mapa?capas=solicitudes_quebradas", texto: "Ver las solicitudes sobre quebradas en el mapa completo" },
+      { to: "/mapa-vecinos?capas=solicitudes_quebradas", texto: "Ver las solicitudes sobre quebradas en el mapa completo" },
     ],
     metodo:
       "Toneladas por mes por barrio, estimadas por OTEA a partir de los pesajes que entregaron Emvarias y EPM para el periodo indicado. Los kilos por persona dividen las toneladas entre la población del Censo 2018 de cada barrio y entre los días del mes. La comparación con una botella de agua es solo de peso (1 litro de agua pesa 1 kg).",
@@ -287,7 +287,7 @@ export const HISTORIAS: Historia[] = [
     ],
     tecnica: [
       { to: "/reclamos", texto: "Ver los reportes, los tiempos y los pendientes" },
-      { to: "/mapa?capas=huecos,andenes", texto: "Ver los huecos y los andenes en el mapa completo" },
+      { to: "/mapa-vecinos?capas=huecos,andenes", texto: "Ver los huecos y los andenes en el mapa completo" },
     ],
     metodo:
       "Se cuentan los reportes de huecos de la Comuna 2 que publica la Alcaldía, por barrio y por estado. Los días de arreglo se miden desde que se reporta hasta que figura como arreglado (mediana: la mitad tardó eso o menos). Los andenes angostos son tramos de menos de 1,2 m de ancho en el inventario de la Secretaría de Movilidad; 1,2 m es una referencia de OTEA, no una norma verificada.",
@@ -336,7 +336,7 @@ export const HISTORIAS: Historia[] = [
     fuentes: [{ ids: ["espacio_publico", "manzanas_censo"], calculo: "m² por habitante calculado por OTEA" }],
     tecnica: [
       { to: "/indicadores", texto: "Comparar barrios cifra por cifra" },
-      { to: "/mapa?capas=espacio_publico,espacio_publico_proyectado", texto: "Ver el espacio público en el mapa completo" },
+      { to: "/mapa-vecinos?capas=espacio_publico,espacio_publico_proyectado", texto: "Ver el espacio público en el mapa completo" },
     ],
     metodo:
       "Suma de los metros cuadrados de la capa de espacio público existente (Alcaldía, datos de diciembre de 2014) dividida entre la población del Censo 2018. La referencia de 15 m² por habitante es la que usa el sitio en todas sus páginas. La equivalencia en cuadrados es solo geométrica: la raíz cuadrada del área.",
