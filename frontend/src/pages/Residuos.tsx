@@ -272,7 +272,7 @@ export default function Residuos() {
   }, [ind]);
   return (
     <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
-      <Cabecera
+      <Cabecera foto="pasaje" sencilla={{ to: "/historias/basuras", texto: "Versión para vecinos: las basuras que nos rodean" }}
         etiqueta="Servicios públicos · Aseo y residuos"
         titulo="Residuos por barrio"
         icono="residuos"

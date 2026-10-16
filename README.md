@@ -88,7 +88,8 @@ cd frontend && node pruebas/navegador.mjs      # pruebas en navegador (requiere 
 
 ## Qué hay en la plataforma
 
-- **OTEA Ciudadano (`/`, portada «Así vivimos Santa Cruz»):** para vecinos. Cuatro historias (`/historias/movilidad-mayores`, `basuras`, `huecos`, `espacio-publico`) con la cifra en palabras de todos los días, mapa sencillo del barrio, qué se puede hacer, lo que todavía no se sabe y compartir por WhatsApp. Cada historia enlaza a su análisis técnico.
+- **OTEA Ciudadano (`/`, portada «Así vivimos Santa Cruz»):** para vecinos. Portada con fotos reales de Santa Cruz, cuatro historias (`/historias/movilidad-mayores`, `basuras`, `huecos`, `espacio-publico`) con la escena, una cifra explicada en sencillo, una visualización propia por tema, qué se puede hacer, lo que no se sabe, la evidencia técnica y compartir por WhatsApp. Atlas de los 11 barrios, mapa sencillo por tema y mapa completo por preguntas (`/mapa-vecinos`). Menú «Explorar» con los temas y su foto.
+- **Recorrido de presentación (`/recorrido`):** siete paradas por páginas reales, con una barra guía (Mayús + → para avanzar) para presentar en vivo o grabar el video. Guion en `docs/guion-video.md`.
 - **OTEA Técnico (`/tecnico`):** el inicio para JAC, JAL, entidades y analistas, con todos los módulos de abajo.
 - **Mapa territorial (MapLibre, 2D y 3D):** dos vistas, *Santa Cruz* (la comuna resaltada y el resto de la ciudad difuminado) y *Toda Medellín* (las 16 comunas y 5 corregimientos con los mismos ítems: estaciones, colegios, equipamientos, parques, canchas y bibliotecas, y una ficha por comuna para comparar). Botón *Ver en 3D* con el relieve real de la ladera y los edificios, manzanas que suben según cuánta gente vive en ellas, y un *Recorrido* que gira la cámara alrededor de la comuna (útil para el video). Botones grandes por tema, búsqueda, letra grande y ayuda la primera vez, pensados para que un adulto mayor lo pueda usar.
 - **Indicadores:** cifras de la comuna, comparación entre barrios, siniestros por año, calidad de vida y tabla por barrio.
@@ -101,7 +102,9 @@ cd frontend && node pruebas/navegador.mjs      # pruebas en navegador (requiere 
 La misma app y los mismos datos se ven de dos maneras según la ruta: `/`, `/historias`, `/participacion` y `/barrios` usan la cabecera ciudadana (tres enlaces, letra grande a la vista); el resto usa la cabecera técnica, con un botón «Vista ciudadana» para volver. Ningún enlace anterior cambió, salvo que el inicio técnico ahora es `/tecnico`.
 
 - **Cifras de la vista ciudadana:** salen de `frontend/public/data/ciudadano.json`, que arma `python data-pipeline/ciudadano.py` con los archivos que ya usa el sitio (no descarga nada y no baja de la escala de barrio). Los textos y equivalencias están en `frontend/src/lib/ciudadano.ts`.
-- **Fotos:** el sitio no trae fotos de Santa Cruz. Para ponerlas, copie los archivos a `frontend/src/assets/fotos/` con el nombre del tema (`portada.jpg`, `mayores.jpg`, `basuras.jpg`, `huecos.jpg`, `espacio.jpg`) y complete el lugar y el crédito en `frontend/src/lib/fotos.ts`. Sin foto se muestra una ilustración con datos, rotulada como ilustración. Guía en `frontend/src/assets/fotos/LEEME.md`.
+- **Fotos:** seis fotos reales con licencia Creative Commons (cinco de MDE Ciudad Inteligente de la Alcaldía, 2015, y una panorámica de Omar Uran, 2007), optimizadas en `frontend/public/fotos/` y con su ficha (autor, licencia, lugar conocido, cambios) en `frontend/src/lib/fotos.ts`. Placas y caras de niños difuminadas. Cómo agregar fotos propias y cuáles faltan: `docs/fotos.md`.
+- **Apoyo al reto:** el botón «Apoya el proyecto» solo aparece cuando se pegue el enlace oficial en `frontend/src/lib/reto.ts`. No hay votación ni contador propio.
+- **Menú técnico por tareas:** Explorar, Accesibilidad, Problemáticas, Riesgo y norma, Datos, Líderes y OTEA (`frontend/src/lib/menu.ts`).
 
 ## Aseo y residuos (Servicios públicos)
 

@@ -72,9 +72,9 @@
     "semantic_hash": ""
   },
   "frontend/src/App.tsx": {
-    "mtime": 1792114880.9461517,
-    "seen": 1792115112.2789478,
-    "ast_hash": "c8645a11d45ccd540a296618900e7049",
+    "mtime": 1792117757.5775301,
+    "seen": 1792118927.532164,
+    "ast_hash": "3471f13bb48e5d9fcb7180da2f9f3603",
     "semantic_hash": ""
   },
   "frontend/src/components/Estado.tsx": {
@@ -96,9 +96,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/Layout.tsx": {
-    "mtime": 1792114991.3619328,
-    "seen": 1792115112.2791512,
-    "ast_hash": "605337ebb2c7c2f0457a7bd613d040f9",
+    "mtime": 1792117539.6786566,
+    "seen": 1792118927.5323446,
+    "ast_hash": "2eb25f30ad22229b6be7443d608f56c3",
     "semantic_hash": ""
   },
   "frontend/src/components/mapa/Buscador.tsx": {
@@ -192,9 +192,9 @@
     "semantic_hash": ""
   },
   "frontend/src/pages/Accesibilidad.tsx": {
-    "mtime": 1792030514.7503037,
-    "seen": 1792030616.364438,
-    "ast_hash": "c4db1b70c2926a684870c27e3cdd804e",
+    "mtime": 1792117655.6192846,
+    "seen": 1792118927.5331593,
+    "ast_hash": "ecede3fb1803b1d41f45d8a9c4e3bf1c",
     "semantic_hash": ""
   },
   "frontend/src/pages/Fuentes.tsx": {
@@ -204,15 +204,15 @@
     "semantic_hash": ""
   },
   "frontend/src/pages/Indicadores.tsx": {
-    "mtime": 1792030514.751358,
-    "seen": 1792030616.364451,
-    "ast_hash": "f85c955c1e9d6a40f942fd56945f689f",
+    "mtime": 1792117655.6211276,
+    "seen": 1792118927.5332642,
+    "ast_hash": "fdd69362b6df3e26db4335ef1fccd1c1",
     "semantic_hash": ""
   },
   "frontend/src/pages/Mapa.tsx": {
-    "mtime": 1792114880.9450946,
-    "seen": 1792115112.2804806,
-    "ast_hash": "2688788478712a0ee222640745daac99",
+    "mtime": 1792118682.5418563,
+    "seen": 1792118927.533371,
+    "ast_hash": "21d3169f75529c0b779dd42bc8d7934e",
     "semantic_hash": ""
   },
   "frontend/src/pages/Participacion.tsx": {
@@ -246,15 +246,15 @@
     "semantic_hash": ""
   },
   "frontend/vite.config.ts": {
-    "mtime": 1791848348.7072608,
-    "seen": 1792030616.3644667,
-    "ast_hash": "b75b466d99e9d0280f399745e0c0535e",
+    "mtime": 1792116915.622282,
+    "seen": 1792118927.533584,
+    "ast_hash": "9cb2d206a95019762b02caa6ca0334be",
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1792030524.9538932,
-    "seen": 1792030616.3644783,
-    "ast_hash": "f0c7aaaaa28ad7879112096b3021c55a",
+    "mtime": 1792118923.841719,
+    "seen": 1792118927.5338762,
+    "ast_hash": "0c59fdd3d28878cfbc84066e0c2b4ae9",
     "semantic_hash": ""
   },
   "backend/requirements.txt": {
@@ -336,15 +336,15 @@
     "semantic_hash": ""
   },
   "frontend/src/components/Pagina.tsx": {
-    "mtime": 1792030514.7498932,
-    "seen": 1792030616.3643956,
-    "ast_hash": "0bef5a6b2e8d231820d1bd17ebab2ce3",
+    "mtime": 1792117644.4938455,
+    "seen": 1792118927.5323722,
+    "ast_hash": "6d86bca7e93e0327ae95900b542ee99d",
     "semantic_hash": ""
   },
   "frontend/src/components/Paleta.tsx": {
-    "mtime": 1792114880.9469173,
-    "seen": 1792115112.2792065,
-    "ast_hash": "6bf395a02794c89c7eb25e8bc5b4d225",
+    "mtime": 1792118505.9123068,
+    "seen": 1792118927.5323732,
+    "ast_hash": "12c8fafecd3d613a4aebe86bbb60f79e",
     "semantic_hash": ""
   },
   "frontend/src/lib/marca.ts": {
@@ -390,21 +390,21 @@
     "semantic_hash": ""
   },
   "frontend/src/pages/Identidad.tsx": {
-    "mtime": 1792030488.0091302,
-    "seen": 1792030616.3644497,
-    "ast_hash": "0d9cf3fc9fde1ae19e46819af5a8d6aa",
+    "mtime": 1792117808.0505748,
+    "seen": 1792118927.5332625,
+    "ast_hash": "3ed1dcfc9f223dd9157e78196348fdaa",
     "semantic_hash": ""
   },
   "frontend/src/pages/Problematicas.tsx": {
-    "mtime": 1792026911.600148,
-    "seen": 1792030616.3644571,
-    "ast_hash": "02bad8aafb51a1e271d2e9516dd086dd",
+    "mtime": 1792117655.6206477,
+    "seen": 1792118927.5334806,
+    "ast_hash": "f5c851a5acc3a68427ed52c13bce0709",
     "semantic_hash": ""
   },
   "frontend/src/pages/Propuesta.tsx": {
-    "mtime": 1792030488.0086353,
-    "seen": 1792030616.3644583,
-    "ast_hash": "7ca308d65a3b552818a3f76a6f9d31d8",
+    "mtime": 1792117808.0510728,
+    "seen": 1792118927.5334823,
+    "ast_hash": "9c7215c399b9368ca9dc1d3113622faa",
     "semantic_hash": ""
   },
   "frontend/src/pages/Radar.tsx": {
@@ -498,9 +498,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/ciudadano/Foto.tsx": {
-    "mtime": 1792029966.6969028,
-    "seen": 1792030616.3643997,
-    "ast_hash": "d2944bdfb45e5ba0f9f7bdf40d6c976e",
+    "mtime": 1792118749.3850636,
+    "seen": 1792118927.5324798,
+    "ast_hash": "348f4ba573b164143c41fdbaa5d1bf9d",
     "semantic_hash": ""
   },
   "frontend/src/components/ciudadano/MapaBarrios.tsx": {
@@ -516,9 +516,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/ciudadano/TarjetaHistoria.tsx": {
-    "mtime": 1792029788.869536,
-    "seen": 1792030616.3644042,
-    "ast_hash": "8c3cc353c71decab3c63474205d8e6a7",
+    "mtime": 1792118749.3855827,
+    "seen": 1792118927.532541,
+    "ast_hash": "392aa2d14753a42807cde9730e18e47f",
     "semantic_hash": ""
   },
   "frontend/src/lib/acudir.ts": {
@@ -528,9 +528,9 @@
     "semantic_hash": ""
   },
   "frontend/src/lib/ciudadano.ts": {
-    "mtime": 1792114880.9464476,
-    "seen": 1792115112.2796593,
-    "ast_hash": "fcef7b1b127aa8e095d9e1980df8baa6",
+    "mtime": 1792117644.4790702,
+    "seen": 1792118927.5327847,
+    "ast_hash": "34c6f2977250e56fa282a4bcb78f213e",
     "semantic_hash": ""
   },
   "frontend/src/lib/csv.ts": {
@@ -540,15 +540,15 @@
     "semantic_hash": ""
   },
   "frontend/src/lib/experiencia.ts": {
-    "mtime": 1792114880.9455676,
-    "seen": 1792115112.2797146,
-    "ast_hash": "d1c905dbc5002e184944c1bb1600a923",
+    "mtime": 1792117420.898037,
+    "seen": 1792118927.5328362,
+    "ast_hash": "db89ed321dbfdd31322e12cb7d700ff3",
     "semantic_hash": ""
   },
   "frontend/src/lib/fotos.ts": {
-    "mtime": 1792029477.8228796,
-    "seen": 1792030616.3644214,
-    "ast_hash": "265dc7705464680f8391fc854eed88f8",
+    "mtime": 1792118310.5271392,
+    "seen": 1792118927.5328627,
+    "ast_hash": "f6a95a3849a8347b4be87af36dd03eaa",
     "semantic_hash": ""
   },
   "frontend/src/lib/indice.ts": {
@@ -558,9 +558,9 @@
     "semantic_hash": ""
   },
   "frontend/src/lib/menu.ts": {
-    "mtime": 1792029804.6235533,
-    "seen": 1792030616.3644273,
-    "ast_hash": "771b395e45937f17c0ee11d5ae1bb9ce",
+    "mtime": 1792117521.1668677,
+    "seen": 1792118927.5329368,
+    "ast_hash": "ed5c24ab2b1116d0f20aacebb57084db",
     "semantic_hash": ""
   },
   "frontend/src/lib/plazos.ts": {
@@ -576,21 +576,21 @@
     "semantic_hash": ""
   },
   "frontend/src/pages/Ciudadano.tsx": {
-    "mtime": 1792114880.9471338,
-    "seen": 1792115112.2802281,
-    "ast_hash": "32316ebdddbbf1eb4b00f9a96482c9d0",
+    "mtime": 1792118784.0526295,
+    "seen": 1792118927.5331867,
+    "ast_hash": "027bad9355745358df6e98275d68494d",
     "semantic_hash": ""
   },
   "frontend/src/pages/Historia.tsx": {
-    "mtime": 1792030139.356065,
-    "seen": 1792030616.3644469,
-    "ast_hash": "569b81378ca8cd452126360f0ccb70ee",
+    "mtime": 1792118784.0559905,
+    "seen": 1792118927.533259,
+    "ast_hash": "06416dd378528fd708e2594adf1f6f45",
     "semantic_hash": ""
   },
   "frontend/src/pages/Historias.tsx": {
-    "mtime": 1792114880.9473417,
-    "seen": 1792115112.2803764,
-    "ast_hash": "273a22fae324a5e79e3c7188f8c4ead0",
+    "mtime": 1792117203.3622754,
+    "seen": 1792118927.533261,
+    "ast_hash": "834ecafc6c83798e5a020a671ed691dd",
     "semantic_hash": ""
   },
   "frontend/src/pages/Inmobiliario.tsx": {
@@ -606,27 +606,27 @@
     "semantic_hash": ""
   },
   "frontend/src/pages/Reclamos.tsx": {
-    "mtime": 1792030514.7508872,
-    "seen": 1792030616.3644602,
-    "ast_hash": "730a48f5738d8e2df8e8a67177b4958d",
+    "mtime": 1792117655.6202624,
+    "seen": 1792118927.533509,
+    "ast_hash": "f5de51a763538cad1cf7cba7839ccdbe",
     "semantic_hash": ""
   },
   "frontend/src/pages/Residuos.tsx": {
-    "mtime": 1792030514.7506533,
-    "seen": 1792030616.3644614,
-    "ast_hash": "f3dc14a9d7b2659a78f8a744386ea04f",
+    "mtime": 1792117655.6198814,
+    "seen": 1792118927.5335126,
+    "ast_hash": "5cbbd7752276284a4999836d18f79f61",
     "semantic_hash": ""
   },
   "frontend/src/pages/Riesgo.tsx": {
-    "mtime": 1792026911.604148,
-    "seen": 1792030616.3644621,
-    "ast_hash": "d2fc9a65bfb796f945bd0a84a7a7c584",
+    "mtime": 1792117655.6215773,
+    "seen": 1792118927.5335143,
+    "ast_hash": "d5d18f0d91390dce0da2cf2c2727fd04",
     "semantic_hash": ""
   },
   "frontend/src/pages/Tecnico.tsx": {
-    "mtime": 1792029804.622789,
-    "seen": 1792030616.3644629,
-    "ast_hash": "05d9fbb727a1c0afe2c2c003b47e1f3d",
+    "mtime": 1792117680.0781276,
+    "seen": 1792118927.5335155,
+    "ast_hash": "f657193fa7afab0c91ad4a65580b4fbe",
     "semantic_hash": ""
   },
   "skills-lock.json": {
@@ -689,12 +689,6 @@
     "ast_hash": "9e075a95737315abcf4e1439de973971",
     "semantic_hash": ""
   },
-  "frontend/src/assets/fotos/LEEME.md": {
-    "mtime": 1792029477.8244138,
-    "seen": 1792030616.3644843,
-    "ast_hash": "5b37a7500688525eee95de39b0a81321",
-    "semantic_hash": ""
-  },
   "frontend/public/icons/apple-touch-icon.png": {
     "mtime": 1791848348.699261,
     "seen": 1792030616.364488,
@@ -723,6 +717,198 @@
     "mtime": 1791848348.702837,
     "seen": 1792030616.3644915,
     "ast_hash": "b6b1942e9ba0216e8f6bd3f9be37833a",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/GuiaRecorrido.tsx": {
+    "mtime": 1792117757.5599718,
+    "seen": 1792118927.5323179,
+    "ast_hash": "e2716a41502a485bb162df02ca93bd39",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/ciudadano/AtlasBarrios.tsx": {
+    "mtime": 1792116957.5490577,
+    "seen": 1792118927.5324454,
+    "ast_hash": "5c6500774ecc652a6eabe45fc2ce9124",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/ciudadano/MenuCiudadano.tsx": {
+    "mtime": 1792117420.8983605,
+    "seen": 1792118927.5325391,
+    "ast_hash": "6959e453692a207f179c568b98ebffb5",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/ciudadano/Viz.tsx": {
+    "mtime": 1792117903.2667453,
+    "seen": 1792118927.532542,
+    "ast_hash": "3ab6cef5c647debebd0b429502ed37d7",
+    "semantic_hash": ""
+  },
+  "frontend/src/lib/preguntas.ts": {
+    "mtime": 1792117380.6956675,
+    "seen": 1792118927.5329862,
+    "ast_hash": "ad1d33cbad8a9009cb65893f018361c1",
+    "semantic_hash": ""
+  },
+  "frontend/src/lib/recorrido.ts": {
+    "mtime": 1792117757.5542626,
+    "seen": 1792118927.5330114,
+    "ast_hash": "62b6a8551c913d9a0afed153b6c9cf3b",
+    "semantic_hash": ""
+  },
+  "frontend/src/lib/reto.ts": {
+    "mtime": 1792116957.547337,
+    "seen": 1792118927.5330613,
+    "ast_hash": "6254db898dcd85806fc69d9529c98e24",
+    "semantic_hash": ""
+  },
+  "frontend/src/pages/Recorrido.tsx": {
+    "mtime": 1792118784.0588212,
+    "seen": 1792118927.533511,
+    "ast_hash": "4c22560f56552cf68d7ca68ec8e8f7fa",
+    "semantic_hash": ""
+  },
+  "docs/fotos.md": {
+    "mtime": 1792116909.2284296,
+    "seen": 1792118927.5339622,
+    "ast_hash": "ad5f68330ca29c27bc59e2d6453d1d0c",
+    "semantic_hash": ""
+  },
+  "docs/guion-video.md": {
+    "mtime": 1792117791.734262,
+    "seen": 1792118927.533964,
+    "ast_hash": "8967d87c78ae55fe240ec0924d96ed08",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/aniversario-1280.webp": {
+    "mtime": 1792116795.0622847,
+    "seen": 1792118927.534049,
+    "ast_hash": "623aed627164aa616056f1cda06aac23",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/aniversario-1600.webp": {
+    "mtime": 1792116795.4302847,
+    "seen": 1792118927.5340505,
+    "ast_hash": "65e6064588237201f3d231a57ee70c0f",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/aniversario-640.webp": {
+    "mtime": 1792116794.7982848,
+    "seen": 1792118927.5340521,
+    "ast_hash": "2a05437435b14091f88edf7aa769ea31",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/aniversario-960.webp": {
+    "mtime": 1792118309.75425,
+    "seen": 1792118927.5340536,
+    "ast_hash": "956abb41da8595b5d1866c5a218aae97",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/calle-1280.webp": {
+    "mtime": 1792116794.3102846,
+    "seen": 1792118927.5340545,
+    "ast_hash": "37d7260042ff2c4697a67aed19a4ad2b",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/calle-1600.webp": {
+    "mtime": 1792116794.6902847,
+    "seen": 1792118927.5340562,
+    "ast_hash": "0dd874be5ba11a7d0629692269c2fa1c",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/calle-640.webp": {
+    "mtime": 1792116794.0182848,
+    "seen": 1792118927.5340574,
+    "ast_hash": "83d9ac8adc0c28b3f7ec27d79097692d",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/calle-960.webp": {
+    "mtime": 1792118309.57025,
+    "seen": 1792118927.534059,
+    "ast_hash": "0c5c1e93d03a226e629e0aec663a7273",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/callejon-tierra-1280.webp": {
+    "mtime": 1792116795.7942846,
+    "seen": 1792118927.5340602,
+    "ast_hash": "41bf4d9c2bef2f372fa1233d58d41068",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/callejon-tierra-640.webp": {
+    "mtime": 1792116795.5342846,
+    "seen": 1792118927.5340617,
+    "ast_hash": "95aa9ad2c356c84e0a918908b87c6c68",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/callejon-tierra-960.webp": {
+    "mtime": 1792118309.93025,
+    "seen": 1792118927.5340626,
+    "ast_hash": "d6dc92d0677ffc36885171694755601e",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/laderas-1280.webp": {
+    "mtime": 1792116797.4142847,
+    "seen": 1792118927.5340638,
+    "ast_hash": "e7e90e0d61868f89d1d559b9150b063b",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/laderas-1600.webp": {
+    "mtime": 1792116797.8822846,
+    "seen": 1792118927.5340652,
+    "ast_hash": "f970dd6d4aa306eabe03dff9716bd360",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/laderas-640.webp": {
+    "mtime": 1792116797.1022847,
+    "seen": 1792118927.534066,
+    "ast_hash": "bbc40a3f565473c548ac2a00ea819ac3",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/laderas-960.webp": {
+    "mtime": 1792118310.49825,
+    "seen": 1792118927.534067,
+    "ast_hash": "d2703f3ef1407560eb94114297ee2a0c",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/pasaje-1280.webp": {
+    "mtime": 1792116796.1662846,
+    "seen": 1792118927.534068,
+    "ast_hash": "641dfeca7ac8a78273ca701117960d7e",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/pasaje-640.webp": {
+    "mtime": 1792116795.9102848,
+    "seen": 1792118927.5340693,
+    "ast_hash": "d2763a66043ad723269ba3b68d83574e",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/pasaje-960.webp": {
+    "mtime": 1792118310.10225,
+    "seen": 1792118927.5340703,
+    "ast_hash": "2ee1298121f59d08292fd9b696b4f09f",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/rio-1280.webp": {
+    "mtime": 1792116796.5782847,
+    "seen": 1792118927.5340714,
+    "ast_hash": "8489d8469a2c82250feb9acba610d8e3",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/rio-1600.webp": {
+    "mtime": 1792116796.9942846,
+    "seen": 1792118927.5340729,
+    "ast_hash": "fe95f5fc246b8a521986e2e55537bca3",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/rio-640.webp": {
+    "mtime": 1792116796.2702847,
+    "seen": 1792118927.5340738,
+    "ast_hash": "0329d4fa9197bacd00f6b71eb72c6d6c",
+    "semantic_hash": ""
+  },
+  "frontend/public/fotos/rio-960.webp": {
+    "mtime": 1792118310.29825,
+    "seen": 1792118927.5340748,
+    "ast_hash": "fd56571c87f9a397b898f9d4aeded1e4",
     "semantic_hash": ""
   }
 }

@@ -28,7 +28,7 @@ function Contenido({ r, ind }: { r: Riesgo; ind: Indicadores }) {
 
   return (
     <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
-      <Cabecera
+      <Cabecera foto="laderas"
         etiqueta="Riesgo y ladera"
         icono="ladera"
         titulo="Riesgo de movimiento en masa"

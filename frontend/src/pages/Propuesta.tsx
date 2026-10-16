@@ -92,6 +92,7 @@ function Contenido({ ind }: { ind: Indicadores }) {
             <Link to="/tecnico" className="siguiente-a mt-3">Abrir OTEA Técnico →</Link>
           </div>
         </div>
+        <p className="mt-4 text-[0.95rem] text-tinta-suave">¿Lo quiere ver andando? El <Link to="/recorrido" className="font-semibold text-marca underline">recorrido de 2 minutos</Link> pasa por las dos experiencias con páginas reales.</p>
         <h3 className="fuente-titulo mt-8 text-lg font-bold">Qué le ofrece a cada quien</h3>
         <p className="text-sm text-tinta-suave">Son hipótesis de valor por validar con entrevistas; no hay precios, contratos ni clientes.</p>
         <ul className="mt-3 grid gap-x-8 gap-y-4 md:grid-cols-2 xl:grid-cols-4">

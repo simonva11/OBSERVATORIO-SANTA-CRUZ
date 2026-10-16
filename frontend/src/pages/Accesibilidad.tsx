@@ -122,7 +122,7 @@ function Contenido({ d }: { d: Indicadores }) {
 
   return (
     <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
-      <Cabecera
+      <Cabecera foto="aniversario" sencilla={{ to: "/historias/movilidad-mayores", texto: "Versión para vecinos: moverse por el barrio" }}
         etiqueta="Accesibilidad caminando"
         icono="accesibilidad"
         titulo="¿Cuánto se camina hasta lo básico?"

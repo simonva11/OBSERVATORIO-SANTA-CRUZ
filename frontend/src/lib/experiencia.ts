@@ -4,7 +4,7 @@
  *  - Técnica: los módulos de análisis para JAC, JAL, entidades, investigadores y analistas.
  * Qué cabecera y qué menú se muestran depende de la ruta, así ningún enlace compartido se rompe.
  */
-const CIUDADANAS = ["/historias", "/participacion", "/barrios", "/mapa-vecinos"];
+const CIUDADANAS = ["/historias", "/participacion", "/barrios", "/mapa-vecinos", "/recorrido"];
 
 export function esCiudadana(pathname: string) {
   return pathname === "/" || CIUDADANAS.some((r) => pathname === r || pathname.startsWith(`${r}/`));
@@ -17,8 +17,6 @@ export function esHistoria(pathname: string) {
 
 /** Enlaces de la cabecera ciudadana. Lo demás vive en OTEA Técnico. */
 export const NAV_CIUDADANA = [
-  { ruta: "/historias", texto: "Los problemas" },
   { ruta: "/mapa-vecinos", texto: "El mapa" },
   { ruta: "/barrios", texto: "Mi barrio" },
-  { ruta: "/participacion", texto: "Participa" },
 ] as const;

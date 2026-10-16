@@ -72,9 +72,9 @@
     "semantic_hash": ""
   },
   "frontend/src/App.tsx": {
-    "mtime": 1792029804.623298,
-    "seen": 1792030616.3643835,
-    "ast_hash": "6c4df4fde6d2356c5033d00c101659a8",
+    "mtime": 1792114880.9461517,
+    "seen": 1792115112.2789478,
+    "ast_hash": "c8645a11d45ccd540a296618900e7049",
     "semantic_hash": ""
   },
   "frontend/src/components/Estado.tsx": {
@@ -96,9 +96,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/Layout.tsx": {
-    "mtime": 1792029847.1156185,
-    "seen": 1792030616.3643935,
-    "ast_hash": "1ea5165e1011c4e8e81da91a2d41d10f",
+    "mtime": 1792114991.3619328,
+    "seen": 1792115112.2791512,
+    "ast_hash": "605337ebb2c7c2f0457a7bd613d040f9",
     "semantic_hash": ""
   },
   "frontend/src/components/mapa/Buscador.tsx": {
@@ -210,9 +210,9 @@
     "semantic_hash": ""
   },
   "frontend/src/pages/Mapa.tsx": {
-    "mtime": 1792030145.3871214,
-    "seen": 1792030616.364454,
-    "ast_hash": "e290e91bd3c99525f6b18d68e47a47dd",
+    "mtime": 1792114880.9450946,
+    "seen": 1792115112.2804806,
+    "ast_hash": "2688788478712a0ee222640745daac99",
     "semantic_hash": ""
   },
   "frontend/src/pages/Participacion.tsx": {
@@ -342,9 +342,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/Paleta.tsx": {
-    "mtime": 1792029804.6241324,
-    "seen": 1792030616.3643966,
-    "ast_hash": "65a50772b73204adb8a906fec290e3fc",
+    "mtime": 1792114880.9469173,
+    "seen": 1792115112.2792065,
+    "ast_hash": "6bf395a02794c89c7eb25e8bc5b4d225",
     "semantic_hash": ""
   },
   "frontend/src/lib/marca.ts": {
@@ -510,9 +510,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/ciudadano/MapaCiudadano.tsx": {
-    "mtime": 1792029788.8669298,
-    "seen": 1792030616.3644013,
-    "ast_hash": "d161079546b994d68a85a2bda8f0f5c0",
+    "mtime": 1792114880.9467008,
+    "seen": 1792115112.2793794,
+    "ast_hash": "ee2b2779fb1e1dcbca0339e900bcea77",
     "semantic_hash": ""
   },
   "frontend/src/components/ciudadano/TarjetaHistoria.tsx": {
@@ -528,9 +528,9 @@
     "semantic_hash": ""
   },
   "frontend/src/lib/ciudadano.ts": {
-    "mtime": 1792029676.1264262,
-    "seen": 1792030616.364416,
-    "ast_hash": "0ac1a41624f698c59649fd76fed2d9a5",
+    "mtime": 1792114880.9464476,
+    "seen": 1792115112.2796593,
+    "ast_hash": "fcef7b1b127aa8e095d9e1980df8baa6",
     "semantic_hash": ""
   },
   "frontend/src/lib/csv.ts": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/src/lib/experiencia.ts": {
-    "mtime": 1792029477.8210027,
-    "seen": 1792030616.3644192,
-    "ast_hash": "8b337605f26bf7f75cb74c52f314f7ee",
+    "mtime": 1792114880.9455676,
+    "seen": 1792115112.2797146,
+    "ast_hash": "d1c905dbc5002e184944c1bb1600a923",
     "semantic_hash": ""
   },
   "frontend/src/lib/fotos.ts": {
@@ -576,9 +576,9 @@
     "semantic_hash": ""
   },
   "frontend/src/pages/Ciudadano.tsx": {
-    "mtime": 1792029966.6965384,
-    "seen": 1792030616.364441,
-    "ast_hash": "c83d28367b514bbe8a4510b8e03eea9e",
+    "mtime": 1792114880.9471338,
+    "seen": 1792115112.2802281,
+    "ast_hash": "32316ebdddbbf1eb4b00f9a96482c9d0",
     "semantic_hash": ""
   },
   "frontend/src/pages/Historia.tsx": {
@@ -588,9 +588,9 @@
     "semantic_hash": ""
   },
   "frontend/src/pages/Historias.tsx": {
-    "mtime": 1792029788.8723187,
-    "seen": 1792030616.3644485,
-    "ast_hash": "9d13a3524625c132df0c86c38b86592d",
+    "mtime": 1792114880.9473417,
+    "seen": 1792115112.2803764,
+    "ast_hash": "273a22fae324a5e79e3c7188f8c4ead0",
     "semantic_hash": ""
   },
   "frontend/src/pages/Inmobiliario.tsx": {

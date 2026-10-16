@@ -3,6 +3,7 @@ import { HashRouter, Link, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import { Cargando } from "./components/Estado";
 import AvisosPWA from "./components/AvisosPWA";
+import GuiaRecorrido from "./components/GuiaRecorrido";
 import Ciudadano from "./pages/Ciudadano";
 import Tecnico from "./pages/Tecnico";
 
@@ -27,6 +28,7 @@ const Reclamos = lazy(() => import("./pages/Reclamos"));
 const Residuos = lazy(() => import("./pages/Residuos"));
 const Historias = lazy(() => import("./pages/Historias"));
 const Historia = lazy(() => import("./pages/Historia"));
+const Recorrido = lazy(() => import("./pages/Recorrido"));
 
 function NoEncontrada() {
   return (
@@ -56,6 +58,7 @@ export default function App() {
             <Route path="/historias" element={<Historias />} />
             <Route path="/historias/:id" element={<Historia />} />
             <Route path="/tecnico" element={<Tecnico />} />
+            <Route path="/recorrido" element={<Recorrido />} />
             <Route path="/mapa" element={<Mapa />} />
             <Route path="/mapa-vecinos" element={<Mapa vecinos />} />
             <Route path="/indicadores" element={<Indicadores />} />
@@ -81,6 +84,7 @@ export default function App() {
         </Suspense>
       </Layout>
       <AvisosPWA />
+      <GuiaRecorrido />
     </HashRouter>
   );
 }

@@ -116,7 +116,7 @@ function Contenido({ ind, seg, eje }: { ind: Indicadores; seg: Seguridad; eje: E
 
   return (
     <>
-      <Cabecera etiqueta="Problemáticas reales de la comuna" icono="alerta" titulo="Lo que pasa en Santa Cruz, con datos"
+      <Cabecera foto="rio" sencilla={{ to: "/historias", texto: "Versión para vecinos: los problemas del barrio" }} etiqueta="Problemáticas reales de la comuna" icono="alerta" titulo="Lo que pasa en Santa Cruz, con datos"
         texto="Ocho problemas que se pueden medir con datos públicos. Para cada uno: el número, dónde pesa más, de dónde sale, qué no se puede concluir y dónde estudiarlo mejor."
         pregunta="¿Cuáles son los problemas que los datos ya muestran y qué tan seguros estamos de cada uno?" />
 

@@ -5,25 +5,39 @@ import type { Indicadores } from "../lib/tipos";
 import IconoNav from "./IconosNav";
 import { GRUPOS } from "../lib/menu";
 import { HISTORIAS } from "../lib/ciudadano";
+import { PREGUNTAS_MAPA } from "../lib/preguntas";
 
-type Opcion = { id: string; nombre: string; detalle: string; icono: string; ruta: string; grupo?: string };
+type Opcion = { id: string; nombre: string; detalle: string; icono: string; ruta: string; grupo?: string; claves?: string };
+
+/** Palabras con que la gente busca cada tema (no aparecen en pantalla). */
+const CLAVES_HISTORIA: Record<string, string> = {
+  "movilidad-mayores": "metro metrocable caminar escaleras lomas personas mayores abuelos viejitos adultos transporte estación bus",
+  basuras: "basura basuras residuos aseo reciclaje quebradas toneladas limpieza escombros",
+  huecos: "huecos hueco calles andenes vías daños pavimento reportes",
+  "espacio-publico": "parques parque canchas cancha espacio público plazas jugar niños deporte",
+};
 
 const ATAJOS: Opcion[] = [
-  { id: "m-seg", nombre: "Mapa: seguridad", detalle: "Atajo a las capas de seguridad", icono: "mapa", ruta: "/mapa?capas=mortalidad_vial,camaras_cctv,semaforos", grupo: "Territorio" },
-  { id: "m-49", nombre: "Mapa: eje de la Carrera 49", detalle: "Atajo a la capa del eje", icono: "mapa", ruta: "/mapa?capas=eje49", grupo: "Territorio" },
+  { id: "m-seg", nombre: "Mapa: seguridad", detalle: "Atajo a las capas de seguridad", icono: "mapa", ruta: "/mapa?capas=mortalidad_vial,camaras_cctv,semaforos", grupo: "Explorar" },
+  { id: "m-49", nombre: "Mapa: eje de la Carrera 49", detalle: "Atajo a la capa del eje", icono: "mapa", ruta: "/mapa?capas=eje49", grupo: "Explorar" },
 ];
 
 /** Vista ciudadana: la portada y las cuatro historias, primero porque es lo que busca la mayoría. */
 const CIUDADANAS: Opcion[] = [
   { id: "/", nombre: "Así vivimos Santa Cruz (vista ciudadana)", detalle: "La portada para vecinos", icono: "inicio", ruta: "/", grupo: "Para vecinos" },
+  { id: "/barrios-ciu", nombre: "Mi barrio", detalle: "Los 11 barrios, cada uno con su ficha", icono: "personas", ruta: "/barrios", grupo: "Para vecinos" },
+  { id: "/participacion-ciu", nombre: "Compartir una problemática", detalle: "Prueba: queda en tu dispositivo y la puedes mandar por WhatsApp", icono: "participacion", ruta: "/participacion", grupo: "Para vecinos" },
   { id: "/mapa-vecinos", nombre: "El mapa de Santa Cruz (para vecinos)", detalle: "Metro, huecos, parques, colegios y más, sobre el mapa", icono: "mapa", ruta: "/mapa-vecinos", grupo: "Para vecinos" },
-  ...HISTORIAS.map((h) => ({ id: `h-${h.id}`, nombre: h.titulo, detalle: h.pregunta, icono: "alerta", ruta: `/historias/${h.id}`, grupo: "Para vecinos" })),
+  ...HISTORIAS.map((h) => ({ id: `h-${h.id}`, nombre: h.titulo, detalle: h.pregunta, icono: "alerta", ruta: `/historias/${h.id}`, grupo: "Para vecinos", claves: `${h.frase} ${CLAVES_HISTORIA[h.id] ?? ""}` })),
 ];
+
+/** Preguntas cotidianas: abren el mapa para vecinos con las capas que las responden. */
+const PREGUNTAS: Opcion[] = PREGUNTAS_MAPA.map((p) => ({ id: `p-${p.id}`, nombre: p.pregunta, detalle: "Abrir el mapa con esta pregunta", icono: "mapa", ruta: `/mapa-vecinos?pregunta=${p.id}`, grupo: "Preguntas en el mapa" }));
 
 /** Los módulos salen del menú, en el mismo orden y con las mismas categorías. Los atajos van con el Mapa. */
 const FIJAS: Opcion[] = GRUPOS.flatMap((g) => {
   const ops: Opcion[] = g.modulos.map((m) => ({ id: m.ruta, nombre: m.nombre, detalle: m.detalle, icono: m.icono, ruta: m.ruta, grupo: g.titulo }));
-  return g.id === "territorio" ? [ops[0], ...ATAJOS, ...ops.slice(1)] : ops;
+  return g.id === "explorar" ? [...ops.slice(0, 2), ...ATAJOS, ...ops.slice(2)] : ops;
 });
 const TODAS_FIJAS = [...CIUDADANAS, ...FIJAS];
 
@@ -51,7 +65,9 @@ const CONCEPTOS: Opcion[] = [
 const sin = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 /** Buscador rápido (Ctrl + K): saltar a cualquier módulo o barrio sin recorrer el menú. */
-export default function Paleta({ abierta, onCerrar }: { abierta: boolean; onCerrar: () => void }) {
+export default function Paleta({ abierta, onCerrar, ciudadana = false }: { abierta: boolean; onCerrar: () => void; ciudadana?: boolean }) {
+  const [todo, setTodo] = useState(false);
+  const sencilla = ciudadana && !todo;
   const [q, setQ] = useState("");
   const [sel, setSel] = useState(0);
   const [barrios, setBarrios] = useState<Opcion[]>([]);
@@ -62,6 +78,7 @@ export default function Paleta({ abierta, onCerrar }: { abierta: boolean; onCerr
     if (!abierta) return;
     setQ("");
     setSel(0);
+    setTodo(false);
     setTimeout(() => input.current?.focus(), 30);
     cargar<Indicadores>("indicadores.json")
       .then((d) => setBarrios(d.barrios.map((b) => ({ id: `b-${b.codigo}`, nombre: b.nombre, detalle: "Ficha del barrio", icono: "personas", ruta: `/barrios/${b.codigo}`, grupo: "Barrios" }))))
@@ -70,10 +87,12 @@ export default function Paleta({ abierta, onCerrar }: { abierta: boolean; onCerr
 
   const lista = useMemo(() => {
     const t = sin(q.trim());
-    const todas = [...TODAS_FIJAS, ...barrios, ...CONCEPTOS];
+    // Vista ciudadana: temas, preguntas, barrios y conceptos. Vista técnica (o «buscar en todo»): además los módulos.
+    const base = sencilla ? [...CIUDADANAS, ...PREGUNTAS] : TODAS_FIJAS;
+    const todas = sencilla ? [...base, ...barrios, ...CONCEPTOS] : [...base, ...PREGUNTAS, ...barrios, ...CONCEPTOS];
     // Sin texto se ve el menú completo, agrupado; al escribir, los resultados quedan agrupados igual.
-    return t ? todas.filter((o) => sin(`${o.nombre} ${o.detalle} ${o.grupo ?? ""}`).includes(t)) : TODAS_FIJAS;
-  }, [q, barrios]);
+    return t ? todas.filter((o) => sin(`${o.nombre} ${o.detalle} ${o.grupo ?? ""} ${o.claves ?? ""}`).includes(t)) : base;
+  }, [q, barrios, sencilla]);
 
   if (!abierta) return null;
   const abrir = (o: Opcion | undefined) => {
@@ -84,7 +103,7 @@ export default function Paleta({ abierta, onCerrar }: { abierta: boolean; onCerr
 
   return (
     <div className="fixed inset-0 z-[3000] flex items-start justify-center bg-[rgb(16_23_41/0.45)] px-4 pt-[12vh]" onMouseDown={onCerrar} role="presentation">
-      <div role="dialog" aria-modal="true" aria-label="Buscar en el observatorio" className="w-full max-w-xl overflow-hidden rounded-xl border border-nivel bg-superficie shadow-[0_30px_60px_-20px_rgb(16_23_41/0.45)]" onMouseDown={(e) => e.stopPropagation()}>
+      <div role="dialog" aria-modal="true" aria-label="Buscar en el observatorio" className="w-full max-w-xl overflow-hidden rounded-xl border border-nivel bg-superficie shadow-[0_30px_60px_-20px_rgb(16_23_41/0.45)]" onMouseDown={(e) => e.stopPropagation()} onKeyDown={(e) => { if (e.key === "Escape" && e.target !== input.current) onCerrar(); }}>
         <input
           ref={input}
           value={q}
@@ -95,7 +114,7 @@ export default function Paleta({ abierta, onCerrar }: { abierta: boolean; onCerr
             else if (e.key === "ArrowUp") { e.preventDefault(); setSel((s) => Math.max(0, s - 1)); }
             else if (e.key === "Enter") abrir(lista[sel]);
           }}
-          placeholder="Busca un barrio, un tema (POT, huecos, riesgo…) o un módulo"
+          placeholder={sencilla ? "¿Qué quieres saber? Prueba: huecos, Metro, basuras o tu barrio" : "Busca un barrio, un tema (POT, huecos, riesgo…) o un módulo"}
           aria-label="Buscar"
           className="w-full border-b border-nivel bg-superficie px-5 py-4 text-lg text-tinta outline-none"
         />
@@ -113,6 +132,11 @@ export default function Paleta({ abierta, onCerrar }: { abierta: boolean; onCerr
               </button>
             </li>
           ))}
+          {sencilla && (
+            <li role="presentation" className="px-3 pb-1 pt-3">
+              <button type="button" onClick={() => { setTodo(true); input.current?.focus(); }} className="text-sm font-semibold text-marca underline">Buscar también en OTEA Técnico (módulos y conceptos)</button>
+            </li>
+          )}
         </ul>
         <p className="mono border-t border-nivel bg-papel px-4 py-2 text-[0.7rem] text-tinta-tenue">↑ ↓ para moverte, Enter para abrir, Esc para cerrar</p>
       </div>

@@ -171,7 +171,7 @@ function Contenido({ d }: { d: Ind }) {
 
   return (
     <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
-      <Cabecera etiqueta="Indicadores" icono="indicadores" titulo="Indicadores de Santa Cruz"
+      <Cabecera foto="laderas" sencilla={{ to: "/historias/espacio-publico", texto: "Versión para vecinos: espacios para encontrarnos" }} etiqueta="Indicadores" icono="indicadores" titulo="Indicadores de Santa Cruz"
         texto={<>Cifras por barrio calculadas con datos de la Alcaldía de Medellín y del DANE, cada una con su fórmula, su unidad, su año y su fuente. Cálculo actualizado el {fecha(d.generado)}.</>}
         pregunta="¿Cómo se comparan los barrios en cada indicador y cómo ha cambiado la comuna?">
         <BotonCabecera to="/mapa">Verlos en el mapa</BotonCabecera>

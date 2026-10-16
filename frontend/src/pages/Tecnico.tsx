@@ -10,6 +10,7 @@ import type { Coleccion, Indicadores } from "../lib/tipos";
 import { useResumen } from "../lib/resumen";
 import IconoNav from "../components/IconosNav";
 import { Fuente } from "../components/Pagina";
+import Foto from "../components/ciudadano/Foto";
 
 const VERDE = "rgb(var(--marca))";
 
@@ -274,6 +275,32 @@ export default function Tecnico() {
             <p className="mono mt-0.5 text-[0.7rem] text-tinta-tenue">{n}</p>
           </div>
         ))}
+      </section>
+
+      {/* ---------------------------------------------------------------- territorio detrás de los datos */}
+      <section aria-labelledby="t-territorio" className="pt-14">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="mono text-[0.72rem] uppercase tracking-[0.06em] text-tinta-tenue">Contexto</p>
+            <h2 id="t-territorio" className="fuente-titulo mt-2 max-w-3xl text-[clamp(1.8rem,3vw,2.6rem)] font-extrabold leading-[1.05] tracking-[-0.03em]">El territorio detrás de los datos</h2>
+            <p className="mt-2 max-w-2xl text-tinta-suave">Fotos de Santa Cruz publicadas por la Alcaldía (2015). Sirven para ubicar el análisis, no como evidencia: no tienen lugar exacto ni fecha reciente. Cada una lleva a la versión para vecinos del tema.</p>
+          </div>
+        </div>
+        <div className="foto-banda mt-6">
+          {[
+            { foto: "calle", t: "Moverse por el barrio", to: "/historias/movilidad-mayores", tec: "/accesibilidad" },
+            { foto: "pasaje", t: "Basuras y limpieza", to: "/historias/basuras", tec: "/residuos" },
+            { foto: "callejon-tierra", t: "Calles y andenes", to: "/historias/huecos", tec: "/reclamos" },
+          ].map((x, i) => (
+            <figure key={x.foto} className="foto-banda-item">
+              <Foto id={x.foto} className={i === 0 ? "aspect-[16/10] w-full md:aspect-auto md:h-full md:min-h-[15rem]" : "aspect-[16/10] w-full"} sizes={i === 0 ? "(min-width: 768px) 45vw, 100vw" : "(min-width: 768px) 28vw, 100vw"} />
+              <figcaption className="text-sm">
+                <span className="font-semibold">{x.t}</span>
+                <span className="mt-0.5 flex flex-wrap gap-x-3"><Link to={x.tec} className="text-marca underline">Análisis técnico</Link><Link to={x.to} className="text-marca underline">Versión para vecinos</Link></span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
       </section>
 
       {/* ---------------------------------------------------------------- tres preguntas */}

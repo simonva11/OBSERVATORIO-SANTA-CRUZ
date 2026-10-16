@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDatos } from "./datos";
 import { dec, dec2, num } from "./formato";
-import type { IdFoto } from "./fotos";
 import { ACENTOS } from "./marca";
 
 /* =====================================================================================================
@@ -96,7 +95,12 @@ export interface Historia {
   porQue: string[];
   /** Lo que todavía no se sabe o no se puede concluir. */
   noSabemos: string[];
-  foto: IdFoto;
+  /** Foto principal (id del catálogo en lib/fotos.ts). */
+  foto: string;
+  /** Otras fotos del tema para "Lo que vemos". */
+  fotosExtra: string[];
+  /** Qué muestra la foto y qué no permite concluir. */
+  vemos: string;
   color: string;
   /** Cifra principal con su traducción a algo cotidiano. */
   cifra: (c: Ciudadano) => { valor: string; texto: string; traduccion: string; otras: string[] };
@@ -144,7 +148,9 @@ export const HISTORIAS: Historia[] = [
       "No sabemos cuántas personas mayores usan el Metro ni cuántas tienen dificultad para moverse.",
       "Los andenes y las escaleras no se midieron en terreno: vienen de un inventario de la Alcaldía y de OpenStreetMap.",
     ],
-    foto: "mayores",
+    foto: "aniversario",
+    fotosExtra: ["calle"],
+    vemos: "Así son muchas calles de la comuna: en pendiente, con andenes que cambian de ancho y carros parqueados a un lado. La foto muestra el tipo de terreno; no mide cuánto tarda nadie en subirla.",
     color: ACENTOS.vial.medio,
     cifra: (c) => {
       const p = (c.comuna.mayores_lejos_10 / c.comuna.mayores_60) * 100;
@@ -173,7 +179,7 @@ export const HISTORIAS: Historia[] = [
     fuentes: [{ ids: ["manzanas_censo", "vias", "estaciones"], calculo: "tiempo de caminata calculado por OTEA" }],
     tecnica: [
       { to: "/accesibilidad", texto: "Ver los datos y cómo se calcularon" },
-      { to: "/mapa-vecinos?capas=estaciones,lineas_transporte,manzanas", texto: "Ver las estaciones y las manzanas en el mapa completo" },
+      { to: "/mapa-vecinos?pregunta=metro", texto: "Ver estaciones y paraderos en el mapa del barrio" },
     ],
     metodo:
       "Cada manzana del Censo 2018 camina hasta la estación más cercana por la red de calles, andenes y escaleras, con la fórmula de Tobler (la velocidad baja con la pendiente; unos 5 km/h en plano). Se suman las personas de 60 años o más de las manzanas que quedan a más de 10 minutos. Es un modelo, no un recorrido medido.",
@@ -182,7 +188,7 @@ export const HISTORIAS: Historia[] = [
     id: "basuras",
     numero: 2,
     titulo: "Las basuras que nos rodean",
-    pregunta: "¿Cuánta basura se genera y qué falta saber para actuar?",
+    pregunta: "¿Cuánta basura generamos y qué falta saber para actuar?",
     frase: "Lo que botamos cada día suma toneladas.",
     situacion: [
       "Todos los días se recogen residuos en la comuna. Cuando se acumulan en una esquina, un andén o una quebrada, se ven y afectan el paso y el aseo del barrio.",
@@ -197,7 +203,9 @@ export const HISTORIAS: Historia[] = [
       "OTEA solo publica toneladas por barrio, no rutas, horarios ni puntos de recolección.",
       "Que un barrio genere más toneladas no quiere decir que lo maneje peor: también puede tener más gente.",
     ],
-    foto: "basuras",
+    foto: "pasaje",
+    fotosExtra: ["rio"],
+    vemos: "Un contenedor en un pasaje y residuos en la orilla del río. Son escenas de 2015 que ayudan a ubicar el tema; no prueban que hoy haya basura acumulada en esos puntos.",
     color: ACENTOS.petroleo.medio,
     cifra: (c) => {
       const kg = Math.round(c.comuna.residuos_kg_persona_dia * 10) / 10;
@@ -230,7 +238,7 @@ export const HISTORIAS: Historia[] = [
     ],
     tecnica: [
       { to: "/residuos", texto: "Ver las toneladas por barrio y el método" },
-      { to: "/mapa-vecinos?capas=solicitudes_quebradas", texto: "Ver las solicitudes sobre quebradas en el mapa completo" },
+      { to: "/mapa-vecinos?pregunta=quebradas", texto: "Ver lo que se ha pedido sobre las quebradas en el mapa" },
     ],
     metodo:
       "Toneladas por mes por barrio, estimadas por OTEA a partir de los pesajes que entregaron Emvarias y EPM para el periodo indicado. Los kilos por persona dividen las toneladas entre la población del Censo 2018 de cada barrio y entre los días del mes. La comparación con una botella de agua es solo de peso (1 litro de agua pesa 1 kg).",
@@ -254,7 +262,9 @@ export const HISTORIAS: Historia[] = [
       "Un barrio con más reportes no necesariamente tiene más huecos: puede tener más gente que reporta.",
       "Los andenes angostos no son lo mismo que andenes en mal estado: el inventario mide el ancho, no el estado.",
     ],
-    foto: "huecos",
+    foto: "callejon-tierra",
+    fotosExtra: ["pasaje"],
+    vemos: "Una calle de tierra y un pasaje estrecho: así se camina en varios sectores. Las fotos son de 2015 y no corresponden a reportes de huecos concretos.",
     color: ACENTOS.ambar.medio,
     cifra: (c) => {
       const h = c.comuna.huecos;
@@ -287,7 +297,7 @@ export const HISTORIAS: Historia[] = [
     ],
     tecnica: [
       { to: "/reclamos", texto: "Ver los reportes, los tiempos y los pendientes" },
-      { to: "/mapa-vecinos?capas=huecos,andenes", texto: "Ver los huecos y los andenes en el mapa completo" },
+      { to: "/mapa-vecinos?pregunta=huecos", texto: "Ver los huecos reportados en el mapa del barrio" },
     ],
     metodo:
       "Se cuentan los reportes de huecos de la Comuna 2 que publica la Alcaldía, por barrio y por estado. Los días de arreglo se miden desde que se reporta hasta que figura como arreglado (mediana: la mitad tardó eso o menos). Los andenes angostos son tramos de menos de 1,2 m de ancho en el inventario de la Secretaría de Movilidad; 1,2 m es una referencia de OTEA, no una norma verificada.",
@@ -309,7 +319,9 @@ export const HISTORIAS: Historia[] = [
       "No es el indicador oficial de espacio público efectivo: no separa parques y plazas de otros tipos de espacio.",
       "No sabemos si esos lugares se sienten seguros o cómodos: eso solo lo pueden contar quienes los usan.",
     ],
-    foto: "espacio",
+    foto: "laderas",
+    fotosExtra: ["aniversario"],
+    vemos: "La ladera está casi toda construida: quedan pocos espacios abiertos entre las casas. Por eso muchas veces la calle hace de plaza, como en un aniversario del barrio.",
     color: ACENTOS.musgo.medio,
     cifra: (c) => {
       const e = c.comuna.espacio_m2_hab;
@@ -336,7 +348,7 @@ export const HISTORIAS: Historia[] = [
     fuentes: [{ ids: ["espacio_publico", "manzanas_censo"], calculo: "m² por habitante calculado por OTEA" }],
     tecnica: [
       { to: "/indicadores", texto: "Comparar barrios cifra por cifra" },
-      { to: "/mapa-vecinos?capas=espacio_publico,espacio_publico_proyectado", texto: "Ver el espacio público en el mapa completo" },
+      { to: "/mapa-vecinos?pregunta=parques", texto: "Ver parques y canchas en el mapa del barrio" },
     ],
     metodo:
       "Suma de los metros cuadrados de la capa de espacio público existente (Alcaldía, datos de diciembre de 2014) dividida entre la población del Censo 2018. La referencia de 15 m² por habitante es la que usa el sitio en todas sus páginas. La equivalencia en cuadrados es solo geométrica: la raíz cuadrada del área.",

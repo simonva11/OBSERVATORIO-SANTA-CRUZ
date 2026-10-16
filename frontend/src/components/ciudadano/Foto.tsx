@@ -1,55 +1,84 @@
-import { Link } from "react-router-dom";
-import { fotoReal, FOTOS, type IdFoto } from "../../lib/fotos";
-import { HISTORIAS, useCiudadano } from "../../lib/ciudadano";
-import MapaBarrios from "./MapaBarrios";
+import { FOTOS, creditoCorto, fuentesFoto, type Foto as TFoto } from "../../lib/fotos";
 
 /**
- * Imagen de un tema. Si el equipo ya copió una foto real a src/assets/fotos/ (ver LEEME.md), se muestra esa con su pie de foto.
- * Mientras no exista, se muestra una ilustración hecha con los datos del propio barrio y dice con claridad que lo es:
- * nunca se presenta una ilustración como si fuera una foto de Santa Cruz.
+ * Fotografía del catálogo con su crédito. Reserva el espacio (no hace saltar la página), carga diferida fuera de
+ * pantalla y srcset para no bajar más píxeles de los que se ven.
+ *
+ * - `relleno`: la foto cubre su contenedor (que debe ser `relative`); se usa en portadas y fondos.
+ * - Sin `relleno`, el tamaño lo da `className` (por ejemplo `aspect-[4/3] w-full`).
  */
-export default function Foto({ id, className = "", prioridad = false }: { id: IdFoto; className?: string; prioridad?: boolean }) {
-  const real = fotoReal(id);
-  if (real) {
+export default function Foto({
+  id, className = "", sizes = "(min-width: 1024px) 50vw, 100vw", prioridad = false, relleno = false, credito = "esquina", tono = "claro", creditoArriba = false,
+}: {
+  id: string;
+  className?: string;
+  sizes?: string;
+  prioridad?: boolean;
+  relleno?: boolean;
+  /** Dónde va el crédito: sobre la foto, debajo, o en ninguna parte (cuando otro elemento ya lo muestra). */
+  credito?: "esquina" | "pie" | "ninguno";
+  tono?: "claro" | "oscuro";
+  /** El crédito arriba a la derecha, cuando abajo hay texto o botones encima de la foto. */
+  creditoArriba?: boolean;
+}) {
+  const f = FOTOS[id];
+  if (!f) return null;
+  const { src, srcSet } = fuentesFoto(f);
+  const img = (
+    <img
+      src={src}
+      srcSet={srcSet}
+      sizes={sizes}
+      alt={f.alt}
+      loading={prioridad ? "eager" : "lazy"}
+      decoding="async"
+      // @ts-expect-error fetchpriority aún no está en los tipos de React 18
+      fetchpriority={prioridad ? "high" : undefined}
+      width={1280}
+      height={Math.round(1280 / f.proporcion)}
+      className="h-full w-full object-cover"
+      style={{ objectPosition: f.foco ?? "50% 50%" }}
+    />
+  );
+  if (relleno) {
     return (
-      <figure className={`ciu-foto ${className}`}>
-        <img src={real.src} alt={real.alt} loading={prioridad ? "eager" : "lazy"} decoding="async" className="h-full w-full object-cover" />
-        {(real.lugar || real.credito) && (
-          <figcaption className="ciu-foto-pie">{[real.lugar, real.credito && `Foto: ${real.credito}`].filter(Boolean).join(" · ")}</figcaption>
-        )}
-      </figure>
+      <>
+        <div className={`absolute inset-0 ${className}`} style={{ background: f.color }}>{img}</div>
+        {credito === "esquina" && <InfoFoto f={f} className={`absolute right-2 z-[3] ${creditoArriba ? "info-foto-abajo top-2" : "bottom-2"}`} tono={tono} />}
+      </>
     );
   }
-  return <Ilustracion id={id} className={className} />;
-}
-
-function Ilustracion({ id, className }: { id: IdFoto; className: string }) {
-  const ciu = useCiudadano();
-  const h = HISTORIAS.find((x) => x.foto === id);
-  const color = h?.color ?? "#1f40cc";
-  // Portada: los barrios en tonos de la marca según cuánta gente vive en cada uno. Historias: el dato del tema.
-  const valores = ciu.estado === "listo" ? Object.fromEntries(ciu.datos.barrios.map((b) => [b.codigo, h ? h.mapa.valor(b) : b.personas])) : {};
   return (
-    <figure className={`ciu-foto ciu-ilustracion ${className}`} style={{ ["--tono" as string]: color }}>
-      <div className="grid h-full w-full place-items-center p-4" role="img" aria-label={`Ilustración con los barrios de la comuna. ${FOTOS[id].alt}`}>
-        <div className="w-full max-w-[17rem]">
-          <MapaBarrios mini valores={valores} color={color} invertir={h?.mapa.invertir} unidad="" formato={String} />
-        </div>
-      </div>
-      <figcaption className="ciu-foto-pie">
-        {id === "portada" ? "Ilustración: los 11 barrios de la comuna, más oscuro donde vive más gente." : "Ilustración con datos del barrio."} <span className="whitespace-nowrap">Aquí irá una foto real de Santa Cruz.</span>
-      </figcaption>
+    <figure className={`ciu-foto ${className}`} style={{ background: f.color }}>
+      {img}
+      {credito === "esquina" && <InfoFoto f={f} className="absolute bottom-2 right-2" tono="oscuro" />}
+      {credito === "pie" && (
+        <figcaption className="ciu-foto-pie-abajo">
+          <span>{f.descripcion}</span> <InfoFoto f={f} tono="claro" enLinea />
+        </figcaption>
+      )}
     </figure>
   );
 }
 
-/** Aviso corto de pie de página para las fotos pendientes (solo se ve mientras falte alguna). */
-export function AvisoFotos() {
-  const faltan = (Object.keys(FOTOS) as IdFoto[]).filter((i) => !fotoReal(i));
-  if (!faltan.length) return null;
+/**
+ * Crédito plegable: muestra autor y licencia; al abrirlo, el lugar (y si está confirmado), dónde se publicó, la fecha
+ * y lo que OTEA le cambió. Es un <details>, así que funciona con teclado y sin JavaScript extra.
+ */
+export function InfoFoto({ f, className = "", tono = "oscuro", enLinea = false }: { f: TFoto; className?: string; tono?: "claro" | "oscuro"; enLinea?: boolean }) {
   return (
-    <p className="text-[0.82rem] text-tinta-tenue">
-      Las imágenes con mapa son ilustraciones hechas con datos. Las fotos reales de Santa Cruz se agregan copiándolas a una carpeta del proyecto; <Link to="/identidad" className="underline">cómo hacerlo</Link>.
-    </p>
+    <details className={`info-foto ${tono === "oscuro" ? "info-foto-oscuro" : "info-foto-claro"} ${enLinea ? "inline-block align-baseline" : ""} ${className}`}>
+      <summary aria-label={`Sobre esta foto: ${creditoCorto(f)}`}>
+        <span aria-hidden="true" className="info-foto-i">i</span>
+        <span>{creditoCorto(f)}</span>
+      </summary>
+      <div className="info-foto-cuerpo">
+        <p><strong>Lugar:</strong> {f.lugar}</p>
+        <p><strong>Fecha:</strong> {f.fecha}</p>
+        <p><strong>Publicada por:</strong> {f.publicadaPor}</p>
+        <p><strong>Licencia:</strong> <a href={f.urlLicencia} target="_blank" rel="noopener noreferrer">{f.licencia}</a>. {f.cambios}</p>
+        <p><a href={f.urlOriginal} target="_blank" rel="noopener noreferrer">Ver la foto original</a></p>
+      </div>
+    </details>
   );
 }

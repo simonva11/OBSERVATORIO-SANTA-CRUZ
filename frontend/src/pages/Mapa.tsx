@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type TouchEvent } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { PREGUNTAS_MAPA, preguntaPorId, type PreguntaMapa } from "../lib/preguntas";
+import { historiaPorId } from "../lib/ciudadano";
 import type { Map as MapaML } from "maplibre-gl";
 import MapaVivo, { type FiltroHuecos, type FiltroSiniestros, type Modo } from "../components/mapa/MapaVivo";
 import { BotonesCamara, HoraSol } from "../components/mapa/ControlesMapa";
@@ -130,6 +132,38 @@ const GRUPOS_TEMA: { titulo: string; temas: string[] }[] = [
   { titulo: "Reportes y tus datos", temas: ["reclamos", "misdatos"] },
 ];
 
+/** Lista de preguntas del mapa para vecinos, con la explicación y la cobertura de la elegida. */
+function PreguntasVecinos({ actual, onElegir }: { actual: string | null; onElegir: (p: PreguntaMapa) => void }) {
+  return (
+    <ul className="space-y-0.5">
+      {PREGUNTAS_MAPA.map((x) => {
+        const elegida = actual === x.id;
+        const h = x.historia ? historiaPorId(x.historia) : undefined;
+        return (
+          <li key={x.id}>
+            <button type="button" aria-pressed={elegida} onClick={() => onElegir(x)}
+              className={`flex w-full items-start gap-2.5 rounded-xl px-2.5 py-2 text-left text-[0.92rem] leading-snug transition-colors ${elegida ? "bg-tinta font-semibold text-papel" : "hover:bg-acento/10"}`}>
+              <span aria-hidden="true" className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: x.color }} />
+              {x.pregunta}
+            </button>
+            {/* La explicación va justo debajo de la pregunta elegida, para que se lea sin bajar en el panel. */}
+            {elegida && (
+              <div className="mx-1 mb-2 mt-1 rounded-xl bg-papel-hondo p-3 text-[0.85rem] leading-snug">
+                <p>{x.explica}</p>
+                <p className="mt-2 text-tinta-suave"><strong className="text-tinta">Qué cubre el dato:</strong> {x.cobertura}</p>
+                <div className="mt-2 grid gap-1">
+                  {h && <Link to={`/historias/${h.id}`} className="font-semibold text-marca underline">Leer la historia</Link>}
+                  <Link to={x.tecnica.to} className="font-semibold text-marca underline">{x.tecnica.texto}</Link>
+                </div>
+              </div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 function Chulo() {
   return (
     <span aria-hidden="true" className="grid h-6 w-6 place-items-center rounded-full bg-acento text-white shadow">
@@ -200,7 +234,10 @@ export default function Mapa({ vecinos = false }: { vecinos?: boolean }) {
   const indicadores = useDatos<Indicadores>("indicadores.json");
 
   const [modo, setModo] = useState<Modo>(params.get("vista") === "ciudad" ? "ciudad" : "comuna");
+  const [pregunta, setPregunta] = useState<string | null>(() => (vecinos ? preguntaPorId(params.get("pregunta"))?.id ?? null : null));
   const [activas, setActivas] = useState(() => {
+    const p0 = vecinos ? preguntaPorId(params.get("pregunta")) : undefined;
+    if (p0) return new Set(p0.capas);
     const base = new Set(["lineas_transporte", "estaciones", "equipamientos"]);
     for (const id of (params.get("capas") ?? "").split(",")) if (CAPAS.some((c) => c.id === id)) base.add(id);
     return base;
@@ -306,6 +343,20 @@ export default function Mapa({ vecinos = false }: { vecinos?: boolean }) {
       else t.capas.forEach((c) => n.add(c));
       return n;
     });
+  /** Vecinos: una pregunta a la vez. Prende solo las capas que la responden y lo deja en la dirección (se puede compartir). */
+  const elegirPregunta = (p: PreguntaMapa) => {
+    if (pregunta === p.id) {
+      setPregunta(null);
+      setActivas(new Set(["lineas_transporte", "estaciones", "equipamientos"]));
+      setParams((q) => { q.delete("pregunta"); return q; }, { replace: true });
+      return;
+    }
+    setPregunta(p.id);
+    setActivas(new Set(p.capas));
+    setParams((q) => { q.set("pregunta", p.id); q.delete("capas"); return q; }, { replace: true });
+  };
+  const preguntaActual = preguntaPorId(pregunta);
+  const historiaActual = preguntaActual?.historia ? historiaPorId(preguntaActual.historia) : undefined;
   const alternarCapa = (id: string) =>
     setActivas((s) => {
       const n = new Set(s);
@@ -502,8 +553,8 @@ export default function Mapa({ vecinos = false }: { vecinos?: boolean }) {
               className="flex w-full shrink-0 items-center justify-between gap-3 px-3.5 py-3 text-left transition-colors hover:bg-acento/10"
             >
               <span>
-                <span className="block text-base font-bold">Capas del mapa</span>
-                <span className="block text-xs text-tinta-suave">{TEMAS.filter(temaActivo).length} activas · mejor una pregunta a la vez</span>
+                <span className="block text-base font-bold">{vecinos ? "¿Qué quieres saber?" : "Capas del mapa"}</span>
+                <span className="block text-xs text-tinta-suave">{vecinos ? "Elige una pregunta: el mapa muestra lo que la responde" : `${TEMAS.filter(temaActivo).length} activas · mejor una pregunta a la vez`}</span>
               </span>
               <svg viewBox="0 0 24 24" aria-hidden="true" className={`h-5 w-5 shrink-0 text-tinta-suave transition-transform duration-200 ${panelAbierto ? "" : "rotate-180"}`} fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
                 <path d="m6 15 6-6 6 6" />
@@ -513,7 +564,9 @@ export default function Mapa({ vecinos = false }: { vecinos?: boolean }) {
             {panelAbierto && (
               <>
                 <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-1.5 pb-1.5">
-                  {GRUPOS_TEMA.map((g) => ({ ...g, temas: g.temas.filter((id) => temasVisibles.some((t) => t.id === id)) })).filter((g) => g.temas.length > 0).map((g) => (
+                  {vecinos ? (
+                    <PreguntasVecinos actual={pregunta} onElegir={elegirPregunta} />
+                  ) : GRUPOS_TEMA.map((g) => ({ ...g, temas: g.temas.filter((id) => temasVisibles.some((t) => t.id === id)) })).filter((g) => g.temas.length > 0).map((g) => (
                     <div key={g.titulo} className="mt-1.5 first:mt-0">
                       <p className="mono px-2 pb-0.5 pt-1.5 text-[0.64rem] uppercase tracking-[0.06em] text-tinta-tenue">{g.titulo}</p>
                       <ul className="space-y-0.5">
@@ -568,8 +621,20 @@ export default function Mapa({ vecinos = false }: { vecinos?: boolean }) {
             <span aria-hidden="true" className="h-1 w-8 rounded-full bg-tinta/30" />
             Deslice hacia arriba para ver solo el mapa
           </div>
+        {vecinos && preguntaActual && (
+          <p className="mx-3 mb-2 rounded-2xl bg-superficie/95 px-4 py-2.5 text-sm leading-snug shadow">
+            {preguntaActual.explica}{" "}
+            {historiaActual && <Link to={`/historias/${historiaActual.id}`} className="font-semibold text-marca underline">Leer la historia</Link>}
+          </p>
+        )}
         <nav aria-label="Qué quiere ver en el mapa" className="flex gap-2 overflow-x-auto px-3 pb-3">
-          {temasVisibles.map((t) => (
+          {vecinos && PREGUNTAS_MAPA.map((p) => (
+            <button key={p.id} type="button" aria-pressed={pregunta === p.id} onClick={() => elegirPregunta(p)}
+              className={`shrink-0 rounded-2xl px-4 py-3 text-base font-semibold shadow ${pregunta === p.id ? "bg-tinta text-papel" : "bg-superficie text-tinta"}`}>
+              {p.corta}
+            </button>
+          ))}
+          {!vecinos && temasVisibles.map((t) => (
             <div key={t.id} className="shrink-0">
               <BotonTema t={t} activo={temaActivo(t)} soloComuna={modo === "ciudad" && t.capas.every((c) => !capaPorId(c)?.archivoCiudad)} onClick={() => alternarTema(t)} />
             </div>
@@ -636,7 +701,7 @@ export default function Mapa({ vecinos = false }: { vecinos?: boolean }) {
             <p className="mono text-[0.7rem] uppercase tracking-[0.06em] text-tinta-tenue">Antes de empezar</p>
             <h2 className="fuente-titulo mt-1 text-2xl font-extrabold tracking-[-0.02em]">Así se usa el mapa</h2>
             <ol className="mt-4 space-y-3 text-base">
-              <li className="flex gap-3"><span className="mono pt-0.5 text-sm text-marca">01</span><span>Elige un tema en el panel de capas: Metro, colegios, riesgo… Mejor uno a la vez.</span></li>
+              <li className="flex gap-3"><span className="mono pt-0.5 text-sm text-marca">01</span><span>{vecinos ? "Elige una pregunta: ¿cómo llego al Metro?, ¿dónde reportaron huecos?… El mapa muestra lo que la responde." : "Elige un tema en el panel de capas: Metro, colegios, riesgo… Mejor uno a la vez."}</span></li>
               <li className="flex gap-3"><span className="mono pt-0.5 text-sm text-marca">02</span><span>Toca un barrio o un punto: a la derecha aparece qué es, sus datos y de dónde salen.</span></li>
               <li className="flex gap-3"><span className="mono pt-0.5 text-sm text-marca">03</span><span>Usa <strong>¿Cómo llego?</strong> para ver rutas caminando, <strong>Ver en 3D</strong> para la montaña y <strong>Toda Medellín</strong> para comparar.</span></li>
             </ol>
@@ -700,6 +765,16 @@ export default function Mapa({ vecinos = false }: { vecinos?: boolean }) {
             </button>
           </div>
           {contenidoFicha}
+          {vecinos && (
+            <div className="mt-5 rounded-2xl bg-papel-hondo p-4 text-[0.95rem]">
+              {preguntaActual && <p className="font-semibold">{preguntaActual.pregunta}</p>}
+              <p className="mt-1 text-tinta-suave">{preguntaActual ? preguntaActual.cobertura : "Elige una pregunta en el mapa para ver qué dice el dato y qué no."}</p>
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+                {historiaActual && <Link to={`/historias/${historiaActual.id}`} className="siguiente-a">Leer la historia: {historiaActual.titulo}</Link>}
+                {preguntaActual && <Link to={preguntaActual.tecnica.to} className="siguiente-a">{preguntaActual.tecnica.texto} (OTEA Técnico)</Link>}
+              </div>
+            </div>
+          )}
         </aside>
       )}
     </div>

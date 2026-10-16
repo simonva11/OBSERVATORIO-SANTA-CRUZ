@@ -7,6 +7,7 @@ import { esCiudadana } from "../lib/experiencia";
 import { GRUPOS } from "../lib/menu";
 import { useDatos } from "../lib/datos";
 import { fecha } from "../lib/formato";
+import Foto from "./ciudadano/Foto";
 
 /* =====================================================================================================
  * Sistema de componentes de OTEA.
@@ -23,8 +24,14 @@ function ubicacion(pathname: string) {
 
 /** Encabezado de cada módulo: migas, la pregunta que responde la página, una entrada breve y las acciones. */
 export function Cabecera({
-  etiqueta, titulo, texto, icono, children, className = "", pregunta,
-}: { etiqueta: string; titulo: string; texto: ReactNode; icono?: string; children?: ReactNode; className?: string; pregunta?: string }) {
+  etiqueta, titulo, texto, icono, children, className = "", pregunta, foto, sencilla,
+}: {
+  etiqueta: string; titulo: string; texto: ReactNode; icono?: string; children?: ReactNode; className?: string; pregunta?: string;
+  /** Foto de contexto del catálogo (lib/fotos.ts): ubica el análisis en el territorio, sin tapar los datos. */
+  foto?: string;
+  /** Enlace a la versión para vecinos del mismo tema. */
+  sencilla?: { to: string; texto: string };
+}) {
   const { pathname } = useLocation();
   const a = acentoDeRuta(pathname);
   const u = ubicacion(pathname);
@@ -41,7 +48,7 @@ export function Cabecera({
         <span aria-hidden="true">/</span>
         <span aria-current="page" className="text-tinta">{u ? u.modulo.nombre : etiqueta}</span>
       </nav>
-      <div className="cabecera-cuerpo">
+      <div className={`cabecera-cuerpo ${foto ? "cabecera-con-foto" : ""}`}>
         <div className="min-w-0 flex-1 basis-[26rem]">
           <p className="cabecera-ojo">
             {icono && <IconoNav nombre={icono} className="h-4 w-4" trazo={2} />}
@@ -55,8 +62,16 @@ export function Cabecera({
             </p>
           )}
         </div>
-        {children && <div className="cabecera-acciones">{children}</div>}
+        {children && !foto && <div className="cabecera-acciones">{children}</div>}
+        {foto && (
+          <div className="cabecera-lado">
+            <Foto id={foto} className="cabecera-foto" sizes="(min-width: 1024px) 24rem, 100vw" credito="esquina" />
+            {sencilla && <Link to={sencilla.to} className="cabecera-sencilla">{sencilla.texto} →</Link>}
+          </div>
+        )}
+        {children && foto && <div className="cabecera-acciones">{children}</div>}
       </div>
+      {!foto && sencilla && <Link to={sencilla.to} className="cabecera-sencilla mt-3 inline-block">{sencilla.texto} →</Link>}
       <div className="regla" aria-hidden="true" />
     </header>
   );

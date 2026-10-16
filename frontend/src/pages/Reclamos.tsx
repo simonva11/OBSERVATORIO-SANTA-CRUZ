@@ -62,7 +62,7 @@ function Contenido({ r, puntos }: { r: Reclamos; puntos: PuntoHueco[] }) {
 
   return (
     <div className="pagina-rejilla mx-auto max-w-[112rem] px-4 py-6 lg:px-8 2xl:px-12">
-      <Cabecera etiqueta="Huecos y reclamos" icono="alerta" titulo="Lo que la gente ya le reportó a la Alcaldía"
+      <Cabecera foto="callejon-tierra" sencilla={{ to: "/historias/huecos", texto: "Versión para vecinos: calles y andenes" }} etiqueta="Huecos y reclamos" icono="alerta" titulo="Lo que la gente ya le reportó a la Alcaldía"
         texto="Huecos, obras pedidas y basuras en las quebradas de la Comuna 2, según los registros públicos de la Alcaldía. Son reportes, no un conteo de todo lo que está dañado: solo aparece lo que alguien se tomó el trabajo de reportar."
         pregunta="¿Qué ha reportado la gente, cuánto se ha resuelto y cuánto lleva esperando lo pendiente?">
         <BotonCabecera to={mapa}>Verlo en el mapa</BotonCabecera>

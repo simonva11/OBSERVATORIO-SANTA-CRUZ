@@ -1,22 +1,22 @@
 # Graph Report - otea  (2026-10-15)
 
 ## Corpus Check
-- 111 files · ~193,966 words
+- 120 files · ~284,264 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 5 file(s) not represented in the graph (top: (none) 3, .css 1, .toml 1)
 
 ## Summary
-- 1014 nodes · 2601 edges · 66 communities (55 shown, 11 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 28 edges (avg confidence: 0.9)
+- 1061 nodes · 2742 edges · 66 communities (56 shown, 10 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 29 edges (avg confidence: 0.89)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0343ba35`
+- Built from commit: `a778042e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- Relacionados
+- Fuentes.tsx
 - capas.ts
 - Participacion.tsx
 - package.json
@@ -33,10 +33,10 @@
 - Pagina.tsx
 - Datos.tsx
 - eje49.py
-- Coleccion
+- cargar
 - react
 - Mapa.tsx
-- num
+- riesgo.py
 - ciudadano.py
 - Plan: rutas por la Carrera 49, más datos, problemáticas reales y escalado al Valle de Aburrá
 - ConDatos
@@ -44,23 +44,23 @@
 - Plan: mapa inmersivo definitivo
 - CLAUDE.md
 - Prioridades.tsx
-- Reclamos.tsx
+- num
 - useDatos
-- plazos.ts
+- Lideres.tsx
 - UI polish
 - formato.ts
 - reclamos.py
 - main.py
 - votos.py
-- tipos.ts
+- ControlesMapa.tsx
 - Indicadores.tsx
 - radar.py
 - residuos.py
 - devDependencies
 - Surfaces
 - Fuentes, indicadores y trazabilidad
-- Inmobiliario.tsx
-- pathlib
+- Plan: rediseño de la página de Inicio
+- resumen.py
 - PanelCapas.tsx
 - Enter animations
 - dependencies
@@ -72,20 +72,20 @@
 - main.tsx
 - Ponytail, lazy senior dev mode
 - vite.config.ts
-- Fotos de Santa Cruz
-- acudir.ts
+- Fotos de OTEA
+- Guion del video de OTEA (≈ 1 min 55 s)
 
 ## God Nodes (most connected - your core abstractions)
-1. `useDatos()` - 60 edges
-2. `num()` - 57 edges
-3. `react` - 45 edges
-4. `Cabecera()` - 40 edges
+1. `num()` - 65 edges
+2. `useDatos()` - 62 edges
+3. `react` - 48 edges
+4. `Cabecera()` - 41 edges
 5. `ConDatos()` - 39 edges
 6. `Seccion()` - 37 edges
 7. `Relacionados()` - 37 edges
-8. `Fuente()` - 34 edges
-9. `dec()` - 32 edges
-10. `App()` - 28 edges
+8. `dec()` - 35 edges
+9. `Fuente()` - 34 edges
+10. `App()` - 30 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Detalle por fuente` --references--> `barrios()`  [INFERRED]
@@ -102,19 +102,19 @@
 ## Import Cycles
 - None detected.
 
-## Communities (66 total, 11 thin omitted)
+## Communities (66 total, 10 thin omitted)
 
-### Community 0 - "Relacionados"
-Cohesion: 0.19
-Nodes (19): claseDeFuente(), EtiquetaClase(), Relacionados(), fecha(), Catalogo(), Datos(), ValleDeAburra(), Catalogo() (+11 more)
+### Community 0 - "Fuentes.tsx"
+Cohesion: 0.22
+Nodes (15): claseDeFuente(), EtiquetaClase(), fecha(), Catalogo(), Detalle(), Fuentes(), LEYENDA, sinTildes() (+7 more)
 
 ### Community 1 - "capas.ts"
-Cohesion: 0.10
-Nodes (23): Barra(), Dato(), FichaBarrio(), Seccion(), senales(), TRAZOS, AMENAZA, COLOR (+15 more)
+Cohesion: 0.09
+Nodes (24): EtiquetaTipo(), FichaElemento(), Foto(), TRAZOS, AMENAZA, COLOR, COLOR_HUECO_ARREGLADO, COLOR_HUECO_PENDIENTE (+16 more)
 
 ### Community 2 - "Participacion.tsx"
-Cohesion: 0.05
-Nodes (61): Detalle(), minutos(), PanelRuteo(), codigo(), leerMis(), TEMAS, Totales, Votacion() (+53 more)
+Cohesion: 0.07
+Nodes (47): Detalle(), minutos(), PanelRuteo(), codigo(), leerMis(), TEMAS, Totales, Votacion() (+39 more)
 
 ### Community 3 - "package.json"
 Cohesion: 0.12
@@ -130,19 +130,19 @@ Nodes (26): Performance, Transition only what changes, Use will-change sparingly
 
 ### Community 6 - "MapaVivo.tsx"
 Cohesion: 0.10
-Nodes (33): ALTURA(), aplicarFiltroHuecos(), aplicarFiltroSiniestros(), aplicarNocheEdificios(), aplicarOpacidad(), aplicarSol(), cajaDe(), Capa (+25 more)
+Nodes (34): ALTURA(), aplicarFiltroHuecos(), aplicarFiltroSiniestros(), aplicarNocheEdificios(), aplicarOpacidad(), aplicarSol(), cajaDe(), Capa (+26 more)
 
 ### Community 7 - "red.py"
-Cohesion: 0.11
-Nodes (8): Elevacion, h(), infraestructura(), leer(), main(), enganchar(), tiempos_desde(), tobler_kmh()
+Cohesion: 0.10
+Nodes (10): mediana(), Elevacion, h(), infraestructura(), leer(), main(), enganchar(), nodo() (+2 more)
 
 ### Community 8 - "json"
-Cohesion: 0.19
+Cohesion: 0.18
 Nodes (9): caja_comuna(), walk(), descargar_ecv(), descargar_fuente(), descargar_osm_caminos(), _get_json(), main(), parametros_espaciales() (+1 more)
 
 ### Community 9 - "App.tsx"
-Cohesion: 0.14
-Nodes (25): Accesibilidad, App(), Barrio, Corredor49, Datos, Fuentes, Historia, Historias (+17 more)
+Cohesion: 0.13
+Nodes (27): Accesibilidad, App(), Barrio, Corredor49, Datos, Fuentes, Historia, Historias (+19 more)
 
 ### Community 10 - "compilerOptions"
 Cohesion: 0.11
@@ -154,47 +154,47 @@ Nodes (13): 1. Ver la plataforma (lo más rápido), 2. Volver a descargar y proc
 
 ### Community 12 - "Layout.tsx"
 Cohesion: 0.07
-Nodes (48): IconoNav(), TRAZOS, BarraModulos(), BotonPie(), BotonTema(), IndicePagina(), ItemMenu(), Layout() (+40 more)
+Nodes (51): MenuCiudadano(), IconoNav(), TRAZOS, BarraModulos(), BotonPie(), BotonTema(), IndicePagina(), ItemMenu() (+43 more)
 
 ### Community 19 - "Pagina.tsx"
-Cohesion: 0.15
-Nodes (22): Cuenta(), Revelar(), useVisto(), Cabecera(), CLASE, FuenteCat, Metodo(), RELACIONES (+14 more)
+Cohesion: 0.12
+Nodes (28): Cuenta(), Revelar(), useVisto(), CLASE, FuenteCat, Metodo(), Relacionados(), RELACIONES (+20 more)
 
 ### Community 20 - "Datos.tsx"
-Cohesion: 0.16
-Nodes (19): coleccionMisDatos(), ConjuntoPropio, guardarConjuntos(), leerConjuntos(), leerCSV(), leerGeoJSON(), LIMITE_BYTES, NOMBRES_LAT (+11 more)
+Cohesion: 0.15
+Nodes (21): ConjuntoPropio, guardarConjuntos(), leerConjuntos(), leerCSV(), leerGeoJSON(), LIMITE_BYTES, NOMBRES_LAT, NOMBRES_LON (+13 more)
 
 ### Community 21 - "eje49.py"
-Cohesion: 0.11
-Nodes (9): cargar(), main(), cerca(), metros(), a_metros(), fraccion(), leer(), main() (+1 more)
+Cohesion: 0.21
+Nodes (4): cargar(), main(), cerca(), metros()
 
-### Community 22 - "Coleccion"
-Cohesion: 0.29
-Nodes (9): Buscador(), Fuente, FUENTES_BUSQUEDA, normalizar(), Resultado, Opciones, Props, Coleccion (+1 more)
+### Community 22 - "cargar"
+Cohesion: 0.27
+Nodes (10): Buscador(), Fuente, FUENTES_BUSQUEDA, normalizar(), Resultado, Opciones, Props, cargar() (+2 more)
 
 ### Community 23 - "react"
-Cohesion: 0.12
-Nodes (34): Compartir(), urlDe(), AvisoFotos(), Foto(), Ilustracion(), CORTO, LeyendaMapa(), MapaBarrios() (+26 more)
+Cohesion: 0.06
+Nodes (64): AtlasBarrios(), Compartir(), urlDe(), Foto(), InfoFoto(), CORTO, LeyendaMapa(), MapaBarrios() (+56 more)
 
 ### Community 24 - "Mapa.tsx"
-Cohesion: 0.14
-Nodes (25): ErrorCarga(), useNocheActiva(), BotonesCamara(), Brujula(), capturarFoto(), fechaArchivo(), HoraSol(), ICONOS (+17 more)
+Cohesion: 0.18
+Nodes (21): ErrorCarga(), useNocheActiva(), HoraSol(), Icono(), PanelCapas(), capaPorId(), historiaPorId(), preguntaPorId() (+13 more)
 
-### Community 25 - "num"
-Cohesion: 0.22
-Nodes (15): dec2(), num(), Actores(), Contenido(), Fila, hechos(), leer(), Lideres() (+7 more)
+### Community 25 - "riesgo.py"
+Cohesion: 0.24
+Nodes (5): a_metros(), fraccion(), leer(), main(), union_de()
 
 ### Community 26 - "ciudadano.py"
-Cohesion: 0.22
-Nodes (5): clave(), construir(), leer(), probar(), nodo()
+Cohesion: 0.27
+Nodes (4): clave(), construir(), leer(), probar()
 
 ### Community 27 - "Plan: rutas por la Carrera 49, más datos, problemáticas reales y escalado al Valle de Aburrá"
 Cohesion: 0.22
 Nodes (8): Lo que ya se sabe (verificado en los datos), Plan: rutas por la Carrera 49, más datos, problemáticas reales y escalado al Valle de Aburrá, Prompts de trabajo (los que se ejecutaron), Qué se construye, Ronda 3: Accesibilidad, backend de Inicio, armonía, Ronda 4: Radar y propuesta de valor, Ronda 5: identidad visual y modo noche, Verificación
 
 ### Community 28 - "ConDatos"
-Cohesion: 0.20
-Nodes (10): ConDatos(), ESTILO_TIPO, NOMBRE_TIPO, cache, Estado, Contenido(), Eje, Problema (+2 more)
+Cohesion: 0.13
+Nodes (16): ConDatos(), ESTILO_TIPO, NOMBRE_TIPO, cache, Estado, TipoDato, Prioridades(), CAPACIDADES (+8 more)
 
 ### Community 29 - "Leyenda.tsx"
 Cohesion: 0.60
@@ -205,51 +205,51 @@ Cohesion: 0.40
 Nodes (4): Archivos a tocar, Decisiones, Plan: mapa inmersivo definitivo, Verificación
 
 ### Community 33 - "Prioridades.tsx"
-Cohesion: 0.10
-Nodes (25): celda(), csvBarrios(), descargar(), Componente, Fila, Puntaje, calcular(), Calculo (+17 more)
+Cohesion: 0.14
+Nodes (23): descargar(), calcular(), Calculo, Contenido(), csvObras(), Detalle(), DUDAS, emparejar() (+15 more)
 
-### Community 34 - "Reclamos.tsx"
-Cohesion: 0.33
-Nodes (8): BotonCabecera(), Barra(), BarrioHuecos, Contenido(), DOMINIO, Lista(), PuntoHueco, Reclamos
+### Community 34 - "num"
+Cohesion: 0.17
+Nodes (22): Aviso(), BotonCabecera(), Cabecera(), num(), Barrio(), Comparar(), Contenido(), Conteo (+14 more)
 
 ### Community 35 - "useDatos"
-Cohesion: 0.15
-Nodes (24): Anillo, Barrios, Geom, MiniMapaBarrios(), sin(), Fuente(), useDatos(), calcularIndice() (+16 more)
+Cohesion: 0.14
+Nodes (23): Anillo, Barrios, Geom, MiniMapaBarrios(), sin(), Fuente(), useDatos(), Capa (+15 more)
 
-### Community 36 - "plazos.ts"
-Cohesion: 0.32
-Nodes (12): alLunes(), esHabil(), festivos(), habilesHasta(), iso(), memo, pascua(), sumar() (+4 more)
+### Community 36 - "Lideres.tsx"
+Cohesion: 0.10
+Nodes (34): DIRECTORIO, Entrada, GrupoAcudir, celda(), csvBarrios(), calcularIndice(), Componente, Fila (+26 more)
 
 ### Community 37 - "UI polish"
 Cohesion: 0.09
 Nodes (22): Align optically where geometry looks off, Before you finish, Contain scroll inside overlays, Cross-fade contextual icons with exact values, Exact values, optional polish, Exits are shorter and smaller than enters, Gate motion behind the reduced-motion preference, High-frequency interactions get no animation (+14 more)
 
 ### Community 38 - "formato.ts"
-Cohesion: 0.12
-Nodes (26): dec(), nf, nf1, nf2, pct(), pesos, Indicadores, Accesibilidad() (+18 more)
+Cohesion: 0.16
+Nodes (23): Barra(), Dato(), FichaBarrio(), Seccion(), senales(), cop(), dec(), dec2() (+15 more)
 
 ### Community 39 - "reclamos.py"
-Cohesion: 0.20
-Nodes (16): colecciones(), dias_entre(), escribir(), feature(), fecha_iso(), foto_ok(), fuente(), huecos() (+8 more)
+Cohesion: 0.23
+Nodes (15): colecciones(), dias_entre(), escribir(), feature(), fecha_iso(), foto_ok(), fuente(), huecos() (+7 more)
 
 ### Community 40 - "main.py"
 Cohesion: 0.23
 Nodes (15): accesibilidad(), barrio(), barrios(), calidad(), _capas_disponibles(), corredor_49(), fuentes(), indicadores() (+7 more)
 
 ### Community 41 - "votos.py"
-Cohesion: 0.16
+Cohesion: 0.15
 Nodes (6): _conexion(), _ruta_db(), _totales(), ver_votos(), votar(), Voto
 
-### Community 42 - "tipos.ts"
-Cohesion: 0.19
-Nodes (13): EtiquetaTipo(), FichaElemento(), Foto(), DefCapa, texto(), Calidad, FichaBarrio, Fuente (+5 more)
+### Community 42 - "ControlesMapa.tsx"
+Cohesion: 0.27
+Nodes (8): BotonesCamara(), Brujula(), capturarFoto(), fechaArchivo(), ICONOS, useCamara(), textoHora(), maplibre-gl
 
 ### Community 43 - "Indicadores.tsx"
-Cohesion: 0.16
-Nodes (13): ClaseDato, C, claseDe(), CLASES_SINIESTRO, Contenido(), Def, DEFS, estiloTooltip (+5 more)
+Cohesion: 0.15
+Nodes (14): ClaseDato, FichaBarrio, C, claseDe(), CLASES_SINIESTRO, Contenido(), Def, DEFS (+6 more)
 
 ### Community 44 - "radar.py"
-Cohesion: 0.30
+Cohesion: 0.29
 Nodes (7): bajar(), es_sensible(), main(), norm(), relevante(), _rx(), temas()
 
 ### Community 45 - "residuos.py"
@@ -268,11 +268,11 @@ Nodes (11): Asymmetric icons, Buttons with text and an icon, Concentric border r
 Cohesion: 0.25
 Nodes (7): Detalle por fuente, Fuentes, Fuentes, indicadores y trazabilidad, Fuentes por verificar, Glosario, Indicadores, Notas de calidad
 
-### Community 49 - "Inmobiliario.tsx"
-Cohesion: 0.21
-Nodes (12): Aviso(), Capa, Centralidad, Contenido(), cop(), Corredor, GAMA, Inmobiliario() (+4 more)
+### Community 49 - "Plan: rediseño de la página de Inicio"
+Cohesion: 0.33
+Nodes (5): Archivos a tocar, Cifras: se usan las reales, Decisiones, Plan: rediseño de la página de Inicio, Verificación
 
-### Community 51 - "pathlib"
+### Community 51 - "resumen.py"
 Cohesion: 0.27
 Nodes (3): _c(), construir(), _json()
 
@@ -320,29 +320,33 @@ Nodes (3): Before you write, Ponytail, lazy senior dev mode, The smallest comple
 Cohesion: 0.50
 Nodes (3): vite, vite-plugin-pwa, @vitejs/plugin-react
 
-### Community 65 - "acudir.ts"
+### Community 64 - "Fotos de OTEA"
+Cohesion: 0.40
+Nodes (4): Cómo agregar una foto, Fotos de OTEA, Fotos que faltan (para tomar en terreno), Las que hay hoy
+
+### Community 65 - "Guion del video de OTEA (≈ 1 min 55 s)"
 Cohesion: 0.50
-Nodes (3): DIRECTORIO, Entrada, GrupoAcudir
+Nodes (3): Guion del video de OTEA (≈ 1 min 55 s), Notas para que el video sea honesto, Tomas sugeridas
 
 ## Knowledge Gaps
 - **9 isolated node(s):** `@types/geojson`, `@types/leaflet`, `@types/react`, `@types/react-dom`, `autoprefixer` (+4 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 388 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 402 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **10 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `react` connect `react` to `Relacionados`, `capas.ts`, `Participacion.tsx`, `package.json`, `MapaVivo.tsx`, `App.tsx`, `Layout.tsx`, `Pagina.tsx`, `Datos.tsx`, `Coleccion`, `Mapa.tsx`, `num`, `ConDatos`, `Prioridades.tsx`, `Reclamos.tsx`, `useDatos`, `formato.ts`, `tipos.ts`, `Indicadores.tsx`, `Inmobiliario.tsx`, `Residuos.tsx`, `main.tsx`?**
-  _High betweenness centrality (0.085) - this node is a cross-community bridge._
+- **Why does `react` connect `react` to `Fuentes.tsx`, `capas.ts`, `Participacion.tsx`, `package.json`, `MapaVivo.tsx`, `App.tsx`, `Layout.tsx`, `Pagina.tsx`, `Datos.tsx`, `cargar`, `Mapa.tsx`, `ConDatos`, `Prioridades.tsx`, `num`, `useDatos`, `Lideres.tsx`, `formato.ts`, `ControlesMapa.tsx`, `Indicadores.tsx`, `Residuos.tsx`, `main.tsx`?**
+  _High betweenness centrality (0.079) - this node is a cross-community bridge._
 - **What connects `@types/geojson`, `@types/leaflet`, `@types/react` to the rest of the system?**
   _9 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `capas.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.10256410256410256 - nodes in this community are weakly interconnected._
-- **Why does `transform()` connect `procesar.py` to `Icon transitions`, `eje49.py`, `red.py`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+  _Cohesion score 0.09259259259259259 - nodes in this community are weakly interconnected._
+- **Why does `transform()` connect `procesar.py` to `riesgo.py`, `Icon transitions`, `eje49.py`?**
+  _High betweenness centrality (0.030) - this node is a cross-community bridge._
 - **Should `Participacion.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.05203442879499218 - nodes in this community are weakly interconnected._
-- **Why does `react-router-dom` connect `react` to `Relacionados`, `capas.ts`, `Prioridades.tsx`, `package.json`, `useDatos`, `Reclamos.tsx`, `formato.ts`, `Participacion.tsx`, `App.tsx`, `Indicadores.tsx`, `Layout.tsx`, `Inmobiliario.tsx`, `Pagina.tsx`, `Datos.tsx`, `Mapa.tsx`, `ConDatos`?**
-  _High betweenness centrality (0.033) - this node is a cross-community bridge._
+  _Cohesion score 0.07012987012987013 - nodes in this community are weakly interconnected._
+- **Why does `num()` connect `num` to `Fuentes.tsx`, `capas.ts`, `Participacion.tsx`, `useDatos`, `Lideres.tsx`, `Prioridades.tsx`, `formato.ts`, `App.tsx`, `Indicadores.tsx`, `Pagina.tsx`, `Datos.tsx`, `react`, `Mapa.tsx`, `Residuos.tsx`, `ConDatos`?**
+  _High betweenness centrality (0.027) - this node is a cross-community bridge._
 - **Should `package.json` be split into smaller, more focused modules?**
   _Cohesion score 0.11764705882352941 - nodes in this community are weakly interconnected._

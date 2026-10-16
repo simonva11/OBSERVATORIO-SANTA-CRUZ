@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import IconoNav from "./IconosNav";
 import Paleta from "./Paleta";
+import MenuCiudadano from "./ciudadano/MenuCiudadano";
 import { acentoDeRuta } from "../lib/marca";
 import { esCiudadana, esHistoria, NAV_CIUDADANA } from "../lib/experiencia";
 import { GRUPOS, grupoDeRuta, type ModuloMenu } from "../lib/menu";
@@ -91,7 +92,7 @@ function Navegacion({ onNavegar, compacta = false }: { onNavegar?: () => void; c
         // En la barra angosta (solo íconos) todos los módulos quedan a la vista, separados por una línea fina.
         const abierto = compacta || abiertos.includes(g.id);
         return (
-          <div key={g.id} role="group" aria-label={g.titulo} className={i === 0 ? "" : "mt-2"}>
+          <div key={g.id} role="group" aria-label={g.tarea} className={i === 0 ? "" : "mt-2"}>
             {compacta && (
               <p className={`px-1 pb-1 text-center text-[0.56rem] font-semibold uppercase tracking-[0.1em] text-tinta-tenue ${i === 0 ? "" : "border-t border-nivel/70 pt-2"}`}>{g.corto}</p>
             )}
@@ -103,7 +104,7 @@ function Navegacion({ onNavegar, compacta = false }: { onNavegar?: () => void; c
                 onClick={() => alternar(g.id)}
                 className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-left text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-tinta-tenue transition-colors hover:text-tinta"
               >
-                {g.titulo}
+                {g.tarea}
                 <svg viewBox="0 0 24 24" aria-hidden="true" className={`h-4 w-4 transition-transform duration-200 ${abierto ? "" : "-rotate-90"}`} fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
                   <path d="m6 9 6 6 6-6" />
                 </svg>
@@ -281,7 +282,7 @@ function IndicePagina({ raiz }: { raiz: React.RefObject<HTMLElement> }) {
     items.forEach((i) => { const el = document.getElementById(i.id); if (el) io.observe(el); });
     return () => io.disconnect();
   }, [items, raiz]);
-  if (items.length < 3 || esHistoria(pathname) || pathname === "/tecnico") return null;
+  if (items.length < 3 || esHistoria(pathname) || pathname === "/tecnico" || pathname === "/recorrido") return null;
   return (
     <nav aria-label="En esta página" className="barra-sup sticky top-0 z-20">
       <ul className="mx-auto flex max-w-[112rem] items-center gap-1.5 overflow-x-auto px-4 py-1.5 lg:px-8 2xl:px-12 [scrollbar-width:none]">
@@ -349,6 +350,7 @@ function BarraModulos() {
             </button>
             {abre && (
               <div className={`absolute top-full z-[1200] mt-3 w-[22rem] rounded-xl border border-nivel bg-superficie p-1.5 shadow-[0_18px_40px_-16px_rgb(16_23_41/0.35)] ${i >= 4 ? "right-0" : "left-0"}`}>
+                <p className="mono px-3 pb-1.5 pt-2 text-[0.66rem] uppercase tracking-[0.06em] text-tinta-tenue">{g.tarea}</p>
                 {g.modulos.map((m) => (
                   <NavLink key={m.ruta} to={m.ruta} end={m.ruta === "/"} onClick={() => setAbierto(null)}
                     className={({ isActive }) => `flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors ${isActive ? "bg-papel-hondo" : "hover:bg-papel-hondo"}`}>
@@ -395,7 +397,12 @@ export default function Layout({ children }: { children: ReactNode }) {
   };
   const [nivel, setNivel] = useLetra();
   const [noche, setNoche] = useTema();
-  useEffect(() => setMenuAbierto(false), [pathname]);
+  const [menuCiu, setMenuCiu] = useState(false);
+  const botonCiu = useRef<HTMLButtonElement>(null);
+  const botonCiuMovil = useRef<HTMLButtonElement>(null);
+  const cerrarMenuCiu = useCallback(() => setMenuCiu(false), []);
+  const botonesCiu = useMemo(() => [botonCiu, botonCiuMovil], []);
+  useEffect(() => { setMenuAbierto(false); setMenuCiu(false); }, [pathname]);
 
   return (
     <div className="flex h-[100dvh] flex-col bg-papel text-tinta">
@@ -403,7 +410,8 @@ export default function Layout({ children }: { children: ReactNode }) {
         Saltar al contenido
       </a>
 
-      {/* Barra superior. Vista ciudadana: tres enlaces claros y letra grande a un toque. Vista técnica: módulos agrupados. */}
+      {/* Barra superior. Vista ciudadana: «Explorar» abre el menú editorial; el mapa y el barrio a un toque; letra grande visible.
+          Vista técnica: módulos agrupados por tarea. */}
       <header data-cromo="cabecera" className="barra-sup relative z-[1100] flex items-center gap-3 px-4 py-2.5 lg:px-6">
         <NavLink to="/" className="flex shrink-0 items-center gap-2.5" aria-label="OTEA, ir al inicio">
           <Logo className="h-8 w-8" />
@@ -411,18 +419,23 @@ export default function Layout({ children }: { children: ReactNode }) {
         </NavLink>
         {ciu ? (
           <nav aria-label="Principal" className="ml-3 hidden items-center gap-1 lg:flex">
+            <button ref={botonCiu} type="button" onClick={() => setMenuCiu((v) => !v)} aria-expanded={menuCiu} aria-controls="menu-ciudadano"
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-[1rem] font-semibold transition-colors ${menuCiu ? "bg-tinta text-papel" : "text-tinta hover:bg-papel-hondo"}`}>
+              Explorar
+              <svg viewBox="0 0 24 24" aria-hidden="true" className={`h-4 w-4 transition-transform ${menuCiu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+            </button>
             {NAV_CIUDADANA.map((n) => (
-              <NavLink key={n.ruta} to={n.ruta} className={({ isActive }) => `rounded-lg px-3 py-2 text-[1rem] transition-colors ${isActive ? "bg-tinta font-semibold text-papel" : "font-medium text-tinta hover:bg-papel-hondo"}`}>{n.texto}</NavLink>
+              <NavLink key={n.ruta} to={n.ruta} className={({ isActive }) => `rounded-lg px-3 py-2 text-[1rem] transition-colors ${isActive ? "bg-papel-hondo font-semibold text-tinta" : "font-medium text-tinta hover:bg-papel-hondo"}`}>{n.texto}</NavLink>
             ))}
           </nav>
         ) : (
           <BarraModulos />
         )}
         <div className="ml-auto flex items-center gap-1.5">
-          <button type="button" onClick={() => setBuscar(true)} title="Buscar (Ctrl + K)" aria-label="Buscar un tema o barrio"
-            className={`${ciu ? "flex" : "hidden xl:flex"} items-center gap-2 whitespace-nowrap rounded-lg border border-nivel bg-superficie px-3 py-1.5 text-sm text-tinta-suave transition hover:border-tinta/60 hover:text-tinta ${ciu ? "h-10" : ""}`}>
+          <button type="button" onClick={() => setBuscar(true)} title="Buscar (Ctrl + K)" aria-label={ciu ? "Buscar un tema, una pregunta o un barrio" : "Buscar un módulo o barrio"}
+            className={`${ciu ? "flex h-10" : "hidden xl:flex"} items-center gap-2 whitespace-nowrap rounded-lg border border-nivel bg-superficie px-3 py-1.5 text-sm text-tinta-suave transition hover:border-tinta/60 hover:text-tinta`}>
             <IconoNav nombre="lupa" className="h-4 w-4" trazo={2} />
-            <span className={ciu ? "hidden lg:inline" : "hidden 2xl:inline"}>Buscar barrio o tema</span>
+            <span className={ciu ? "hidden xl:inline" : "hidden 2xl:inline"}>{ciu ? "¿Qué quieres saber?" : "Buscar barrio, tema o módulo"}</span>
             {!ciu && <kbd className="mono hidden rounded border border-nivel px-1.5 py-0.5 text-[0.66rem] 2xl:inline">Ctrl K</kbd>}
           </button>
           {ciu && <div className="hidden sm:block"><LetraCompacta nivel={nivel} onNivel={setNivel} /></div>}
@@ -436,31 +449,29 @@ export default function Layout({ children }: { children: ReactNode }) {
           ) : (
             <NavLink to="/" className="hidden whitespace-nowrap rounded-lg bg-tinta px-3 py-2 text-[0.85rem] font-semibold text-papel transition hover:opacity-90 xl:inline-block">Vista ciudadana</NavLink>
           )}
-          <button
-            type="button"
-            onClick={() => setMenuAbierto((v) => !v)}
-            aria-expanded={menuAbierto}
-            aria-controls="menu-movil"
-            className={`${ciu ? "h-10 lg:hidden" : "xl:hidden"} rounded-lg border border-nivel bg-superficie px-3 py-1.5 text-sm font-semibold`}
-          >
-            {menuAbierto ? "Cerrar" : "Menú"}
-          </button>
+          {ciu ? (
+            <button ref={botonCiuMovil} type="button" onClick={() => setMenuCiu((v) => !v)} aria-expanded={menuCiu} aria-controls="menu-ciudadano"
+              className="h-10 rounded-lg border border-nivel bg-superficie px-3 py-1.5 text-sm font-semibold lg:hidden">
+              {menuCiu ? "Cerrar" : "Menú"}
+            </button>
+          ) : (
+            <button type="button" onClick={() => setMenuAbierto((v) => !v)} aria-expanded={menuAbierto} aria-controls="menu-movil" className="rounded-lg border border-nivel bg-superficie px-3 py-1.5 text-sm font-semibold xl:hidden">
+              {menuAbierto ? "Cerrar" : "Menú"}
+            </button>
+          )}
         </div>
-        {menuAbierto && (
-          <div id="menu-movil" className={`absolute inset-x-0 top-full max-h-[85dvh] overflow-y-auto border-b border-nivel bg-papel p-3 shadow-[0_18px_40px_-16px_rgb(16_23_41/0.35)] ${ciu ? "lg:hidden" : "xl:hidden"}`}>
-            {ciu ? (
-              <nav aria-label="Principal" className="flex flex-col gap-1">
-                {[{ ruta: "/", texto: "Inicio" }, ...NAV_CIUDADANA].map((n) => (
-                  <NavLink key={n.ruta} to={n.ruta} end={n.ruta === "/"} onClick={() => setMenuAbierto(false)} className={({ isActive }) => `rounded-xl px-4 py-3 text-[1.05rem] ${isActive ? "bg-tinta font-semibold text-papel" : "font-medium hover:bg-papel-hondo"}`}>{n.texto}</NavLink>
-                ))}
-                <NavLink to="/tecnico" onClick={() => setMenuAbierto(false)} className="mt-1 rounded-xl border border-nivel px-4 py-3 text-[0.95rem] text-tinta-suave">OTEA Técnico <span className="block text-[0.8rem]">Cifras, métodos y fuentes para JAC, JAL, entidades y analistas</span></NavLink>
-              </nav>
-            ) : (
-              <>
-                <NavLink to="/" onClick={() => setMenuAbierto(false)} className="mb-2 block rounded-xl bg-tinta px-4 py-3 text-center font-semibold text-papel">Vista ciudadana</NavLink>
-                <Navegacion onNavegar={() => setMenuAbierto(false)} />
-              </>
-            )}
+        {ciu && (
+          <MenuCiudadano abierto={menuCiu} onCerrar={cerrarMenuCiu} botones={botonesCiu}>
+            <div className="grid gap-2 lg:hidden">
+              <BotonTema noche={noche} onCambiar={() => setNoche((v) => !v)} />
+              <LetraTamano nivel={nivel} onNivel={setNivel} variante="barra" />
+            </div>
+          </MenuCiudadano>
+        )}
+        {!ciu && menuAbierto && (
+          <div id="menu-movil" className="absolute inset-x-0 top-full max-h-[85dvh] overflow-y-auto border-b border-nivel bg-papel p-3 shadow-[0_18px_40px_-16px_rgb(16_23_41/0.35)] xl:hidden">
+            <NavLink to="/" onClick={() => setMenuAbierto(false)} className="mb-2 block rounded-xl bg-tinta px-4 py-3 text-center font-semibold text-papel">Vista ciudadana</NavLink>
+            <Navegacion onNavegar={() => setMenuAbierto(false)} />
             <div className="mt-3 space-y-2">
               <BotonTema noche={noche} onCambiar={() => setNoche((v) => !v)} />
               <LetraTamano nivel={nivel} onNivel={setNivel} variante="barra" />
@@ -477,7 +488,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         </main>
       </div>
 
-      <Paleta abierta={buscar} onCerrar={() => setBuscar(false)} />
+      <Paleta abierta={buscar} onCerrar={() => setBuscar(false)} ciudadana={ciu} />
     </div>
   );
 }

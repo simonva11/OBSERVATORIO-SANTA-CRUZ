@@ -251,13 +251,15 @@ export default function Identidad() {
             ["Cifra con equivalencia", "Un número grande y debajo qué significa: «unas 8 de cada 10», «una botella de agua». Solo equivalencias que se pueden verificar."],
             ["Mapa ciudadano", "Un tema a la vez, un solo color en cinco tonos, leyenda con palabras, ficha corta del barrio elegido y la lista de barrios como alternativa al color."],
             ["Compartir", "Mensaje corto con cifra, fuente y enlace, visible antes de enviarlo. Aclara que compartir no es presentar una solicitud."],
-            ["Imagen del tema", "Si existe una foto real en src/assets/fotos/ con el nombre del tema, se usa con su pie de foto. Si no, aparece una ilustración con datos rotulada como ilustración."],
+            ["Fotografía documental", "Solo fotos de Santa Cruz con autor, fecha, licencia y lugar conocido en el catálogo (lib/fotos.ts). Grandes en portadas, medianas junto al texto, pequeñas en el menú. El crédito siempre visible; placas y caras de niños difuminadas."],
+            ["Texto sobre foto", "Siempre sobre un velo oscuro que garantiza contraste; nunca una foto de fondo en cada sección: se alterna con fondos limpios."],
+            ["Menú «Explorar»", "Los temas con su foto y su pregunta, luego explorar y participar con su estado real (Funciona, Prueba, Canal oficial) y la puerta a OTEA Técnico."],
             ["Lo que todavía no sabemos", "Cada historia termina sus datos diciendo qué no se puede concluir. La fuente queda a un toque, sin ocupar la pantalla."],
           ].map(([t, x]) => (
             <div key={t} className="border-t border-nivel pt-3"><h3 className="font-semibold">{t}</h3><p className="mt-1 text-sm text-tinta-suave">{x}</p></div>
           ))}
         </div>
-        <p className="mt-4 text-sm text-tinta-suave">Las fotos deben ser de Santa Cruz, sin rostros identificables, placas ni direcciones. La guía con los nombres de archivo está en <code className="mono">frontend/src/assets/fotos/LEEME.md</code>.</p>
+        <p className="mt-4 text-sm text-tinta-suave">Las fotos deben ser de Santa Cruz, sin rostros identificables, placas ni direcciones. Cómo agregar una y qué fotos faltan: <code className="mono">docs/fotos.md</code>.</p>
       </Seccion>
 
       <Seccion id="t-i-acc" titulo="Accesibilidad y confianza" pregunta="¿Qué se cumple siempre?">

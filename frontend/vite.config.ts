@@ -57,6 +57,12 @@ export default defineConfig({
             handler: "CacheFirst",
             options: { cacheName: "datos-pesados", expiration: { maxEntries: 4, maxAgeSeconds: 30 * DIA }, cacheableResponse: { statuses: [200] } },
           },
+          // Fotos del territorio: no van en la primera descarga; se guardan cuando se ven por primera vez.
+          {
+            urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.includes("/fotos/") && url.pathname.endsWith(".webp"),
+            handler: "CacheFirst",
+            options: { cacheName: "fotos", expiration: { maxEntries: 60, maxAgeSeconds: 60 * DIA }, cacheableResponse: { statuses: [200] } },
+          },
           // Estilo del mapa de fondo
           {
             urlPattern: ({ url }) => url.origin === "https://tiles.openfreemap.org" && url.pathname.startsWith("/styles/"),
