@@ -66,6 +66,8 @@ export default function MenuCiudadano({ abierto, onCerrar, botones, children }: 
         <section aria-labelledby="mc-explorar">
           <p id="mc-explorar" className="menu-ciu-rotulo">Explorar</p>
           <ul className="grid gap-0.5">
+            <li><NavLink to="/mi-lugar" onClick={onCerrar} className="menu-ciu-enlace"><strong>Mi cuadra, mi minuto</strong><span>Cuánto caminas de verdad al Metro, al colegio y a la salud</span></NavLink></li>
+            <li><NavLink to="/mi-lugar?modo=arrendar" onClick={onCerrar} className="menu-ciu-enlace"><strong>Antes de arrendar</strong><span>Riesgo del POT y servicios cerca de una cuadra</span></NavLink></li>
             <li><NavLink to="/mapa-vecinos" onClick={onCerrar} className="menu-ciu-enlace"><strong>Explorar el mapa</strong><span>Metro, huecos, parques y más, por preguntas</span></NavLink></li>
             <li><NavLink to="/barrios" onClick={onCerrar} className="menu-ciu-enlace"><strong>Mi barrio</strong><span>Los 11 barrios, cada uno con su ficha</span></NavLink></li>
             <li><NavLink to="/historias" end onClick={onCerrar} className="menu-ciu-enlace"><strong>Todos los problemas</strong><span>Las cuatro historias y el mapa por tema</span></NavLink></li>

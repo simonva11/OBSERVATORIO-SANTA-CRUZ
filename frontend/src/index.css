@@ -781,3 +781,36 @@ html.noche .ciu-cifra { color: color-mix(in srgb, var(--tono) 60%, white); }
 .recorrido-n { display: grid; place-items: center; width: 2.2rem; height: 2.2rem; flex: none; border-radius: 999px; background: rgb(var(--marca)); color: #fff; font-weight: 800; }
 html.noche .recorrido-n { color: rgb(var(--papel)); }
 .info-foto-abajo .info-foto-cuerpo { top: calc(100% + 0.4rem); bottom: auto; }
+
+/* ---------------------------------------------------------------- Mi cuadra, mi minuto / Antes de arrendar */
+.lugar-mapa { border-radius: 22px; background: rgb(var(--superficie)); padding: 1rem; box-shadow: 0 0 0 1px rgb(var(--nivel)); }
+.lugar-manzana { stroke: rgb(var(--superficie)); stroke-width: 0.6; cursor: pointer; transition: opacity 150ms ease; }
+.lugar-manzana:hover { opacity: 0.75; }
+.lugar-barrio { fill: none; stroke: rgb(var(--tinta) / 0.55); stroke-width: 1.1; pointer-events: none; }
+.lugar-etiqueta { font-size: 9.5px; font-weight: 700; fill: rgb(var(--tinta)); paint-order: stroke; stroke: rgb(var(--superficie) / 0.92); stroke-width: 3px; pointer-events: none; }
+.lugar-elegida { fill: #ffb703; stroke: rgb(var(--tinta)); stroke-width: 1.4; }
+.lugar-punto { fill: #fff; stroke: rgb(var(--tinta)); stroke-width: 1.6; }
+.lugar-pulso { fill: #ffb703; opacity: 0.5; transform-box: fill-box; transform-origin: center; animation: lugar-pulso 1.6s ease-out infinite; }
+@keyframes lugar-pulso { from { transform: scale(0.6); opacity: 0.7; } to { transform: scale(2.6); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .lugar-pulso { animation: none; } }
+.lugar-vacio { border-radius: 22px; border: 1.5px dashed rgb(var(--tinta) / 0.3); padding: 1.5rem; }
+.lugar-tarjeta { border-radius: 24px; background: linear-gradient(160deg, #0d1e5c, #1f40cc); color: #fff; padding: 1.5rem; box-shadow: 0 24px 50px -28px rgb(13 30 92 / 0.8); animation: lugar-entra 260ms ease-out; }
+@media (min-width: 768px) { .lugar-tarjeta { padding: 2rem; } }
+@keyframes lugar-entra { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
+.lugar-ojo { font-family: var(--f-tecnica); font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; color: rgb(255 255 255 / 0.75); }
+.lugar-cifra { margin-top: 0.3rem; font-family: var(--f-titulo); font-weight: 800; font-size: clamp(4.5rem, 16vw, 6.5rem); line-height: 0.9; letter-spacing: -0.05em; }
+.lugar-cifra span { font-size: 0.35em; letter-spacing: -0.01em; }
+.lugar-rodeo { margin-top: 0.9rem; border-radius: 14px; background: rgb(255 255 255 / 0.12); padding: 0.75rem 0.9rem; font-size: 0.98rem; line-height: 1.45; }
+.lugar-fila { display: flex; align-items: center; gap: 0.75rem; border-radius: 14px; background: rgb(255 255 255 / 0.1); padding: 0.65rem 0.85rem; }
+.lugar-icono { width: 0.8rem; height: 0.8rem; flex: none; border-radius: 999px; }
+.lugar-boton-claro { background: #fff; color: #0d1730; }
+.lugar-boton-claro:hover { background: rgb(var(--menta)); }
+.lugar-ficha { border-radius: 24px; background: rgb(var(--superficie)); padding: 1.5rem; box-shadow: 0 0 0 1px rgb(var(--nivel)); animation: lugar-entra 260ms ease-out; }
+.lugar-dl { display: grid; gap: 0.1rem; }
+.lugar-dl > div { display: grid; gap: 0.15rem 1rem; border-top: 1px solid rgb(var(--nivel)); padding-block: 0.65rem; }
+@media (min-width: 640px) { .lugar-dl > div { grid-template-columns: 12rem minmax(0, 1fr); } }
+.lugar-dl dt { font-weight: 650; }
+.lugar-dl dd { color: rgb(var(--tinta-suave)); }
+.lugar-nivel { display: inline-block; border-radius: 999px; padding: 0.15rem 0.65rem; font-weight: 700; font-size: 0.9rem; background: rgb(var(--ladera-claro)); color: rgb(var(--ladera-hondo)); }
+.lugar-nivel-media { background: rgb(var(--ambar-claro)); color: rgb(var(--ambar-texto)); }
+.lugar-nivel-alta { background: rgb(var(--ladrillo-claro)); color: rgb(var(--ladrillo)); }

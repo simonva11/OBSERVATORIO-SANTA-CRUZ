@@ -25,6 +25,7 @@ const ATAJOS: Opcion[] = [
 /** Vista ciudadana: la portada y las cuatro historias, primero porque es lo que busca la mayoría. */
 const CIUDADANAS: Opcion[] = [
   { id: "/", nombre: "Así vivimos Santa Cruz (vista ciudadana)", detalle: "La portada para vecinos", icono: "inicio", ruta: "/", grupo: "Para vecinos" },
+  { id: "/mi-lugar", nombre: "Mi cuadra, mi minuto", detalle: "Cuánto caminas de verdad al Metro, al colegio y a la salud", icono: "accesibilidad", ruta: "/mi-lugar", grupo: "Para vecinos", claves: "minutos casa caminar metro arrendar arriendo comprar vivienda riesgo cuadra" },
   { id: "/barrios-ciu", nombre: "Mi barrio", detalle: "Los 11 barrios, cada uno con su ficha", icono: "personas", ruta: "/barrios", grupo: "Para vecinos" },
   { id: "/participacion-ciu", nombre: "Compartir una problemática", detalle: "Prueba: queda en tu dispositivo y la puedes mandar por WhatsApp", icono: "participacion", ruta: "/participacion", grupo: "Para vecinos" },
   { id: "/mapa-vecinos", nombre: "El mapa de Santa Cruz (para vecinos)", detalle: "Metro, huecos, parques, colegios y más, sobre el mapa", icono: "mapa", ruta: "/mapa-vecinos", grupo: "Para vecinos" },

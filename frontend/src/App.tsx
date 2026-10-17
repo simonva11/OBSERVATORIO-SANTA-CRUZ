@@ -29,6 +29,7 @@ const Residuos = lazy(() => import("./pages/Residuos"));
 const Historias = lazy(() => import("./pages/Historias"));
 const Historia = lazy(() => import("./pages/Historia"));
 const Recorrido = lazy(() => import("./pages/Recorrido"));
+const MiLugar = lazy(() => import("./pages/MiLugar"));
 
 function NoEncontrada() {
   return (
@@ -59,6 +60,7 @@ export default function App() {
             <Route path="/historias/:id" element={<Historia />} />
             <Route path="/tecnico" element={<Tecnico />} />
             <Route path="/recorrido" element={<Recorrido />} />
+            <Route path="/mi-lugar" element={<MiLugar />} />
             <Route path="/mapa" element={<Mapa />} />
             <Route path="/mapa-vecinos" element={<Mapa vecinos />} />
             <Route path="/indicadores" element={<Indicadores />} />

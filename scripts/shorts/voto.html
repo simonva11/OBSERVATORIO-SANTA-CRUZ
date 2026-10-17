@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root { --tinta: #101729; --papel: #f6f5f1; --marca: #1f40cc; --ambar: #ffb703; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 360px; height: 640px; overflow: hidden; background: #0d1730; font-family: 'DM Sans', system-ui, sans-serif; color: #fff; }
+  .escena { position: absolute; inset: 0; opacity: 0; transition: opacity 450ms ease; overflow: hidden; }
+  .escena.on { opacity: 1; }
+  .fondo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.08); }
+  .on .fondo { animation: ken 5s ease-out forwards; }
+  @keyframes ken { to { transform: scale(1); } }
+  .velo { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(8,12,26,.95) 0%, rgba(8,12,26,.6) 50%, rgba(8,12,26,.25) 100%); }
+  .marca { position: absolute; top: 22px; left: 20px; display: flex; align-items: center; gap: 8px; font-family: 'Bricolage Grotesque'; font-weight: 800; font-size: 17px; letter-spacing: .05em; z-index: 5; }
+  .marca svg { width: 28px; height: 28px; }
+  .chip { position: absolute; top: 24px; right: 14px; z-index: 5; display: flex; align-items: center; gap: 6px; background: rgba(10,14,30,.8); border: 1px solid rgba(255,183,3,.5); border-radius: 999px; padding: 5px 9px; font-size: 9.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .chip i { width: 7px; height: 7px; border-radius: 9px; background: var(--ambar); box-shadow: 0 0 0 3px rgba(255,183,3,.25); }
+  .cuerpo { position: absolute; left: 22px; right: 22px; bottom: 54px; }
+  .ojo { font-family: 'IBM Plex Mono'; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.75); }
+  h1 { margin-top: 8px; font-family: 'Bricolage Grotesque'; font-weight: 800; font-size: 34px; line-height: 1; letter-spacing: -.035em; }
+  h1 em { font-style: normal; color: var(--ambar); }
+  h2 { font-family: 'Bricolage Grotesque'; font-weight: 800; font-size: 27px; line-height: 1.02; letter-spacing: -.03em; }
+  p.t { margin-top: 9px; font-size: 14.5px; line-height: 1.4; color: rgba(255,255,255,.85); }
+  .nota { margin-top: 10px; font-size: 10px; color: rgba(255,255,255,.55); }
+  .sube { opacity: 0; transform: translateY(14px); }
+  .on .sube { animation: sube 520ms cubic-bezier(.2,.7,.2,1) forwards; }
+  @keyframes sube { to { opacity: 1; transform: none; } }
+  .d1 { animation-delay: 150ms !important; } .d2 { animation-delay: 350ms !important; } .d3 { animation-delay: 600ms !important; } .d4 { animation-delay: 850ms !important; } .d5 { animation-delay: 1100ms !important; } .d6 { animation-delay: 1350ms !important; }
+  .panel { position: absolute; left: 16px; right: 16px; top: 78px; border-radius: 22px; background: var(--papel); color: var(--tinta); padding: 16px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.6); }
+  .panel .rot { font-family: 'IBM Plex Mono'; font-size: 9.5px; letter-spacing: .07em; text-transform: uppercase; color: #626a7c; }
+  /* memoria */
+  .foto-mem { position: absolute; left: 0; right: 0; top: 0; height: 330px; }
+  .foto-mem img { width: 100%; height: 100%; object-fit: cover; filter: sepia(.55) contrast(1.05); transition: filter 1.6s ease; }
+  .on .foto-mem img { animation: color 3.2s ease 900ms forwards; }
+  @keyframes color { to { filter: sepia(0) contrast(1); } }
+  .pin { position: absolute; left: 50%; top: 150px; transform: translate(-50%, -100%); background: #5b3fd0; border-radius: 999px; padding: 7px 12px; font-weight: 700; font-size: 13px; box-shadow: 0 10px 24px -6px rgba(0,0,0,.5); }
+  .pin::after { content: ""; position: absolute; left: 50%; bottom: -6px; width: 12px; height: 12px; background: #5b3fd0; transform: translateX(-50%) rotate(45deg); border-radius: 2px; }
+  .audio { display: flex; align-items: center; gap: 10px; margin-top: 10px; background: #fff; border-radius: 14px; padding: 10px 12px; color: var(--tinta); }
+  .play { width: 34px; height: 34px; flex: none; border-radius: 99px; background: var(--marca); display: grid; place-items: center; }
+  .play::after { content: ""; border-left: 11px solid #fff; border-top: 7px solid transparent; border-bottom: 7px solid transparent; margin-left: 3px; }
+  .onda { display: flex; align-items: center; gap: 2.5px; height: 30px; flex: 1; }
+  .onda span { width: 3px; border-radius: 3px; background: var(--marca); opacity: .8; }
+  .on .onda span { animation: onda 900ms ease-in-out infinite alternate; }
+  @keyframes onda { from { transform: scaleY(.35); } to { transform: scaleY(1); } }
+  .qr { display: flex; gap: 10px; align-items: center; margin-top: 10px; font-size: 12.5px; color: #3e465a; }
+  .qr svg { width: 44px; height: 44px; flex: none; }
+  /* ruta amable */
+  .mapa { position: absolute; left: 16px; right: 16px; top: 76px; height: 330px; border-radius: 22px; background: #eef1ea; overflow: hidden; }
+  .mapa svg { width: 100%; height: 100%; }
+  .traza { fill: none; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 900; stroke-dashoffset: 900; }
+  .on .traza { animation: traza 1.6s ease forwards; }
+  .on .traza.b { animation-delay: 900ms; }
+  @keyframes traza { to { stroke-dashoffset: 0; } }
+  .pildora { position: absolute; border-radius: 12px; padding: 7px 10px; font-size: 12px; font-weight: 700; color: #fff; box-shadow: 0 8px 20px -8px rgba(0,0,0,.4); }
+  /* vitrina */
+  .negocio { display: flex; align-items: center; gap: 10px; border-top: 1px solid #e3e0d6; padding: 10px 0; }
+  .negocio:first-of-type { border-top: 0; }
+  .ico { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-weight: 800; font-size: 13px; color: #fff; flex: none; }
+  .negocio b { display: block; font-size: 14.5px; }
+  .negocio small { display: block; font-size: 11.5px; color: #626a7c; }
+  .min { margin-left: auto; font-weight: 800; font-size: 15px; white-space: nowrap; }
+  /* reportes */
+  .reportes { position: absolute; left: 16px; right: 16px; top: 78px; display: grid; gap: 10px; }
+  .rep { display: flex; gap: 10px; background: var(--papel); color: var(--tinta); border-radius: 16px; padding: 8px; box-shadow: 0 16px 30px -18px rgba(0,0,0,.6); }
+  .rep img { width: 88px; height: 64px; border-radius: 10px; object-fit: cover; flex: none; }
+  .rep b { display: block; font-size: 13.5px; } .rep small { display: block; font-size: 11px; color: #626a7c; margin-top: 2px; }
+  .ok { display: inline-block; margin-top: 5px; border-radius: 99px; padding: 2px 8px; font-size: 10px; font-weight: 700; background: #e4f0e8; color: #183526; }
+  /* cierre */
+  .lista { margin-top: 14px; display: grid; gap: 8px; }
+  .lista div { display: flex; align-items: center; gap: 9px; font-size: 14.5px; font-weight: 600; }
+  .lista i { width: 8px; height: 8px; border-radius: 99px; background: #4ade80; flex: none; }
+  .cta { display: inline-block; margin-top: 18px; background: #fff; color: #0d1730; font-weight: 800; border-radius: 999px; padding: 11px 18px; font-size: 15px; }
+  .cred { position: absolute; right: 10px; bottom: 10px; font-size: 8.5px; color: rgba(255,255,255,.55); }
+</style>
+</head>
+<body>
+<script>
+  const BASE = (new URLSearchParams(location.search).get("base") || "http://127.0.0.1:4173/") + "fotos/";
+  const LOGO = `<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#1f40cc"/><path d="M3 33c9-1 14-8 21-10s10-6 13-11" stroke="#fff" stroke-opacity=".45" stroke-width="1.6" fill="none"/><path d="M3 27c8-1 12-7 18-9s9-7 11-13" stroke="#fff" stroke-opacity=".7" stroke-width="1.6" fill="none"/><path d="M5 30 35 10" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="20" cy="20" r="3.2" fill="#fff"/></svg>`;
+  const CHIP = `<div class="chip"><i></i>Próximamente con tu voto</div>`;
+  const MARCA = `<div class="marca">${LOGO}<span>OTEA</span></div>`;
+  const onda = Array.from({ length: 34 }, (_, i) => `<span style="height:${8 + Math.round(Math.abs(Math.sin(i * 1.7)) * 20)}px;animation-delay:${(i % 7) * 90}ms"></span>`).join("");
+  const QR = (() => {
+    const n = 25, celdas = [];
+    const ojo = (x, y) => `<rect x="${x}" y="${y}" width="7" height="7" fill="#101729"/><rect x="${x + 1}" y="${y + 1}" width="5" height="5" fill="#fff"/><rect x="${x + 2}" y="${y + 2}" width="3" height="3" fill="#101729"/>`;
+    const enOjo = (x, y) => (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      if (enOjo(x, y)) continue;
+      const k = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+      if (k - Math.floor(k) > 0.52) celdas.push(`<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="#101729"/>`);
+    }
+    return `<svg viewBox="-1.5 -1.5 28 28" shape-rendering="crispEdges"><rect x="-1.5" y="-1.5" width="28" height="28" rx="2" fill="#fff"/>${celdas.join("")}${ojo(0, 0)}${ojo(n - 7, 0)}${ojo(0, n - 7)}</svg>`;
+  })();
+
+  const escenas = [
+    // 0 entrada
+    { ms: 3600, html: `<img class="fondo" style="top:-60%;height:160%;transform-origin:50% 100%" src="${BASE}laderas-1600.webp"><div class="velo"></div>${MARCA}
+      <div class="cuerpo"><div class="ojo sube d1">Territorio INN 2026 · Reto 4</div><h1 class="sube d2">Lo que viste ya funciona. <em>Imagina lo que viene con tu voto.</em></h1></div>
+      <div class="cred">Foto: Omar Uran · CC BY 2.0</div>` },
+    // 1 memoria del barrio
+    { ms: 4600, html: `<div class="foto-mem"><img src="${BASE}calle-960.webp"></div><div class="velo" style="background:linear-gradient(0deg, rgba(8,12,26,1) 42%, rgba(8,12,26,.2) 70%, rgba(8,12,26,.1) 100%)"></div>${MARCA}${CHIP}
+      <div class="pin sube d2">Memoria del barrio</div>
+      <div class="cuerpo"><h2 class="sube d1">La historia de cada calle, contada por sus vecinos</h2>
+      <div class="audio sube d3"><div class="play"></div><div class="onda">${onda}</div><span style="font-size:12px;font-weight:700;color:#3e465a">1:24</span></div>
+      <div class="qr sube d4" style="color:rgba(255,255,255,.85)">${QR}<span>Una placa con QR en la escalera o la cancha: la escaneas y escuchas su historia.</span></div>
+      <div class="nota sube d5">Ejemplo de diseño · se haría con talleres y permiso de cada vecino</div></div>
+      <div class="cred">Foto: David Castaño / MDE Ciudad Inteligente · CC BY-NC-SA 2.0</div>` },
+    // 2 ruta amable
+    { ms: 4600, html: `${MARCA}${CHIP}
+      <div class="mapa sube d1"><svg viewBox="0 0 328 330">
+        <rect width="328" height="330" fill="#eef1ea"/>
+        ${Array.from({ length: 9 }, (_, i) => `<path d="M0 ${30 + i * 36} C 90 ${10 + i * 36}, 200 ${60 + i * 36}, 328 ${25 + i * 36}" stroke="#cfd6c8" stroke-width="1.2" fill="none"/>`).join("")}
+        <path d="M40 300 L60 230 L52 180 L90 120 L110 60 L150 34" stroke="#ffffff" stroke-width="12" fill="none" stroke-linecap="round"/>
+        <path d="M40 300 C 130 290, 210 250, 240 190 S 230 80, 150 34" stroke="#ffffff" stroke-width="12" fill="none" stroke-linecap="round"/>
+        <path class="traza" d="M40 300 L60 230 L52 180 L90 120 L110 60 L150 34" stroke="#d6453a"/>
+        <path class="traza b" d="M40 300 C 130 290, 210 250, 240 190 S 230 80, 150 34" stroke="#2b8a4e"/>
+        ${[[57, 240], [55, 196], [72, 150], [100, 92]].map(([x, y]) => `<g transform="translate(${x} ${y})"><rect x="-9" y="-7" width="18" height="14" rx="3" fill="#d6453a"/><path d="M-5 4h4v-3h3v-3h3" stroke="#fff" stroke-width="1.6" fill="none"/></g>`).join("")}
+        <circle cx="40" cy="300" r="11" fill="#1f40cc"/><path d="M34 301 40 295 46 301M36 300v5h8v-5" stroke="#fff" stroke-width="1.6" fill="none"/>
+        <circle cx="150" cy="34" r="11" fill="#101729"/><text x="150" y="38" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">M</text>
+      </svg>
+      <div class="pildora sube d3" style="left:12px;top:150px;background:#d6453a">Más rápida · con escaleras</div>
+      <div class="pildora sube d4" style="right:12px;top:200px;background:#2b8a4e">Más suave · casi sin escaleras</div></div>
+      <div class="cuerpo"><h2 class="sube d2">Ruta amable</h2><p class="t sube d3">El camino con menos escaleras y pendiente, para abuelos, coches de bebé y sillas de ruedas.</p>
+      <div class="nota sube d4">Ejemplo de diseño · OTEA ya tiene marcados los tramos de escalera y la pendiente de cada calle</div></div>` },
+    // 3 vitrina
+    { ms: 4600, html: `${MARCA}${CHIP}
+      <div class="panel sube d1"><div class="rot">Cerca de tu cuadra · minutos a pie</div>
+        ${[["Tienda de barrio", "Abarrotes y verduras", "3", "#1d5aa8"], ["Panadería", "Abierto ahora", "4", "#86560a"], ["Droguería", "Domicilios", "6", "#2b6446"], ["Modista", "Arreglos de ropa", "8", "#5144a3"], ["Taller de motos", "Mecánica y repuestos", "9", "#a2472a"]]
+          .map(([n, d, m, c], i) => `<div class="negocio sube d${i + 2}"><span class="ico" style="background:${c}">${n[0]}</span><span><b>${n}</b><small>${d}</small></span><span class="min">${m} min</span></div>`).join("")}
+      </div>
+      <div class="cuerpo"><h2 class="sube d3">Vitrina del barrio</h2><p class="t sube d4">Los negocios de la comuna en el mapa, a minutos de verdad. Que la plata se quede en el barrio.</p>
+      <div class="nota sube d5">Ejemplo de diseño · negocios y minutos ilustrativos</div></div>` },
+    // 4 mapa entre todos
+    { ms: 4600, html: `${MARCA}${CHIP}
+      <div class="reportes">
+        ${[["pasaje", "Basuras en el pasaje", "Revisado · se envió a la JAC"], ["callejon-tierra", "Calle sin pavimentar", "Revisado · otros vecinos lo apoyan"], ["rio", "Residuos en la orilla", "Revisado · en seguimiento"]]
+          .map(([f, t, e], i) => `<div class="rep sube d${i + 1}"><img src="${BASE}${f}-640.webp"><span><b>${t}</b><small>Reporte de un vecino · ejemplo</small><span class="ok">${e}</span></span></div>`).join("")}
+      </div>
+      <div class="cuerpo"><h2 class="sube d3">El mapa que hacemos entre todos</h2><p class="t sube d4">Lo que reportas con foto, revisado y en el mapa público, para que la JAC y la Alcaldía lo vean.</p>
+      <div class="nota sube d5">Hoy es una prueba que guarda en tu celular · fotos: David Castaño / MDE Ciudad Inteligente · CC BY-NC-SA 2.0</div></div>` },
+    // 5 simulador
+    { ms: 4600, html: `${MARCA}${CHIP}
+      <div class="mapa sube d1" style="background:#e9edf6"><svg viewBox="0 0 328 330">
+        <rect width="328" height="330" fill="#e9edf6"/>
+        ${Array.from({ length: 6 }, (_, r) => Array.from({ length: 5 }, (_, c) => `<rect x="${18 + c * 62}" y="${18 + r * 52}" width="50" height="38" rx="5" fill="#c9d3ea"/>`).join("")).join("")}
+        <path class="traza" d="M70 300 L70 210 L132 210 L132 120 L256 120 L256 30" stroke="#8a96b4" stroke-width="5"/>
+        <path class="traza b" d="M132 210 L194 150" stroke="#1f40cc" stroke-width="7" stroke-dasharray="10 8"/>
+        <circle cx="256" cy="30" r="11" fill="#101729"/><text x="256" y="34" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">M</text>
+      </svg>
+      <div class="pildora sube d4" style="left:150px;top:160px;background:#1f40cc">Nueva escalera</div></div>
+      <div class="cuerpo"><h2 class="sube d2">Simulador de obras</h2><p class="t sube d3">La JAC dibuja una escalera o un puente y OTEA calcula cuánta gente llega más rápido al Metro.</p>
+      <div class="nota sube d4">Ejemplo de diseño · usaría el mismo cálculo de rutas que OTEA ya tiene</div></div>` },
+    // 6 cierre
+    { ms: 5200, html: `<img class="fondo" src="${BASE}calle-960.webp"><div class="velo" style="background:rgba(8,12,26,.84)"></div>${MARCA}
+      <div class="cuerpo" style="bottom:70px"><div class="ojo sube d1">Esto ya funciona en OTEA</div>
+      <div class="lista">${["Mi cuadra, mi minuto", "Antes de arrendar", "Las historias del barrio", "El mapa por preguntas", "El kit para líderes"].map((x, i) => `<div class="sube d${i + 2}"><i></i>${x}</div>`).join("")}</div>
+      <h1 class="sube d6" style="margin-top:18px;font-size:30px">Con tu voto, <em>crece para toda la comuna.</em></h1>
+      <span class="cta sube d6">Vota por OTEA · Territorio INN 2026</span></div>
+      <div class="cred">Foto: David Castaño / MDE Ciudad Inteligente · CC BY-NC-SA 2.0</div>` },
+  ];
+  window.__total = escenas.reduce((s, e) => s + e.ms, 0);
+  const capas = escenas.map((e) => { const d = document.createElement("div"); d.className = "escena"; d.innerHTML = e.html; document.body.appendChild(d); return d; });
+  window.__play = async () => {
+    for (let i = 0; i < escenas.length; i++) {
+      capas.forEach((c, j) => c.classList.toggle("on", j === i));
+      await new Promise((r) => setTimeout(r, escenas[i].ms));
+    }
+  };
+</script>
+</body>
+</html>

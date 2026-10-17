@@ -40,3 +40,14 @@ Para grabar, abra `/recorrido`, pulse «Empezar el recorrido» y avance con el b
 - Modo día para la portada y las historias; el mapa se ve bien en ambos modos.
 - Si se graba en celular: 390 px de ancho, la portada y una historia se ven muy bien en vertical.
 - Pausas de un segundo en cada cifra grande antes de seguir hablando.
+
+## Shorts verticales (para redes y la campaña de votación)
+
+Seis videos de 30 a 35 segundos en 1080 × 1920, grabados de la app real con `scripts/shorts/` (ver su README):
+tu barrio, mi cuadra y mi minuto, antes de arrendar, huecos, kit para líderes y «con tu voto».
+
+- Los cinco primeros llevan el chip verde «Grabación real de OTEA»: todo lo que se ve funciona hoy.
+- «Con tu voto» es una pieza animada aparte con el chip amarillo «Próximamente con tu voto» en cada idea
+  (memoria del barrio, ruta amable, vitrina del barrio, mapa entre todos, simulador de obras). Los negocios y los
+  minutos de la vitrina son ilustrativos; no hay nombres de negocios ni cifras inventadas presentadas como reales.
+- Salen sin sonido. Música y voz se agregan en el editor; si se usa voz, seguir las notas de honestidad de arriba.
