@@ -134,7 +134,9 @@ const GUIONES = {
     await h.sub("La carta sale con los datos del barrio", "Lista para revisar y radicar", 2400);
     await h.bajar(320, { ms: 2000 });
     await h.sub("Copiar, descargar o imprimir", "", 600);
-    await h.tocar("button:has-text('Copiar carta')", { ms: 1500 });
+    await h.tocar("button:has-text('Copiar carta')", { ms: 0 });
+    h.evento("exito");
+    await h.esperar(1500);
     await h.sinSub();
     await h.tarjeta(CIERRE({ titulo: "Los líderes, con <em>evidencia</em> en la mano.", texto: "Cifras, cartas y plazos. Ya funciona en OTEA." }));
   },
@@ -143,7 +145,14 @@ const GUIONES = {
 // 6 ------------------------------------------------------------------------------------------- con tu voto (ideas, no la app)
 // Es una pieza animada aparte (voto.html) y lleva el chip amarillo «Próximamente con tu voto» en cada idea.
 const VOTO = pathToFileURL(path.join(AQUI, "voto.html")).href + "?base=" + encodeURIComponent(BASE);
-GUIONES["6-con-tu-voto"] = async (h) => { await h.p.evaluate(() => window.__play()); await h.esperar(300); };
+GUIONES["6-con-tu-voto"] = async (h) => {
+  const marcas = await h.p.evaluate(() => window.__play());
+  marcas.forEach((t, i) => {
+    h.evento(i === 0 || i === marcas.length - 1 ? "tarjeta" : "escena", t);
+    if (i > 0 && i < marcas.length - 1) h.evento("sub", t + 0.45);
+  });
+  await h.esperar(300);
+};
 const OPCIONES = { "6-con-tu-voto": { inicio: VOTO }, "4-huecos": { calentar: ["/mapa-vecinos?pregunta=huecos"] } };
 
 const pedidos = process.argv.slice(2);

@@ -50,4 +50,5 @@ tu barrio, mi cuadra y mi minuto, antes de arrendar, huecos, kit para líderes y
 - «Con tu voto» es una pieza animada aparte con el chip amarillo «Próximamente con tu voto» en cada idea
   (memoria del barrio, ruta amable, vitrina del barrio, mapa entre todos, simulador de obras). Los negocios y los
   minutos de la vitrina son ilustrativos; no hay nombres de negocios ni cifras inventadas presentadas como reales.
-- Salen sin sonido. Música y voz se agregan en el editor; si se usa voz, seguir las notas de honestidad de arriba.
+- Llevan música original (compuesta por el script, sin derechos de terceros) y efectos sincronizados con los toques.
+  No llevan voz; si se agrega en el editor, seguir las notas de honestidad de arriba.

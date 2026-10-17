@@ -22,10 +22,26 @@ cd frontend && npm run build && npx vite preview --port 4173 --host 127.0.0.1   
 cd scripts/shorts && npm init -y && npm i playwright && npx playwright install chromium
 node videos.mjs              # los seis
 node videos.mjs mi-minuto    # solo los que contengan ese texto
+python3 audio.py             # música y efectos (ver abajo)
 ```
 
 Los MP4 quedan en `scripts/shorts/salida/` (no se suben al repo). Variables opcionales: `OTEA_URL` (otra dirección del sitio)
 y `CHROMIUM_PATH` (otro navegador).
 
-Los videos salen sin sonido: la música y la voz se ponen en el editor (CapCut, por ejemplo). Las fotos llevan su crédito
-en pantalla; ver `docs/fotos.md`.
+## Sonido
+
+`python3 audio.py` le pone a cada video música original y efectos (toques, subtítulos, transiciones, el golpe final).
+La música se compone en el script como MIDI y se toca con el banco libre FluidR3_GM, así que no hay canciones de nadie
+ni problemas de derechos. El tempo se ajusta solo para que la batería entre cuando se quita la tarjeta de entrada y el
+golpe final caiga en la tarjeta de cierre; los efectos salen de las marcas `salida/<nombre>.eventos.json` que deja el
+grabador. Queda en unos −14 LUFS, el volumen normal de las redes.
+
+```bash
+sudo apt install fluidsynth fluid-soundfont-gm      # o SOUNDFONT=ruta/a/un/banco.sf2
+pip install numpy scipy pretty_midi
+python3 audio.py              # todos
+python3 audio.py mi-minuto    # uno
+```
+
+No lleva voz. Si se agrega narración en el editor, bajarle unos 6 dB a la pista. Las fotos llevan su crédito en
+pantalla; ver `docs/fotos.md`.

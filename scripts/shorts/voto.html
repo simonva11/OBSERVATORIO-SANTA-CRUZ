@@ -164,10 +164,13 @@
   window.__total = escenas.reduce((s, e) => s + e.ms, 0);
   const capas = escenas.map((e) => { const d = document.createElement("div"); d.className = "escena"; d.innerHTML = e.html; document.body.appendChild(d); return d; });
   window.__play = async () => {
+    const marcas = [];
     for (let i = 0; i < escenas.length; i++) {
       capas.forEach((c, j) => c.classList.toggle("on", j === i));
+      marcas.push(Date.now() / 1000);
       await new Promise((r) => setTimeout(r, escenas[i].ms));
     }
+    return marcas;
   };
 </script>
 </body>

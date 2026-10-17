@@ -774,9 +774,9 @@
     "semantic_hash": ""
   },
   "docs/guion-video.md": {
-    "mtime": 1792268240.703722,
-    "seen": 1792268272.6614208,
-    "ast_hash": "b36767a3cf0cfd54ed30dcc6aa8bc262",
+    "mtime": 1792269437.7760448,
+    "seen": 1792269449.98616,
+    "ast_hash": "5f1f69c89798c1e984f96185417c699d",
     "semantic_hash": ""
   },
   "frontend/public/fotos/aniversario-1280.webp": {
@@ -918,27 +918,33 @@
     "semantic_hash": ""
   },
   "scripts/shorts/grabador.mjs": {
-    "mtime": 1792267412.633468,
-    "seen": 1792268272.6610043,
-    "ast_hash": "36350edc7541bcd1b5fec193a5e5678c",
+    "mtime": 1792268607.5446436,
+    "seen": 1792269449.9858623,
+    "ast_hash": "4209e04d1ae74c550731fcaae7f6dc00",
     "semantic_hash": ""
   },
   "scripts/shorts/videos.mjs": {
-    "mtime": 1792267412.633886,
-    "seen": 1792268272.6610057,
-    "ast_hash": "382ba3f98e12bcb8e812784a602998c9",
+    "mtime": 1792268601.7903714,
+    "seen": 1792269449.9858634,
+    "ast_hash": "20c530902f55b947b8826158d5e9e73e",
     "semantic_hash": ""
   },
   "scripts/shorts/README.md": {
-    "mtime": 1792267397.0886714,
-    "seen": 1792268272.6615052,
-    "ast_hash": "c34c910bfd1b9a5ad51881758fa9bc72",
+    "mtime": 1792269437.7755425,
+    "seen": 1792269449.9862206,
+    "ast_hash": "b478a8e803ad0ff3004046befdbee9c6",
     "semantic_hash": ""
   },
   "scripts/shorts/voto.html": {
-    "mtime": 1792267397.0834715,
-    "seen": 1792268272.6615067,
-    "ast_hash": "581b52eab666b8bbb14a66184f89576e",
+    "mtime": 1792268601.7909243,
+    "seen": 1792269449.9862218,
+    "ast_hash": "83fee2b6160dc8e414f7d54db719fe0d",
+    "semantic_hash": ""
+  },
+  "scripts/shorts/audio.py": {
+    "mtime": 1792269375.9247859,
+    "seen": 1792269449.9858599,
+    "ast_hash": "38c3f63dd1fa22c32e13b5c44ac0231c",
     "semantic_hash": ""
   }
 }

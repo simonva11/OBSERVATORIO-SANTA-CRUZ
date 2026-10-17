@@ -72,9 +72,9 @@
     "semantic_hash": ""
   },
   "frontend/src/App.tsx": {
-    "mtime": 1792117757.5775301,
-    "seen": 1792118927.532164,
-    "ast_hash": "3471f13bb48e5d9fcb7180da2f9f3603",
+    "mtime": 1792265548.0504894,
+    "seen": 1792268272.6589656,
+    "ast_hash": "52c6db78d5c55b0ba602e995385568bb",
     "semantic_hash": ""
   },
   "frontend/src/components/Estado.tsx": {
@@ -252,9 +252,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1792118923.841719,
-    "seen": 1792118927.5338762,
-    "ast_hash": "0c59fdd3d28878cfbc84066e0c2b4ae9",
+    "mtime": 1792268240.7032228,
+    "seen": 1792268272.6613038,
+    "ast_hash": "812b4c81a0e32ba462a501363dc0140d",
     "semantic_hash": ""
   },
   "backend/requirements.txt": {
@@ -342,9 +342,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/Paleta.tsx": {
-    "mtime": 1792118505.9123068,
-    "seen": 1792118927.5323732,
-    "ast_hash": "12c8fafecd3d613a4aebe86bbb60f79e",
+    "mtime": 1792265548.317312,
+    "seen": 1792268272.6592276,
+    "ast_hash": "e1efaf3a9203aed7df8ab23bab6316c1",
     "semantic_hash": ""
   },
   "frontend/src/lib/marca.ts": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/src/lib/experiencia.ts": {
-    "mtime": 1792117420.898037,
-    "seen": 1792118927.5328362,
-    "ast_hash": "db89ed321dbfdd31322e12cb7d700ff3",
+    "mtime": 1792265548.3150663,
+    "seen": 1792268272.6597767,
+    "ast_hash": "0d80ae36a10bb754addf7d43201dcbd1",
     "semantic_hash": ""
   },
   "frontend/src/lib/fotos.ts": {
@@ -732,9 +732,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/ciudadano/MenuCiudadano.tsx": {
-    "mtime": 1792117420.8983605,
-    "seen": 1792118927.5325391,
-    "ast_hash": "6959e453692a207f179c568b98ebffb5",
+    "mtime": 1792265548.3162048,
+    "seen": 1792268272.6593935,
+    "ast_hash": "3c73064830bdb862752aa6323ff9dd9a",
     "semantic_hash": ""
   },
   "frontend/src/components/ciudadano/Viz.tsx": {
@@ -774,9 +774,9 @@
     "semantic_hash": ""
   },
   "docs/guion-video.md": {
-    "mtime": 1792117791.734262,
-    "seen": 1792118927.533964,
-    "ast_hash": "8967d87c78ae55fe240ec0924d96ed08",
+    "mtime": 1792268240.703722,
+    "seen": 1792268272.6614208,
+    "ast_hash": "b36767a3cf0cfd54ed30dcc6aa8bc262",
     "semantic_hash": ""
   },
   "frontend/public/fotos/aniversario-1280.webp": {
@@ -909,6 +909,36 @@
     "mtime": 1792118310.29825,
     "seen": 1792118927.5340748,
     "ast_hash": "fd56571c87f9a397b898f9d4aeded1e4",
+    "semantic_hash": ""
+  },
+  "frontend/src/pages/MiLugar.tsx": {
+    "mtime": 1792265999.8005362,
+    "seen": 1792268272.660686,
+    "ast_hash": "8c5d753a4eab4800d69be85cb8356f28",
+    "semantic_hash": ""
+  },
+  "scripts/shorts/grabador.mjs": {
+    "mtime": 1792267412.633468,
+    "seen": 1792268272.6610043,
+    "ast_hash": "36350edc7541bcd1b5fec193a5e5678c",
+    "semantic_hash": ""
+  },
+  "scripts/shorts/videos.mjs": {
+    "mtime": 1792267412.633886,
+    "seen": 1792268272.6610057,
+    "ast_hash": "382ba3f98e12bcb8e812784a602998c9",
+    "semantic_hash": ""
+  },
+  "scripts/shorts/README.md": {
+    "mtime": 1792267397.0886714,
+    "seen": 1792268272.6615052,
+    "ast_hash": "c34c910bfd1b9a5ad51881758fa9bc72",
+    "semantic_hash": ""
+  },
+  "scripts/shorts/voto.html": {
+    "mtime": 1792267397.0834715,
+    "seen": 1792268272.6615067,
+    "ast_hash": "581b52eab666b8bbb14a66184f89576e",
     "semantic_hash": ""
   }
 }

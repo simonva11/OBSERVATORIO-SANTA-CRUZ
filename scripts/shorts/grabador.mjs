@@ -85,6 +85,11 @@ export async function grabar(nombre, escenario, { ancho = 360, alto = 640, escal
   const errores = [];
   p.on("pageerror", (e) => errores.push(e.message));
 
+  // Marcas de tiempo (reloj de pared, en segundos) de cada toque, subtítulo y tarjeta: con ellas se ponen
+  // los efectos de sonido y se cuadra la música (audio.py).
+  const eventos = [];
+  const marca = (tipo, retraso = 0) => eventos.push({ t: Date.now() / 1000 + retraso, tipo });
+
   const cdp = await ctx.newCDPSession(p);
   const cuadros = [];
   cdp.on("Page.screencastFrame", async (f) => {
@@ -96,6 +101,7 @@ export async function grabar(nombre, escenario, { ancho = 360, alto = 640, escal
   const capa = async () => { await p.evaluate(instalarCapa); };
   const h = {
     p,
+    evento: (tipo, t = null) => (t == null ? marca(tipo) : eventos.push({ t, tipo })),
     esperar: (ms) => p.waitForTimeout(ms),
     async ir(ruta, espera = 900) {
       if (p.url().startsWith(BASE)) await p.evaluate((r) => { window.location.hash = r; }, ruta);
@@ -109,6 +115,7 @@ export async function grabar(nombre, escenario, { ancho = 360, alto = 640, escal
         s.classList.remove("v-on");
         setTimeout(() => { s.querySelector("b").innerHTML = t; s.querySelector("span").innerHTML = x; s.querySelector("span").style.display = x ? "block" : "none"; s.classList.add("v-on"); }, 120);
       }, [titulo, texto]);
+      marca("sub", 0.12);
       if (ms) await p.waitForTimeout(ms);
     },
     async sinSub() { await p.evaluate(() => document.getElementById("v-sub")?.classList.remove("v-on")); },
@@ -140,6 +147,7 @@ export async function grabar(nombre, escenario, { ancho = 360, alto = 640, escal
         document.getElementById("v-capa").appendChild(r); setTimeout(() => r.remove(), 700);
         const d = document.querySelector(".v-dedo"); if (d) setTimeout(() => { d.style.opacity = "0"; }, 380);
       }, [x, y]);
+      marca("toque");
       if (clic) await p.mouse.click(x, y);
       await p.waitForTimeout(ms);
     },
@@ -170,14 +178,16 @@ export async function grabar(nombre, escenario, { ancho = 360, alto = 640, escal
           ${credito ? `<div class="v-cred">${credito}</div>` : ""}`;
         t.classList.add("v-on");
       }, [foto, ojo, titulo, texto, cta, lista, credito, LOGO, BASE]);
+      marca("tarjeta");
       await p.waitForTimeout(ms);
     },
-    async quitarTarjeta() { await p.evaluate(() => document.getElementById("v-tarjeta").classList.remove("v-on")); await p.waitForTimeout(420); },
+    async quitarTarjeta() { marca("quitar"); await p.evaluate(() => document.getElementById("v-tarjeta").classList.remove("v-on")); await p.waitForTimeout(420); },
     async mostrarImagen(rutaArchivo, titulo, ms = 2600) {
       const b64 = fs.readFileSync(rutaArchivo).toString("base64");
       await p.evaluate(([src, t]) => { const v = document.getElementById("v-imagen"); v.querySelector("img").src = src; v.querySelector("p").textContent = t; v.classList.add("v-on"); }, [`data:image/png;base64,${b64}`, titulo]);
+      marca("imagen");
       await p.waitForTimeout(ms);
-      await p.evaluate(() => document.getElementById("v-imagen").classList.remove("v-on"));
+      marca("salida"); await p.evaluate(() => document.getElementById("v-imagen").classList.remove("v-on"));
       await p.waitForTimeout(400);
     },
   };
@@ -214,6 +224,10 @@ export async function grabar(nombre, escenario, { ancho = 360, alto = 640, escal
   lineas.push(`file '${path.join(dir, `${String(cuadros.length - 1).padStart(5, "0")}.jpg`).replace(/\\/g, "/")}'`);
   fs.writeFileSync(path.join(dir, "lista.txt"), lineas.join("\n"));
   const mp4 = path.join(SALIDA, `${nombre}.mp4`);
+  const tCero = cuadros[0].t;
+  fs.writeFileSync(path.join(SALIDA, `${nombre}.eventos.json`), JSON.stringify({
+    eventos: eventos.map((e) => ({ t: +(e.t - tCero).toFixed(3), tipo: e.tipo })).filter((e) => e.t >= 0).sort((a, b) => a.t - b.t),
+  }, null, 1));
   execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", path.join(dir, "lista.txt"),
     "-vf", `fps=30,scale=${ancho * escala}:${alto * escala}:flags=lanczos,format=yuv420p`, "-c:v", "libx264", "-preset", "slow", "-crf", "17", "-movflags", "+faststart", mp4]);
   console.log(`${nombre}: ${cuadros.length} cuadros, ${duracion.toFixed(1)} s → ${mp4}${errores.length ? `\n  errores: ${errores.join(" | ")}` : ""}`);
